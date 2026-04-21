@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: crm_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: crmuser
+      POSTGRES_PASSWORD: crmpassword
+      POSTGRES_DB: crmdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crmuser -d crmdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: crm_app
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      DATABASE_URL: "postgresql://crmuser:crmpassword@db:5432/crmdb?schema=public"
+      NEXTAUTH_SECRET: "super-secret-key-for-crm-app-change-in-prod"
+      NEXT_PUBLIC_APP_URL: "http://localhost:3001"
+      DEFAULT_ORG_ID: "org_apex_business_solutions"
+      NODE_ENV: "production"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

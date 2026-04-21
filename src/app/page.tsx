@@ -1,12 +1,27 @@
-import { MadeWithDyad } from "@/components/made-with-dyad";
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/auth-context';
+import { Loader2 } from 'lucide-react';
 
 export default function Home() {
+  const { isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (isAuthenticated) {
+        router.replace('/dashboard');
+      } else {
+        router.replace('/login');
+      }
+    }
+  }, [isAuthenticated, isLoading, router]);
+
   return (
-    <div className="grid grid-rows-[1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-1 items-center sm:items-start">
-        <h1>Blank page</h1>
-      </main>
-      <MadeWithDyad />
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
     </div>
   );
 }

@@ -1,0 +1,23 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: crm_postgres_dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: crmuser
+      POSTGRES_PASSWORD: crmpassword
+      POSTGRES_DB: crmdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crmuser -d crmdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_dev_data:
