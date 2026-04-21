@@ -293,8 +293,8 @@ export function LeadForm({
             <FormItem>
               <FormLabel className="text-gray-300">Assigned To</FormLabel>
               <Select
-                onValueChange={field.onChange}
-                value={field.value ?? ''}
+                onValueChange={(v) => field.onChange(v === 'unassigned' ? null : v)}
+                value={field.value ?? 'unassigned'}
               >
                 <FormControl>
                   <SelectTrigger className="bg-gray-800 border-gray-700 text-gray-100">
@@ -302,7 +302,7 @@ export function LeadForm({
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent className="bg-gray-800 border-gray-700">
-                  <SelectItem value="">Unassigned</SelectItem>
+                  <SelectItem value="unassigned">Unassigned</SelectItem>
                   {users
                     .filter((u) => u.isActive)
                     .map((u) => (

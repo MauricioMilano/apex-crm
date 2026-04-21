@@ -63,7 +63,7 @@ export default function FormsPage() {
       isActive: false,
       submissionsCount: 0,
     });
-    router.push(`/dashboard/forms/builder/${created.id}`);
+    router.push(`/forms/builder/${created.id}`);
   };
 
   const handleCopyEmbed = (form: Form) => {
@@ -140,7 +140,7 @@ export default function FormsPage() {
                     >
                       <DropdownMenuItem
                         onClick={() =>
-                          router.push(`/dashboard/forms/builder/${form.id}`)
+                          router.push(`/forms/builder/${form.id}`)
                         }
                         className="text-gray-200 hover:bg-gray-800 cursor-pointer"
                       >

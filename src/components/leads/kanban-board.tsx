@@ -118,8 +118,10 @@ export function KanbanBoard({ onNewLead }: KanbanBoardProps) {
       const emailMatch = lead.email?.toLowerCase() ?? '';
       const q = search.toLowerCase();
       if (q && !fullName.includes(q) && !emailMatch.includes(q)) return false;
-      if (filterAssignee && filterAssignee !== 'all' && lead.assignedTo !== filterAssignee)
-        return false;
+      if (filterAssignee && filterAssignee !== 'all') {
+        if (filterAssignee === 'unassigned' && lead.assignedTo) return false;
+        if (filterAssignee !== 'unassigned' && lead.assignedTo !== filterAssignee) return false;
+      }
       if (filterSource && filterSource !== 'all' && lead.source !== filterSource)
         return false;
       return true;
@@ -266,7 +268,7 @@ export function KanbanBoard({ onNewLead }: KanbanBoardProps) {
           </SelectTrigger>
           <SelectContent className="bg-gray-800 border-gray-700">
             <SelectItem value="all">All Assignees</SelectItem>
-            <SelectItem value="">Unassigned</SelectItem>
+            <SelectItem value="unassigned">Unassigned</SelectItem>
             {(users ?? [])
               .filter((u) => u.isActive)
               .map((u) => (

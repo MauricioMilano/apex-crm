@@ -23,7 +23,7 @@ export default function FormBuilderPage({ params }: PageProps) {
 
   const handleSave = (_saved: Form) => {
     toast.success('Form saved successfully');
-    router.push('/dashboard/forms');
+    router.push('/forms');
   };
 
   return (
@@ -32,7 +32,7 @@ export default function FormBuilderPage({ params }: PageProps) {
       <div className="flex items-center gap-1.5 px-6 py-3 border-b border-gray-800 text-sm text-gray-500 shrink-0">
         <FileText className="h-4 w-4" />
         <Link
-          href="/dashboard/forms"
+          href="/forms"
           className="hover:text-gray-300 transition-colors"
         >
           Forms
