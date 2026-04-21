@@ -106,7 +106,7 @@ export function KanbanBoard({ onNewLead }: KanbanBoardProps) {
 
   // Sorted statuses
   const sortedStatuses = useMemo(
-    () => [...leadStatuses].sort((a, b) => a.order - b.order),
+    () => [...(leadStatuses ?? [])].sort((a, b) => a.order - b.order),
     [leadStatuses],
   );
 
@@ -137,7 +137,7 @@ export function KanbanBoard({ onNewLead }: KanbanBoardProps) {
 
   // Sorted leads for list view
   const sortedLeads = useMemo(() => {
-    const statusMap = Object.fromEntries(leadStatuses.map((s) => [s.id, s]));
+    const statusMap = Object.fromEntries((leadStatuses ?? []).map((s) => [s.id, s]));
     return [...filteredLeads].sort((a, b) => {
       let cmp = 0;
       switch (sortKey) {
@@ -267,7 +267,7 @@ export function KanbanBoard({ onNewLead }: KanbanBoardProps) {
           <SelectContent className="bg-gray-800 border-gray-700">
             <SelectItem value="all">All Assignees</SelectItem>
             <SelectItem value="">Unassigned</SelectItem>
-            {users
+            {(users ?? [])
               .filter((u) => u.isActive)
               .map((u) => (
                 <SelectItem key={u.id} value={u.id}>
@@ -480,7 +480,7 @@ export function KanbanBoard({ onNewLead }: KanbanBoardProps) {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-1 flex-wrap">
-                        {lead.tags.slice(0, 2).map((tag) => (
+                        {(lead.tags ?? []).slice(0, 2).map((tag) => (
                           <Badge
                             key={tag}
                             variant="outline"
@@ -489,9 +489,9 @@ export function KanbanBoard({ onNewLead }: KanbanBoardProps) {
                             {tag}
                           </Badge>
                         ))}
-                        {lead.tags.length > 2 && (
+                        {(lead.tags ?? []).length > 2 && (
                           <span className="text-xs text-gray-500">
-                            +{lead.tags.length - 2}
+                            +{(lead.tags ?? []).length - 2}
                           </span>
                         )}
                       </div>

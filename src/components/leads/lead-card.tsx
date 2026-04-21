@@ -151,7 +151,7 @@ export function LeadCard({
               {lead.source}
             </Badge>
           )}
-          {lead.tags.slice(0, 2).map((tag) => (
+          {(lead.tags ?? []).slice(0, 2).map((tag) => (
             <Badge
               key={tag}
               variant="outline"
@@ -160,9 +160,9 @@ export function LeadCard({
               {tag}
             </Badge>
           ))}
-          {lead.tags.length > 2 && (
+          {(lead.tags ?? []).length > 2 && (
             <span className="text-xs text-gray-500">
-              +{lead.tags.length - 2}
+              +{(lead.tags ?? []).length - 2}
             </span>
           )}
         </div>

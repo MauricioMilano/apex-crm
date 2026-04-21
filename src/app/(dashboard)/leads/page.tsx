@@ -33,12 +33,12 @@ export default function LeadsPage() {
   const [newLeadOpen, setNewLeadOpen] = useState(false);
 
   const sortedStatuses = useMemo(
-    () => [...leadStatuses].sort((a, b) => a.order - b.order),
+    () => [...(leadStatuses ?? [])].sort((a, b) => a.order - b.order),
     [leadStatuses],
   );
 
   const totalValue = useMemo(
-    () => leads.reduce((sum, l) => sum + (l.value ?? 0), 0),
+    () => (leads ?? []).reduce((sum, l) => sum + (l.value ?? 0), 0),
     [leads],
   );
 

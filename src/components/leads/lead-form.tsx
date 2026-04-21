@@ -75,7 +75,7 @@ export function LeadForm({
       statusId:
         lead?.statusId ?? defaultStatusId ?? leadStatuses[0]?.id ?? '',
       assignedTo: lead?.assignedTo ?? '',
-      tags: lead?.tags.join(', ') ?? '',
+      tags: lead?.tags?.join(', ') ?? '',
       notes: lead?.notes ?? '',
       value: lead?.value != null ? String(lead.value) : '',
     },

@@ -72,7 +72,7 @@ export default function RegisterPage() {
       });
       if (success) {
         toast.success('Account created! Welcome to ApexCRM.');
-        router.push('/dashboard');
+        router.push('/');
       } else {
         toast.error(
           'Registration failed. An account with this email may already exist.',
