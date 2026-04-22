@@ -44,33 +44,33 @@ const navSections: NavSection[] = [
   {
     title: 'Overview',
     items: [
-      { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+      { label: 'Dashboard', href: '/', icon: LayoutDashboard },
     ],
   },
   {
     title: 'Sales',
     items: [
-      { label: 'Leads', href: '/dashboard/leads', icon: Users2 },
-      { label: 'Clients', href: '/dashboard/clients', icon: UserCheck },
+      { label: 'Leads', href: '/leads', icon: Users2 },
+      { label: 'Clients', href: '/clients', icon: UserCheck },
     ],
   },
   {
     title: 'Scheduling',
     items: [
-      { label: 'Calendar', href: '/dashboard/calendar', icon: CalendarDays },
-      { label: 'Appointments', href: '/dashboard/appointments', icon: Clock },
+      { label: 'Calendar', href: '/calendar', icon: CalendarDays },
+      { label: 'Appointments', href: '/appointments', icon: Clock },
     ],
   },
   {
     title: 'Marketing',
     items: [
-      { label: 'Forms', href: '/dashboard/forms', icon: FileText },
+      { label: 'Forms', href: '/forms', icon: FileText },
     ],
   },
   {
     title: 'Admin',
     items: [
-      { label: 'Settings', href: '/dashboard/settings', icon: Settings },
+      { label: 'Settings', href: '/settings', icon: Settings },
     ],
   },
 ];
@@ -133,8 +133,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               <ul className="space-y-0.5">
                 {section.items.map((item) => {
                   const isActive =
-                    item.href === '/dashboard'
-                      ? pathname === '/dashboard'
+                    item.href === '/'
+                      ? pathname === '/'
                       : pathname.startsWith(item.href);
                   const IconComponent = item.icon;
 

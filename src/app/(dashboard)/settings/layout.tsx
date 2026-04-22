@@ -14,13 +14,13 @@ import {
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { label: 'General', href: '/dashboard/settings', icon: Settings },
-  { label: 'Business Hours', href: '/dashboard/settings/hours', icon: Clock },
-  { label: 'Services', href: '/dashboard/settings/services', icon: Wrench },
-  { label: 'Team', href: '/dashboard/settings/team', icon: Users },
-  { label: 'Locations', href: '/dashboard/settings/locations', icon: MapPin },
-  { label: 'Webhooks', href: '/dashboard/settings/webhooks', icon: Webhook },
-  { label: 'API Keys', href: '/dashboard/settings/api', icon: KeyRound },
+  { label: 'General', href: '/settings', icon: Settings },
+  { label: 'Business Hours', href: '/settings/hours', icon: Clock },
+  { label: 'Services', href: '/settings/services', icon: Wrench },
+  { label: 'Team', href: '/settings/team', icon: Users },
+  { label: 'Locations', href: '/settings/locations', icon: MapPin },
+  { label: 'Webhooks', href: '/settings/webhooks', icon: Webhook },
+  { label: 'API Keys', href: '/settings/api', icon: KeyRound },
 ];
 
 export default function SettingsLayout({
@@ -41,8 +41,8 @@ export default function SettingsLayout({
           <nav className="flex flex-col gap-0.5">
             {navItems.map(({ label, href, icon: Icon }) => {
               const isActive =
-                href === '/dashboard/settings'
-                  ? pathname === '/dashboard/settings'
+                href === '/settings'
+                  ? pathname === '/settings'
                   : pathname.startsWith(href);
               return (
                 <Link

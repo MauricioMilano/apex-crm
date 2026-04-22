@@ -17,13 +17,13 @@ import {
 import { useAuth } from '@/contexts/auth-context';
 
 const ROUTE_TITLES: Record<string, string> = {
-  '/dashboard': 'Dashboard',
-  '/dashboard/leads': 'Leads',
-  '/dashboard/clients': 'Clients',
-  '/dashboard/calendar': 'Calendar',
-  '/dashboard/appointments': 'Appointments',
-  '/dashboard/forms': 'Forms',
-  '/dashboard/settings': 'Settings',
+  '/': 'Dashboard',
+  '/leads': 'Leads',
+  '/clients': 'Clients',
+  '/calendar': 'Calendar',
+  '/appointments': 'Appointments',
+  '/forms': 'Forms',
+  '/settings': 'Settings',
 };
 
 interface HeaderProps {
@@ -122,14 +122,14 @@ export function Header({ onMenuClick }: HeaderProps) {
           <DropdownMenuSeparator className="bg-gray-800" />
           <DropdownMenuItem
             className="gap-2 cursor-pointer hover:bg-gray-800 focus:bg-gray-800"
-            onClick={() => router.push('/dashboard/settings')}
+            onClick={() => router.push('/settings')}
           >
             <User className="h-4 w-4" />
             Profile
           </DropdownMenuItem>
           <DropdownMenuItem
             className="gap-2 cursor-pointer hover:bg-gray-800 focus:bg-gray-800"
-            onClick={() => router.push('/dashboard/settings')}
+            onClick={() => router.push('/settings')}
           >
             <Settings className="h-4 w-4" />
             Settings

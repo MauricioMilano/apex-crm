@@ -130,7 +130,7 @@ export default function AppointmentDetailPage() {
 
   function handleDelete() {
     deleteAppointment(appt!.id);
-    router.push('/dashboard/appointments');
+    router.push('/appointments');
   }
 
   const canManage =

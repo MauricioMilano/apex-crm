@@ -120,10 +120,9 @@ export default function LeadDetailPage() {
         <p className="text-gray-400 text-lg">Lead not found</p>
         <Button
           variant="outline"
-          onClick={() => router.push('/dashboard/leads')}
+          onClick={() => router.push('/leads')}
           className="border-gray-700 text-gray-300 hover:bg-gray-800"
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Leads
         </Button>
       </div>
@@ -146,7 +145,7 @@ export default function LeadDetailPage() {
 
   const handleDelete = () => {
     deleteLead(lead.id);
-    router.push('/dashboard/leads');
+    router.push('/leads');
   };
 
   const handleStatusChange = (statusId: string) => {
@@ -179,7 +178,7 @@ export default function LeadDetailPage() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => router.push('/dashboard/leads')}
+          onClick={() => router.push('/leads')}
           className="text-gray-400 hover:text-gray-100 hover:bg-gray-800 -ml-2"
         >
           <ArrowLeft className="h-4 w-4 mr-1.5" />

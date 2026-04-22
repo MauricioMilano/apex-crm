@@ -130,14 +130,14 @@ export default function DashboardPage() {
       {/* Quick actions */}
       <div className="flex flex-wrap gap-3">
         <Button
-          onClick={() => router.push('/dashboard/leads')}
+          onClick={() => router.push('/leads')}
           className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
         >
           <Plus className="h-4 w-4" />
           Add Lead
         </Button>
         <Button
-          onClick={() => router.push('/dashboard/appointments')}
+          onClick={() => router.push('/appointments')}
           variant="outline"
           className="border-gray-700 text-gray-300 hover:bg-gray-800 gap-2"
         >
@@ -145,7 +145,7 @@ export default function DashboardPage() {
           New Appointment
         </Button>
         <Button
-          onClick={() => router.push('/dashboard/clients')}
+          onClick={() => router.push('/clients')}
           variant="outline"
           className="border-gray-700 text-gray-300 hover:bg-gray-800 gap-2"
         >
@@ -198,7 +198,7 @@ export default function DashboardPage() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => router.push('/dashboard/leads')}
+              onClick={() => router.push('/leads')}
               className="text-blue-400 hover:text-blue-300 hover:bg-blue-400/10 text-xs"
             >
               View all
@@ -280,7 +280,7 @@ export default function DashboardPage() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => router.push('/dashboard/appointments')}
+              onClick={() => router.push('/appointments')}
               className="text-blue-400 hover:text-blue-300 hover:bg-blue-400/10 text-xs"
             >
               View all

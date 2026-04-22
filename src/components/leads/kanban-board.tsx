@@ -210,7 +210,7 @@ export function KanbanBoard({ onNewLead }: KanbanBoardProps) {
   };
 
   const handleClickLead = (lead: Lead) => {
-    router.push(`/dashboard/leads/${lead.id}`);
+    router.push(`/leads/${lead.id}`);
   };
 
   const handleFormSubmit = (
