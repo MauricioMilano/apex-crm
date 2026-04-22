@@ -19,18 +19,7 @@ import type {
   Webhook,
   ApiKey,
 } from '@/types';
-import {
-  mockLeads,
-  mockClients,
-  mockAppointments,
-  mockServices,
-  mockForms,
-  mockLeadStatuses,
-  mockUsers,
-  mockLocations,
-  mockWebhooks,
-  mockApiKeys,
-} from '@/lib/mock-data';
+// mock-data removed: use server APIs instead
 
 // ─── Storage keys ─────────────────────────────────────────────────────────────
 
@@ -211,16 +200,16 @@ function useCRUDState<T extends { id: string; createdAt: string; updatedAt: stri
 // ─── Provider ────────────────────────────────────────────────────────────────
 
 export function CRMProvider({ children }: { children: React.ReactNode }) {
-  const leads = useCRUDState<Lead>(KEYS.leads, mockLeads, 'lead');
-  const clients = useCRUDState<Client>(KEYS.clients, mockClients, 'client');
-  const appointments = useCRUDState<Appointment>(KEYS.appointments, mockAppointments, 'apt');
-  const services = useCRUDState<Service>(KEYS.services, mockServices, 'svc');
-  const forms = useCRUDState<Form>(KEYS.forms, mockForms, 'form');
-  const leadStatuses = useCRUDState<LeadStatus>(KEYS.leadStatuses, mockLeadStatuses, 'status');
-  const users = useCRUDState<User>(KEYS.users, mockUsers, 'user');
-  const locations = useCRUDState<Location>(KEYS.locations, mockLocations, 'loc');
-  const webhooks = useCRUDState<Webhook>(KEYS.webhooks, mockWebhooks, 'wh');
-  const apiKeys = useCRUDState<ApiKey>(KEYS.apiKeys, mockApiKeys, 'key');
+  const leads = useCRUDState<Lead>(KEYS.leads, [], 'lead');
+  const clients = useCRUDState<Client>(KEYS.clients, [], 'client');
+  const appointments = useCRUDState<Appointment>(KEYS.appointments, [], 'apt');
+  const services = useCRUDState<Service>(KEYS.services, [], 'svc');
+  const forms = useCRUDState<Form>(KEYS.forms, [], 'form');
+  const leadStatuses = useCRUDState<LeadStatus>(KEYS.leadStatuses, [], 'status');
+  const users = useCRUDState<User>(KEYS.users, [], 'user');
+  const locations = useCRUDState<Location>(KEYS.locations, [], 'loc');
+  const webhooks = useCRUDState<Webhook>(KEYS.webhooks, [], 'wh');
+  const apiKeys = useCRUDState<ApiKey>(KEYS.apiKeys, [], 'key');
 
   const resetToMockData = useCallback(() => {
     Object.values(KEYS).forEach((k) => {
@@ -230,17 +219,52 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
         // ignore
       }
     });
-    leads.setItems([...mockLeads]);
-    clients.setItems([...mockClients]);
-    appointments.setItems([...mockAppointments]);
-    services.setItems([...mockServices]);
-    forms.setItems([...mockForms]);
-    leadStatuses.setItems([...mockLeadStatuses]);
-    users.setItems([...mockUsers]);
-    locations.setItems([...mockLocations]);
-    webhooks.setItems([...mockWebhooks]);
-    apiKeys.setItems([...mockApiKeys]);
+    // fall back to empty arrays when resetting to mock
+    leads.setItems([]);
+    clients.setItems([]);
+    appointments.setItems([]);
+    services.setItems([]);
+    forms.setItems([]);
+    leadStatuses.setItems([]);
+    users.setItems([]);
+    locations.setItems([]);
+    webhooks.setItems([]);
+    apiKeys.setItems([]);
   }, [leads, clients, appointments, services, forms, leadStatuses, users, locations, webhooks, apiKeys]);
+
+  // Load initial data from server APIs
+  useEffect(() => {
+    let mounted = true;
+    async function fetchAll() {
+      try {
+        const [leadsRes, clientsRes, apptsRes, servicesRes, formsRes, usersRes, locsRes] = await Promise.all([
+          fetch('/api/v1/leads'),
+          fetch('/api/v1/clients'),
+          fetch('/api/v1/appointments'),
+          fetch('/api/v1/services'),
+          fetch('/api/v1/forms'),
+          fetch('/api/v1/users'),
+          fetch('/api/v1/locations'),
+        ])
+
+        if (!mounted) return
+
+        if (leadsRes.ok) leads.setItems(await leadsRes.json())
+        if (clientsRes.ok) clients.setItems(await clientsRes.json())
+        if (apptsRes.ok) appointments.setItems(await apptsRes.json())
+        if (servicesRes.ok) services.setItems(await servicesRes.json())
+        if (formsRes.ok) forms.setItems(await formsRes.json())
+        if (usersRes.ok) users.setItems(await usersRes.json())
+        if (locsRes.ok) locations.setItems(await locsRes.json())
+      } catch {
+        // best-effort: leave local state as-is
+      }
+    }
+    void fetchAll()
+    return () => {
+      mounted = false
+    }
+  }, [leads, clients, appointments, services, forms, users, locations]);
 
   const value: CRMContextValue = {
     // State

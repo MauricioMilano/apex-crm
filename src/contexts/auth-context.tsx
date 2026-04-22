@@ -8,7 +8,7 @@ import React, {
   useCallback,
 } from 'react';
 import type { User, UserRole } from '@/types';
-import { mockUsers } from '@/lib/mock-data';
+import { getCurrentUser, login as loginAction, logout as logoutAction, register as registerAction } from '@/actions/auth-client';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -46,12 +46,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const storedId = localStorage.getItem(AUTH_STORAGE_KEY);
       if (storedId) {
-        const found = mockUsers.find((u) => u.id === storedId && u.isActive);
-        if (found) {
-          setCurrentUser(found);
-        } else {
-          localStorage.removeItem(AUTH_STORAGE_KEY);
-        }
+        ;(async () => {
+          try {
+            const res = await getCurrentUser(storedId)
+            if (res.success) {
+              setCurrentUser(res.data)
+            } else {
+              localStorage.removeItem(AUTH_STORAGE_KEY)
+            }
+          } catch {
+            localStorage.removeItem(AUTH_STORAGE_KEY)
+          }
+        })()
       }
     } catch {
       // localStorage unavailable (e.g. SSR guard)
@@ -62,38 +68,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = useCallback(
     async (email: string, password: string): Promise<boolean> => {
-      // Simulate network latency
-      await new Promise<void>((resolve) => setTimeout(resolve, 300));
-
-      const user = mockUsers.find(
-        (u) =>
-          u.email.toLowerCase() === email.toLowerCase() &&
-          u.passwordHash === password &&
-          u.isActive,
-      );
-
-      if (user) {
-        setCurrentUser(user);
+      try {
+        const res = await loginAction(email, password)
+        if (!res.success) return false
+        const user = res.data
+        setCurrentUser(user)
         try {
-          localStorage.setItem(AUTH_STORAGE_KEY, user.id);
+          localStorage.setItem(AUTH_STORAGE_KEY, user.id)
         } catch {
           // ignore storage errors
         }
-        return true;
+        return true
+      } catch {
+        return false
       }
-
-      return false;
     },
     [],
   );
 
   const logout = useCallback(() => {
-    setCurrentUser(null);
+    setCurrentUser(null)
     try {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
+      localStorage.removeItem(AUTH_STORAGE_KEY)
     } catch {
       // ignore storage errors
     }
+    // best-effort server parity
+    void logoutAction()
   }, []);
 
   /**
@@ -103,37 +104,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
    */
   const register = useCallback(
     async (data: RegisterData): Promise<boolean> => {
-      await new Promise<void>((resolve) => setTimeout(resolve, 300));
-
-      const exists = mockUsers.some(
-        (u) => u.email.toLowerCase() === data.email.toLowerCase(),
-      );
-      if (exists) return false;
-
-      const newUser: User = {
-        id: `user_${Date.now()}`,
-        organizationId: 'org_1',
-        email: data.email,
-        passwordHash: data.password,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        role: data.role ?? 'employee',
-        isActive: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      // Push into the shared mock array so subsequent logins work
-      mockUsers.push(newUser);
-
-      setCurrentUser(newUser);
       try {
-        localStorage.setItem(AUTH_STORAGE_KEY, newUser.id);
+        const res = await registerAction({
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          password: data.password,
+          organizationName: 'Personal',
+        })
+        if (!res.success) return false
+        const user = res.data
+        setCurrentUser(user)
+        try {
+          localStorage.setItem(AUTH_STORAGE_KEY, user.id)
+        } catch {
+          // ignore storage errors
+        }
+        return true
       } catch {
-        // ignore storage errors
+        return false
       }
-
-      return true;
     },
     [],
   );
