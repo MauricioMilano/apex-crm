@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useCRM } from '@/contexts/crm-context';
 import { ClientForm } from '@/components/clients/client-form';
-import { Client, AppointmentStatus } from '@/types';
+import { Client, AppointmentStatus, ClientFile } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -76,15 +76,6 @@ const APPOINTMENT_STATUS_STYLES: Record<AppointmentStatus, string> = {
   no_show: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
 };
 
-// ─── Mock files ────────────────────────────────────────────────────────────────
-
-const MOCK_FILES = [
-  { id: '1', name: 'Contract_2026.pdf', size: '248 KB', type: 'pdf', date: '2026-01-15' },
-  { id: '2', name: 'Invoice_Q1.xlsx', size: '82 KB', type: 'xlsx', date: '2026-03-31' },
-  { id: '3', name: 'Proposal_v2.pdf', size: '1.2 MB', type: 'pdf', date: '2026-02-10' },
-  { id: '4', name: 'Logo_Assets.png', size: '430 KB', type: 'image', date: '2025-12-05' },
-];
-
 function FileIcon({ type }: { type: string }) {
   if (type === 'image') return <Image className="h-5 w-5 text-blue-400" />;
   if (type === 'xlsx') return <FileSpreadsheet className="h-5 w-5 text-emerald-400" />;
@@ -112,6 +103,28 @@ export default function ClientDetailPage() {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
+  const [clientFiles, setClientFiles] = useState<ClientFile[]>([]);
+
+  // Load client files from server (client details include files)
+  useEffect(() => {
+    let mounted = true;
+    async function fetchClientFiles() {
+      try {
+        const res = await fetch(`/api/v1/clients/${params.id}`);
+        if (!mounted) return;
+        if (!res.ok) return;
+        const data = await res.json();
+        setClientFiles(data.files ?? []);
+      } catch {
+        // ignore
+      }
+    }
+    if (params?.id) void fetchClientFiles();
+    return () => {
+      mounted = false;
+    };
+  }, [params.id]);
+
   // Notes state — initialise from client.notes if present
   const [noteInput, setNoteInput] = useState('');
   const [notesHistory, setNotesHistory] = useState<
@@ -138,18 +151,18 @@ export default function ClientDetailPage() {
   }
 
   const fullName = `${client.firstName} ${client.lastName}`;
-  const initials = `${client.firstName[0]}${client.lastName[0]}`.toUpperCase();
+  const initials = `${client.firstName?.[0] ?? ''}${client.lastName?.[0] ?? ''}`.toUpperCase() || '?';
   const avatarColor = getAvatarColor(fullName);
 
   function handleEditSubmit(data: Omit<Client, 'id' | 'createdAt' | 'updatedAt'>) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    updateClient(client!.id, data);
+    void updateClient(client!.id, data);
     setEditOpen(false);
   }
 
   function handleDelete() {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    deleteClient(client!.id);
+    void deleteClient(client!.id);
     router.push('/clients');
   }
 
@@ -429,7 +442,7 @@ export default function ClientDetailPage() {
                 Upload File
               </Button>
             </div>
-            {MOCK_FILES.map((file) => (
+            {clientFiles.map((file) => (
               <Card key={file.id} className="bg-card border-border">
                 <CardContent className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -439,8 +452,8 @@ export default function ClientDetailPage() {
                     <div>
                       <p className="text-sm font-medium">{file.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {file.size} · Uploaded{' '}
-                        {format(new Date(file.date), 'MMM d, yyyy')}
+                        {file.size ? `${file.size} · ` : ''}
+                        Uploaded {format(new Date(file.createdAt), 'MMM d, yyyy')}
                       </p>
                     </div>
                   </div>

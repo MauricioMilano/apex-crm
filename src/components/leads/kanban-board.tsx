@@ -175,7 +175,7 @@ export function KanbanBoard({ onNewLead }: KanbanBoardProps) {
   const handleDrop = (leadId: string, statusId: string) => {
     const lead = leads.find((l) => l.id === leadId);
     if (lead && lead.statusId !== statusId) {
-      updateLead(leadId, { statusId });
+      void updateLead(leadId, { statusId });
     }
   };
 
@@ -198,7 +198,7 @@ export function KanbanBoard({ onNewLead }: KanbanBoardProps) {
 
   const confirmDelete = () => {
     if (deleteTarget) {
-      deleteLead(deleteTarget);
+      void deleteLead(deleteTarget);
       setDeleteTarget(null);
     }
   };
@@ -217,9 +217,9 @@ export function KanbanBoard({ onNewLead }: KanbanBoardProps) {
     data: Omit<Lead, 'id' | 'createdAt' | 'updatedAt'>,
   ) => {
     if (editingLead) {
-      updateLead(editingLead.id, data);
+      void updateLead(editingLead.id, data);
     } else {
-      addLead(data);
+      void addLead(data);
     }
     setFormOpen(false);
     setEditingLead(undefined);
@@ -461,8 +461,8 @@ export function KanbanBoard({ onNewLead }: KanbanBoardProps) {
                         <div className="flex items-center gap-2">
                           <Avatar className="h-6 w-6">
                             <AvatarFallback className="text-[10px] bg-blue-600 text-white">
-                              {assignedUser.firstName[0]}
-                              {assignedUser.lastName[0]}
+                              {assignedUser.firstName?.[0] ?? ''}
+                              {assignedUser.lastName?.[0] ?? ''}
                             </AvatarFallback>
                           </Avatar>
                           <span className="text-sm text-gray-300">

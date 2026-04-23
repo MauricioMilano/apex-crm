@@ -55,8 +55,8 @@ export default function FormsPage() {
   const [embedForm, setEmbedForm] = useState<Form | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Form | null>(null);
 
-  const handleNewForm = () => {
-    const created = addForm({
+  const handleNewForm = async () => {
+    const created = await addForm({
       organizationId: 'org_1',
       name: 'Untitled Form',
       fields: [],

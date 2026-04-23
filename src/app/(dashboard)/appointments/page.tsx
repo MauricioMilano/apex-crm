@@ -345,7 +345,7 @@ export default function AppointmentsPage() {
                             className="h-7 w-7 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-500/20"
                             title="Confirm"
                             onClick={() =>
-                              updateAppointment(appt.id, { status: 'confirmed' })
+                              void updateAppointment(appt.id, { status: 'confirmed' })
                             }
                           >
                             <CheckCircle className="h-3.5 w-3.5" />
@@ -358,7 +358,7 @@ export default function AppointmentsPage() {
                             className="h-7 w-7 p-0 text-green-400 hover:text-green-300 hover:bg-green-500/20"
                             title="Mark Complete"
                             onClick={() =>
-                              updateAppointment(appt.id, { status: 'completed' })
+                              void updateAppointment(appt.id, { status: 'completed' })
                             }
                           >
                             <CheckCircle className="h-3.5 w-3.5" />
@@ -372,7 +372,7 @@ export default function AppointmentsPage() {
                             className="h-7 w-7 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/20"
                             title="Cancel"
                             onClick={() =>
-                              updateAppointment(appt.id, { status: 'cancelled' })
+                              void updateAppointment(appt.id, { status: 'cancelled' })
                             }
                           >
                             <XCircle className="h-3.5 w-3.5" />
@@ -441,7 +441,7 @@ export default function AppointmentsPage() {
               className="bg-red-600 hover:bg-red-700 text-white"
               onClick={() => {
                 if (deleteId) {
-                  deleteAppointment(deleteId);
+                  void deleteAppointment(deleteId);
                   setDeleteId(null);
                 }
               }}

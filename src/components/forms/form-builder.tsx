@@ -157,7 +157,7 @@ export function FormBuilder({ formId, onSave }: FormBuilderProps) {
 
   // ── Save ───────────────────────────────────────────────────────────────────
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const data = {
       organizationId: existingForm?.organizationId ?? 'org_1',
       name: formName,
@@ -169,10 +169,10 @@ export function FormBuilder({ formId, onSave }: FormBuilderProps) {
     };
 
     if (existingForm) {
-      updateForm(existingForm.id, data);
+      void updateForm(existingForm.id, data);
       onSave?.({ ...existingForm, ...data });
     } else {
-      const created = addForm(data);
+      const created = await addForm(data);
       onSave?.(created);
     }
   };

@@ -85,7 +85,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const { currentUser, logout } = useAuth();
 
   const initials = currentUser
-    ? `${currentUser.firstName[0]}${currentUser.lastName[0]}`.toUpperCase()
+    ? `${currentUser.firstName?.[0] ?? ''}${currentUser.lastName?.[0] ?? ''}`.toUpperCase() || '?'
     : '?';
 
   return (

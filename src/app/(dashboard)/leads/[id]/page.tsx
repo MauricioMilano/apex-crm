@@ -132,28 +132,28 @@ export default function LeadDetailPage() {
   const status = leadStatuses.find((s) => s.id === lead.statusId);
   const assignedUser = users.find((u) => u.id === lead.assignedTo);
   const assignedInitials = assignedUser
-    ? `${assignedUser.firstName[0]}${assignedUser.lastName[0]}`.toUpperCase()
+    ? `${assignedUser.firstName?.[0] ?? ''}${assignedUser.lastName?.[0] ?? ''}`.toUpperCase() || '?'
     : null;
   const isConverted = !!lead.convertedToClientId;
 
   const handleEditSubmit = (
     data: Omit<Lead, 'id' | 'createdAt' | 'updatedAt'>,
   ) => {
-    updateLead(lead.id, data);
+    void updateLead(lead.id, data);
     setEditOpen(false);
   };
 
   const handleDelete = () => {
-    deleteLead(lead.id);
+    void deleteLead(lead.id);
     router.push('/leads');
   };
 
   const handleStatusChange = (statusId: string) => {
-    updateLead(lead.id, { statusId });
+    void updateLead(lead.id, { statusId });
   };
 
-  const handleConvertToClient = () => {
-    const newClient = addClient({
+  const handleConvertToClient = async () => {
+    const newClient = await addClient({
       organizationId: lead.organizationId,
       locationId: lead.locationId,
       assignedTo: lead.assignedTo,
@@ -167,7 +167,7 @@ export default function LeadDetailPage() {
       tags: lead.tags,
       isActive: true,
     });
-    updateLead(lead.id, { convertedToClientId: newClient.id });
+    await updateLead(lead.id, { convertedToClientId: newClient.id });
     setConvertOpen(false);
   };
 

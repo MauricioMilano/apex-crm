@@ -270,7 +270,7 @@ export function ClientList({
                 paginated.map((c) => {
                   const fullName = `${c.firstName} ${c.lastName}`;
                   const initials =
-                    `${c.firstName[0]}${c.lastName[0]}`.toUpperCase();
+                    `${c.firstName?.[0] ?? ''}${c.lastName?.[0] ?? ''}`.toUpperCase() || '?';
                   return (
                     <TableRow key={c.id} className="hover:bg-muted/50">
                       <TableCell>

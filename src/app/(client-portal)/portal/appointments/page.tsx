@@ -73,7 +73,7 @@ export default function ClientPortalAppointmentsPage() {
   };
 
   const handleCancel = (apptId: string) => {
-    updateAppointment(apptId, {
+    void updateAppointment(apptId, {
       status: 'cancelled',
       cancelReason: 'Cancelled by client',
     });

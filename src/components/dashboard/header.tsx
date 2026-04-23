@@ -39,7 +39,7 @@ export function Header({ onMenuClick }: HeaderProps) {
   const pageTitle = ROUTE_TITLES[pathname] ?? 'Dashboard';
 
   const initials = currentUser
-    ? `${currentUser.firstName[0]}${currentUser.lastName[0]}`.toUpperCase()
+    ? `${currentUser.firstName?.[0] ?? ''}${currentUser.lastName?.[0] ?? ''}`.toUpperCase() || '?'
     : '?';
 
   const handleLogout = () => {

@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { toast } from 'sonner';
+import { getOrganization, updateOrganization } from '@/actions/settings';
 
 const STORAGE_KEY = 'crm_org_settings';
 
@@ -78,15 +79,19 @@ export default function GeneralSettingsPage() {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setSettings(JSON.parse(raw));
+      if (raw) setSettings(JSON.parse(raw) as OrgSettings);
     } catch {
       // ignore
     }
+    getOrganization('org_apex_business_solutions')
+      .then((res) => { if (res.success) setSettings((s) => ({ ...s, orgName: res.data.name })); })
+      .catch(() => {});
   }, []);
 
-  function handleSave() {
+  async function handleSave() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+      await updateOrganization('org_apex_business_solutions', { name: settings.orgName });
       toast.success('Settings saved');
     } catch {
       toast.error('Failed to save settings');

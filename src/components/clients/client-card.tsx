@@ -35,7 +35,7 @@ interface ClientCardProps {
 export function ClientCard({ client, onEdit, onDelete }: ClientCardProps) {
   const router = useRouter();
   const fullName = `${client.firstName} ${client.lastName}`;
-  const initials = `${client.firstName[0]}${client.lastName[0]}`.toUpperCase();
+  const initials = `${client.firstName?.[0] ?? ''}${client.lastName?.[0] ?? ''}`.toUpperCase() || '?';
   const avatarColor = getAvatarColor(fullName);
 
   return (

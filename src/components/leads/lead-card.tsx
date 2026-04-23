@@ -50,7 +50,7 @@ export function LeadCard({
 }: LeadCardProps) {
   const assignedUser = users.find((u) => u.id === lead.assignedTo);
   const initials = assignedUser
-    ? `${assignedUser.firstName[0]}${assignedUser.lastName[0]}`.toUpperCase()
+    ? `${assignedUser.firstName?.[0] ?? ''}${assignedUser.lastName?.[0] ?? ''}`.toUpperCase() || '?'
     : null;
 
   return (

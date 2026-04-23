@@ -43,7 +43,7 @@ export default function LeadsPage() {
   );
 
   const handleAddLead = (data: Omit<Lead, 'id' | 'createdAt' | 'updatedAt'>) => {
-    addLead(data);
+    void addLead(data);
     setNewLeadOpen(false);
   };
 

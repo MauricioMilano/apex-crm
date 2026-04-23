@@ -79,7 +79,7 @@ export default function ClientPortalProfilePage() {
 
   const onSaveProfile = (data: ProfileFormData) => {
     if (client) {
-      updateClient(client.id, {
+      void updateClient(client.id, {
         firstName: data.firstName,
         lastName:  data.lastName,
         email:     data.email,

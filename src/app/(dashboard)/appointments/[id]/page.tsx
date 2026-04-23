@@ -229,8 +229,8 @@ export default function AppointmentDetailPage() {
           <CardContent>
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium text-sm shrink-0">
-                {client.firstName[0]}
-                {client.lastName[0]}
+                {client.firstName?.[0] ?? ''}
+                {client.lastName?.[0] ?? ''}
               </div>
               <div className="flex-1 min-w-0">
                 <Link
@@ -271,8 +271,8 @@ export default function AppointmentDetailPage() {
           <CardContent>
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center text-white font-medium text-sm shrink-0">
-                {employee.firstName[0]}
-                {employee.lastName[0]}
+                {employee.firstName?.[0] ?? ''}
+                {employee.lastName?.[0] ?? ''}
               </div>
               <div>
                 <p className="text-white font-medium">

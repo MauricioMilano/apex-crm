@@ -19,55 +19,10 @@ import type {
   Webhook,
   ApiKey,
 } from '@/types';
-// mock-data removed: use server APIs instead
-
-// ─── Storage keys ─────────────────────────────────────────────────────────────
-
-const KEYS = {
-  leads: 'crm_leads',
-  clients: 'crm_clients',
-  appointments: 'crm_appointments',
-  services: 'crm_services',
-  forms: 'crm_forms',
-  leadStatuses: 'crm_lead_statuses',
-  users: 'crm_users',
-  locations: 'crm_locations',
-  webhooks: 'crm_webhooks',
-  apiKeys: 'crm_api_keys',
-} as const;
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function loadFromStorage<T>(key: string, fallback: T[]): T[] {
-  try {
-    const raw = localStorage.getItem(key);
-    if (raw) return JSON.parse(raw) as T[];
-  } catch {
-    // corrupted data — fall through to mock
-  }
-  return fallback;
-}
-
-function saveToStorage<T>(key: string, value: T[]): void {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch {
-    // storage full or unavailable — ignore
-  }
-}
-
-function generateId(prefix: string): string {
-  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-}
-
-function now(): string {
-  return new Date().toISOString();
-}
 
 // ─── Context type ─────────────────────────────────────────────────────────────
 
 interface CRMContextValue {
-  // State
   leads: Lead[];
   clients: Client[];
   appointments: Appointment[];
@@ -79,67 +34,47 @@ interface CRMContextValue {
   webhooks: Webhook[];
   apiKeys: ApiKey[];
 
-  // Lead operations
-  addLead: (lead: Omit<Lead, 'id' | 'createdAt' | 'updatedAt'>) => Lead;
-  updateLead: (id: string, updates: Partial<Lead>) => void;
-  deleteLead: (id: string) => void;
+  addLead: (lead: Omit<Lead, 'id' | 'createdAt' | 'updatedAt'>) => Promise<Lead>;
+  updateLead: (id: string, updates: Partial<Lead>) => Promise<void>;
+  deleteLead: (id: string) => Promise<void>;
 
-  // Client operations
-  addClient: (client: Omit<Client, 'id' | 'createdAt' | 'updatedAt'>) => Client;
-  updateClient: (id: string, updates: Partial<Client>) => void;
-  deleteClient: (id: string) => void;
+  addClient: (client: Omit<Client, 'id' | 'createdAt' | 'updatedAt'>) => Promise<Client>;
+  updateClient: (id: string, updates: Partial<Client>) => Promise<void>;
+  deleteClient: (id: string) => Promise<void>;
 
-  // Appointment operations
-  addAppointment: (
-    appt: Omit<Appointment, 'id' | 'createdAt' | 'updatedAt'>,
-  ) => Appointment;
-  updateAppointment: (id: string, updates: Partial<Appointment>) => void;
-  deleteAppointment: (id: string) => void;
+  addAppointment: (appt: Omit<Appointment, 'id' | 'createdAt' | 'updatedAt'>) => Promise<Appointment>;
+  updateAppointment: (id: string, updates: Partial<Appointment>) => Promise<void>;
+  deleteAppointment: (id: string) => Promise<void>;
 
-  // Service operations
-  addService: (
-    service: Omit<Service, 'id' | 'createdAt' | 'updatedAt'>,
-  ) => Service;
-  updateService: (id: string, updates: Partial<Service>) => void;
-  deleteService: (id: string) => void;
+  addService: (service: Omit<Service, 'id' | 'createdAt' | 'updatedAt'>) => Promise<Service>;
+  updateService: (id: string, updates: Partial<Service>) => Promise<void>;
+  deleteService: (id: string) => Promise<void>;
 
-  // Form operations
-  addForm: (form: Omit<Form, 'id' | 'createdAt' | 'updatedAt'>) => Form;
-  updateForm: (id: string, updates: Partial<Form>) => void;
-  deleteForm: (id: string) => void;
+  addForm: (form: Omit<Form, 'id' | 'createdAt' | 'updatedAt'>) => Promise<Form>;
+  updateForm: (id: string, updates: Partial<Form>) => Promise<void>;
+  deleteForm: (id: string) => Promise<void>;
 
-  // Lead status operations
-  addLeadStatus: (
-    status: Omit<LeadStatus, 'id' | 'createdAt' | 'updatedAt'>,
-  ) => LeadStatus;
-  updateLeadStatus: (id: string, updates: Partial<LeadStatus>) => void;
-  deleteLeadStatus: (id: string) => void;
+  addLeadStatus: (status: Omit<LeadStatus, 'id' | 'createdAt' | 'updatedAt'>) => Promise<LeadStatus>;
+  updateLeadStatus: (id: string, updates: Partial<LeadStatus>) => Promise<void>;
+  deleteLeadStatus: (id: string) => Promise<void>;
 
-  // User operations
-  addUser: (user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) => User;
-  updateUser: (id: string, updates: Partial<User>) => void;
-  deleteUser: (id: string) => void;
+  addUser: (user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) => Promise<User>;
+  updateUser: (id: string, updates: Partial<User>) => Promise<void>;
+  deleteUser: (id: string) => Promise<void>;
 
-  // Location operations
-  addLocation: (
-    location: Omit<Location, 'id' | 'createdAt' | 'updatedAt'>,
-  ) => Location;
-  updateLocation: (id: string, updates: Partial<Location>) => void;
-  deleteLocation: (id: string) => void;
+  addLocation: (location: Omit<Location, 'id' | 'createdAt' | 'updatedAt'>) => Promise<Location>;
+  updateLocation: (id: string, updates: Partial<Location>) => Promise<void>;
+  deleteLocation: (id: string) => Promise<void>;
 
-  // Webhook operations
-  addWebhook: (
-    webhook: Omit<Webhook, 'id' | 'createdAt' | 'updatedAt'>,
-  ) => Webhook;
-  updateWebhook: (id: string, updates: Partial<Webhook>) => void;
-  deleteWebhook: (id: string) => void;
+  addWebhook: (webhook: Omit<Webhook, 'id' | 'createdAt' | 'updatedAt'>) => Promise<Webhook>;
+  updateWebhook: (id: string, updates: Partial<Webhook>) => Promise<void>;
+  deleteWebhook: (id: string) => Promise<void>;
 
-  // API key operations
-  addApiKey: (key: Omit<ApiKey, 'id' | 'createdAt' | 'updatedAt'>) => ApiKey;
-  updateApiKey: (id: string, updates: Partial<ApiKey>) => void;
-  deleteApiKey: (id: string) => void;
+  addApiKey: (key: Omit<ApiKey, 'id' | 'createdAt' | 'updatedAt'>) => Promise<ApiKey>;
+  updateApiKey: (id: string, updates: Partial<ApiKey>) => Promise<void>;
+  deleteApiKey: (id: string) => Promise<void>;
 
-  /** Wipe localStorage and reset to mock data */
+  /** Force a full reload from server */
   resetToMockData: () => void;
 }
 
@@ -147,189 +82,377 @@ interface CRMContextValue {
 
 const CRMContext = createContext<CRMContextValue | null>(null);
 
-// ─── Generic CRUD factory ─────────────────────────────────────────────────────
+// ─── API helpers ──────────────────────────────────────────────────────────────
 
-function useCRUDState<T extends { id: string; createdAt: string; updatedAt: string }>(
-  storageKey: string,
-  fallback: T[],
-  idPrefix: string,
-) {
-  const [items, setItems] = useState<T[]>(() =>
-    loadFromStorage<T>(storageKey, fallback),
-  );
+/** Unwrap { success, data } envelope if present, otherwise return as-is */
+function unwrap<T>(json: unknown): T {
+  if (
+    json !== null &&
+    typeof json === 'object' &&
+    'data' in (json as object) &&
+    'success' in (json as object)
+  ) {
+    return (json as { data: T }).data;
+  }
+  return json as T;
+}
 
-  const persist = useCallback(
-    (next: T[]) => {
-      setItems(next);
-      saveToStorage(storageKey, next);
-    },
-    [storageKey],
-  );
-
-  const add = useCallback(
-    (data: Omit<T, 'id' | 'createdAt' | 'updatedAt'>): T => {
-      const ts = now();
-      const item = { ...data, id: generateId(idPrefix), createdAt: ts, updatedAt: ts } as T;
-      persist([...items, item]);
-      return item;
-    },
-    [items, persist, idPrefix],
-  );
-
-  const update = useCallback(
-    (id: string, updates: Partial<T>): void => {
-      persist(
-        items.map((i) =>
-          i.id === id ? { ...i, ...updates, updatedAt: now() } : i,
-        ),
-      );
-    },
-    [items, persist],
-  );
-
-  const remove = useCallback(
-    (id: string): void => {
-      persist(items.filter((i) => i.id !== id));
-    },
-    [items, persist],
-  );
-
-  return { items, setItems: persist, add, update, remove };
+async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
+  const res = await fetch(url, options);
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`API error ${res.status}: ${text}`);
+  }
+  const json: unknown = await res.json();
+  return unwrap<T>(json);
 }
 
 // ─── Provider ────────────────────────────────────────────────────────────────
 
 export function CRMProvider({ children }: { children: React.ReactNode }) {
-  const leads = useCRUDState<Lead>(KEYS.leads, [], 'lead');
-  const clients = useCRUDState<Client>(KEYS.clients, [], 'client');
-  const appointments = useCRUDState<Appointment>(KEYS.appointments, [], 'apt');
-  const services = useCRUDState<Service>(KEYS.services, [], 'svc');
-  const forms = useCRUDState<Form>(KEYS.forms, [], 'form');
-  const leadStatuses = useCRUDState<LeadStatus>(KEYS.leadStatuses, [], 'status');
-  const users = useCRUDState<User>(KEYS.users, [], 'user');
-  const locations = useCRUDState<Location>(KEYS.locations, [], 'loc');
-  const webhooks = useCRUDState<Webhook>(KEYS.webhooks, [], 'wh');
-  const apiKeys = useCRUDState<ApiKey>(KEYS.apiKeys, [], 'key');
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [forms, setForms] = useState<Form[]>([]);
+  const [leadStatuses, setLeadStatuses] = useState<LeadStatus[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [webhooks, setWebhooks] = useState<Webhook[]>([]);
+  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
 
-  const resetToMockData = useCallback(() => {
-    Object.values(KEYS).forEach((k) => {
-      try {
-        localStorage.removeItem(k);
-      } catch {
-        // ignore
+  const fetchAll = useCallback(async () => {
+    try {
+      const [
+        leadsRes, clientsRes, apptsRes, servicesRes, formsRes,
+        statusesRes, usersRes, locsRes, webhooksRes, apiKeysRes,
+      ] = await Promise.allSettled([
+        fetch('/api/v1/leads'),
+        fetch('/api/v1/clients'),
+        fetch('/api/v1/appointments'),
+        fetch('/api/v1/services'),
+        fetch('/api/v1/forms'),
+        fetch('/api/v1/lead-statuses'),
+        fetch('/api/v1/users'),
+        fetch('/api/v1/locations'),
+        fetch('/api/v1/webhooks'),
+        fetch('/api/v1/api-keys'),
+      ]);
+
+      async function safeJson<T>(result: PromiseSettledResult<Response>): Promise<T[]> {
+        if (result.status === 'rejected') return [];
+        const res = result.value;
+        if (!res.ok) return [];
+        try {
+          const json: unknown = await res.json();
+          return unwrap<T[]>(json);
+        } catch { return []; }
       }
-    });
-    // fall back to empty arrays when resetting to mock
-    leads.setItems([]);
-    clients.setItems([]);
-    appointments.setItems([]);
-    services.setItems([]);
-    forms.setItems([]);
-    leadStatuses.setItems([]);
-    users.setItems([]);
-    locations.setItems([]);
-    webhooks.setItems([]);
-    apiKeys.setItems([]);
-  }, [leads, clients, appointments, services, forms, leadStatuses, users, locations, webhooks, apiKeys]);
 
-  // Load initial data from server APIs
+      const [
+        leadsData, clientsData, apptsData, servicesData, formsData,
+        statusesData, usersData, locsData, webhooksData, apiKeysData,
+      ] = await Promise.all([
+        safeJson<Lead>(leadsRes),
+        safeJson<Client>(clientsRes),
+        safeJson<Appointment>(apptsRes),
+        safeJson<Service>(servicesRes),
+        safeJson<Form>(formsRes),
+        safeJson<LeadStatus>(statusesRes),
+        safeJson<User>(usersRes),
+        safeJson<Location>(locsRes),
+        safeJson<Webhook>(webhooksRes),
+        safeJson<ApiKey>(apiKeysRes),
+      ]);
+
+      setLeads(leadsData);
+      setClients(clientsData);
+      setAppointments(apptsData);
+      setServices(servicesData);
+      setForms(formsData);
+      setLeadStatuses(statusesData);
+      setUsers(usersData);
+      setLocations(locsData);
+      setWebhooks(webhooksData);
+      setApiKeys(apiKeysData);
+    } catch {
+      // best-effort: leave state as-is
+    }
+  }, []);
+
   useEffect(() => {
-    let mounted = true;
-    async function fetchAll() {
-      try {
-        const [leadsRes, clientsRes, apptsRes, servicesRes, formsRes, usersRes, locsRes] = await Promise.all([
-          fetch('/api/v1/leads'),
-          fetch('/api/v1/clients'),
-          fetch('/api/v1/appointments'),
-          fetch('/api/v1/services'),
-          fetch('/api/v1/forms'),
-          fetch('/api/v1/users'),
-          fetch('/api/v1/locations'),
-        ])
+    void fetchAll();
+  }, [fetchAll]);
 
-        if (!mounted) return
+  // ── Leads ──────────────────────────────────────────────────────────────────
 
-        if (leadsRes.ok) leads.setItems(await leadsRes.json())
-        if (clientsRes.ok) clients.setItems(await clientsRes.json())
-        if (apptsRes.ok) appointments.setItems(await apptsRes.json())
-        if (servicesRes.ok) services.setItems(await servicesRes.json())
-        if (formsRes.ok) forms.setItems(await formsRes.json())
-        if (usersRes.ok) users.setItems(await usersRes.json())
-        if (locsRes.ok) locations.setItems(await locsRes.json())
-      } catch {
-        // best-effort: leave local state as-is
-      }
-    }
-    void fetchAll()
-    return () => {
-      mounted = false
-    }
-  }, [leads, clients, appointments, services, forms, users, locations]);
+  const addLead = useCallback(async (data: Omit<Lead, 'id' | 'createdAt' | 'updatedAt'>): Promise<Lead> => {
+    const lead = await apiFetch<Lead>('/api/v1/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    setLeads((prev) => [lead, ...prev]);
+    return lead;
+  }, []);
+
+  const updateLead = useCallback(async (id: string, updates: Partial<Lead>): Promise<void> => {
+    const lead = await apiFetch<Lead>(`/api/v1/leads/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    });
+    setLeads((prev) => prev.map((l) => (l.id === id ? lead : l)));
+  }, []);
+
+  const deleteLead = useCallback(async (id: string): Promise<void> => {
+    await apiFetch(`/api/v1/leads/${id}`, { method: 'DELETE' });
+    setLeads((prev) => prev.filter((l) => l.id !== id));
+  }, []);
+
+  // ── Clients ────────────────────────────────────────────────────────────────
+
+  const addClient = useCallback(async (data: Omit<Client, 'id' | 'createdAt' | 'updatedAt'>): Promise<Client> => {
+    const client = await apiFetch<Client>('/api/v1/clients', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    setClients((prev) => [client, ...prev]);
+    return client;
+  }, []);
+
+  const updateClient = useCallback(async (id: string, updates: Partial<Client>): Promise<void> => {
+    const client = await apiFetch<Client>(`/api/v1/clients/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    });
+    setClients((prev) => prev.map((c) => (c.id === id ? client : c)));
+  }, []);
+
+  const deleteClient = useCallback(async (id: string): Promise<void> => {
+    await apiFetch(`/api/v1/clients/${id}`, { method: 'DELETE' });
+    setClients((prev) => prev.filter((c) => c.id !== id));
+  }, []);
+
+  // ── Appointments ───────────────────────────────────────────────────────────
+
+  const addAppointment = useCallback(async (data: Omit<Appointment, 'id' | 'createdAt' | 'updatedAt'>): Promise<Appointment> => {
+    const appt = await apiFetch<Appointment>('/api/v1/appointments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    setAppointments((prev) => [appt, ...prev]);
+    return appt;
+  }, []);
+
+  const updateAppointment = useCallback(async (id: string, updates: Partial<Appointment>): Promise<void> => {
+    const appt = await apiFetch<Appointment>(`/api/v1/appointments/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    });
+    setAppointments((prev) => prev.map((a) => (a.id === id ? appt : a)));
+  }, []);
+
+  const deleteAppointment = useCallback(async (id: string): Promise<void> => {
+    await apiFetch(`/api/v1/appointments/${id}`, { method: 'DELETE' });
+    setAppointments((prev) => prev.filter((a) => a.id !== id));
+  }, []);
+
+  // ── Services ───────────────────────────────────────────────────────────────
+
+  const addService = useCallback(async (data: Omit<Service, 'id' | 'createdAt' | 'updatedAt'>): Promise<Service> => {
+    const service = await apiFetch<Service>('/api/v1/services', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    setServices((prev) => [service, ...prev]);
+    return service;
+  }, []);
+
+  const updateService = useCallback(async (id: string, updates: Partial<Service>): Promise<void> => {
+    const service = await apiFetch<Service>(`/api/v1/services/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    });
+    setServices((prev) => prev.map((s) => (s.id === id ? service : s)));
+  }, []);
+
+  const deleteService = useCallback(async (id: string): Promise<void> => {
+    await apiFetch(`/api/v1/services/${id}`, { method: 'DELETE' });
+    setServices((prev) => prev.filter((s) => s.id !== id));
+  }, []);
+
+  // ── Forms ──────────────────────────────────────────────────────────────────
+
+  const addForm = useCallback(async (data: Omit<Form, 'id' | 'createdAt' | 'updatedAt'>): Promise<Form> => {
+    const form = await apiFetch<Form>('/api/v1/forms', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    setForms((prev) => [form, ...prev]);
+    return form;
+  }, []);
+
+  const updateForm = useCallback(async (id: string, updates: Partial<Form>): Promise<void> => {
+    const form = await apiFetch<Form>(`/api/v1/forms/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    });
+    setForms((prev) => prev.map((f) => (f.id === id ? form : f)));
+  }, []);
+
+  const deleteForm = useCallback(async (id: string): Promise<void> => {
+    await apiFetch(`/api/v1/forms/${id}`, { method: 'DELETE' });
+    setForms((prev) => prev.filter((f) => f.id !== id));
+  }, []);
+
+  // ── Lead Statuses ──────────────────────────────────────────────────────────
+
+  const addLeadStatus = useCallback(async (data: Omit<LeadStatus, 'id' | 'createdAt' | 'updatedAt'>): Promise<LeadStatus> => {
+    const status = await apiFetch<LeadStatus>('/api/v1/lead-statuses', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    setLeadStatuses((prev) => [...prev, status]);
+    return status;
+  }, []);
+
+  const updateLeadStatus = useCallback(async (id: string, updates: Partial<LeadStatus>): Promise<void> => {
+    const status = await apiFetch<LeadStatus>(`/api/v1/lead-statuses/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    });
+    setLeadStatuses((prev) => prev.map((s) => (s.id === id ? status : s)));
+  }, []);
+
+  const deleteLeadStatus = useCallback(async (id: string): Promise<void> => {
+    await apiFetch(`/api/v1/lead-statuses/${id}`, { method: 'DELETE' });
+    setLeadStatuses((prev) => prev.filter((s) => s.id !== id));
+  }, []);
+
+  // ── Users ──────────────────────────────────────────────────────────────────
+
+  const addUser = useCallback(async (data: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): Promise<User> => {
+    const user = await apiFetch<User>('/api/v1/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        password: 'Password123!',
+        organizationName: 'Personal',
+      }),
+    });
+    setUsers((prev) => [...prev, user]);
+    return user;
+  }, []);
+
+  const updateUser = useCallback(async (id: string, updates: Partial<User>): Promise<void> => {
+    setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, ...updates } : u)));
+  }, []);
+
+  const deleteUser = useCallback(async (id: string): Promise<void> => {
+    setUsers((prev) => prev.filter((u) => u.id !== id));
+  }, []);
+
+  // ── Locations ──────────────────────────────────────────────────────────────
+
+  const addLocation = useCallback(async (data: Omit<Location, 'id' | 'createdAt' | 'updatedAt'>): Promise<Location> => {
+    const location = await apiFetch<Location>('/api/v1/locations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    setLocations((prev) => [...prev, location]);
+    return location;
+  }, []);
+
+  const updateLocation = useCallback(async (id: string, updates: Partial<Location>): Promise<void> => {
+    const location = await apiFetch<Location>(`/api/v1/locations/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    });
+    setLocations((prev) => prev.map((l) => (l.id === id ? location : l)));
+  }, []);
+
+  const deleteLocation = useCallback(async (id: string): Promise<void> => {
+    await apiFetch(`/api/v1/locations/${id}`, { method: 'DELETE' });
+    setLocations((prev) => prev.filter((l) => l.id !== id));
+  }, []);
+
+  // ── Webhooks ───────────────────────────────────────────────────────────────
+
+  const addWebhook = useCallback(async (data: Omit<Webhook, 'id' | 'createdAt' | 'updatedAt'>): Promise<Webhook> => {
+    const webhook = await apiFetch<Webhook>('/api/v1/webhooks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    setWebhooks((prev) => [webhook, ...prev]);
+    return webhook;
+  }, []);
+
+  const updateWebhook = useCallback(async (id: string, updates: Partial<Webhook>): Promise<void> => {
+    const webhook = await apiFetch<Webhook>(`/api/v1/webhooks/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    });
+    setWebhooks((prev) => prev.map((w) => (w.id === id ? webhook : w)));
+  }, []);
+
+  const deleteWebhook = useCallback(async (id: string): Promise<void> => {
+    await apiFetch(`/api/v1/webhooks/${id}`, { method: 'DELETE' });
+    setWebhooks((prev) => prev.filter((w) => w.id !== id));
+  }, []);
+
+  // ── API Keys ───────────────────────────────────────────────────────────────
+
+  const addApiKey = useCallback(async (data: Omit<ApiKey, 'id' | 'createdAt' | 'updatedAt'>): Promise<ApiKey> => {
+    const key = await apiFetch<ApiKey>('/api/v1/api-keys', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    setApiKeys((prev) => [key, ...prev]);
+    return key;
+  }, []);
+
+  const updateApiKey = useCallback(async (id: string, updates: Partial<ApiKey>): Promise<void> => {
+    setApiKeys((prev) => prev.map((k) => (k.id === id ? { ...k, ...updates } : k)));
+  }, []);
+
+  const deleteApiKey = useCallback(async (id: string): Promise<void> => {
+    await apiFetch(`/api/v1/api-keys/${id}`, { method: 'DELETE' });
+    setApiKeys((prev) => prev.filter((k) => k.id !== id));
+  }, []);
 
   const value: CRMContextValue = {
-    // State
-    leads: leads.items,
-    clients: clients.items,
-    appointments: appointments.items,
-    services: services.items,
-    forms: forms.items,
-    leadStatuses: leadStatuses.items,
-    users: users.items,
-    locations: locations.items,
-    webhooks: webhooks.items,
-    apiKeys: apiKeys.items,
-
-    // Leads
-    addLead: leads.add,
-    updateLead: leads.update,
-    deleteLead: leads.remove,
-
-    // Clients
-    addClient: clients.add,
-    updateClient: clients.update,
-    deleteClient: clients.remove,
-
-    // Appointments
-    addAppointment: appointments.add,
-    updateAppointment: appointments.update,
-    deleteAppointment: appointments.remove,
-
-    // Services
-    addService: services.add,
-    updateService: services.update,
-    deleteService: services.remove,
-
-    // Forms
-    addForm: forms.add,
-    updateForm: forms.update,
-    deleteForm: forms.remove,
-
-    // Lead statuses
-    addLeadStatus: leadStatuses.add,
-    updateLeadStatus: leadStatuses.update,
-    deleteLeadStatus: leadStatuses.remove,
-
-    // Users
-    addUser: users.add,
-    updateUser: users.update,
-    deleteUser: users.remove,
-
-    // Locations
-    addLocation: locations.add,
-    updateLocation: locations.update,
-    deleteLocation: locations.remove,
-
-    // Webhooks
-    addWebhook: webhooks.add,
-    updateWebhook: webhooks.update,
-    deleteWebhook: webhooks.remove,
-
-    // API keys
-    addApiKey: apiKeys.add,
-    updateApiKey: apiKeys.update,
-    deleteApiKey: apiKeys.remove,
-
-    resetToMockData,
+    leads, clients, appointments, services, forms,
+    leadStatuses, users, locations, webhooks, apiKeys,
+    addLead, updateLead, deleteLead,
+    addClient, updateClient, deleteClient,
+    addAppointment, updateAppointment, deleteAppointment,
+    addService, updateService, deleteService,
+    addForm, updateForm, deleteForm,
+    addLeadStatus, updateLeadStatus, deleteLeadStatus,
+    addUser, updateUser, deleteUser,
+    addLocation, updateLocation, deleteLocation,
+    addWebhook, updateWebhook, deleteWebhook,
+    addApiKey, updateApiKey, deleteApiKey,
+    resetToMockData: () => void fetchAll(),
   };
 
   return <CRMContext.Provider value={value}>{children}</CRMContext.Provider>;

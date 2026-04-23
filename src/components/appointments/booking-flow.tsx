@@ -96,7 +96,7 @@ export function BookingFlow({
     return true;
   }
 
-  function handleConfirm() {
+  async function handleConfirm() {
     if (!selectedServiceId || !selectedDate || !selectedTime || !selectedClientId) return;
 
     const effectiveEmployeeId =
@@ -108,7 +108,7 @@ export function BookingFlow({
     startTime.setHours(h, m, 0, 0);
     const endTime = addMinutes(startTime, svc.duration);
 
-    const appt = addAppointment({
+    const appt = await addAppointment({
       organizationId: 'org_1',
       clientId: selectedClientId,
       employeeId: effectiveEmployeeId,
@@ -245,8 +245,8 @@ export function BookingFlow({
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium text-sm shrink-0">
-                    {emp.firstName[0]}
-                    {emp.lastName[0]}
+                    {emp.firstName?.[0] ?? ''}
+                    {emp.lastName?.[0] ?? ''}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-white">

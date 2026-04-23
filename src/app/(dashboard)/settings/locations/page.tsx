@@ -105,13 +105,13 @@ export default function LocationsPage() {
     setDialogOpen(true);
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (!form.name.trim()) {
       toast.error('Location name is required');
       return;
     }
     if (editing) {
-      updateLocation(editing.id, {
+      void updateLocation(editing.id, {
         name: form.name.trim(),
         address: form.address.trim(),
         city: form.city.trim(),
@@ -120,7 +120,7 @@ export default function LocationsPage() {
       });
       toast.success('Location updated');
     } else {
-      const loc = addLocation({
+      const loc = await addLocation({
         organizationId: 'org_1',
         name: form.name.trim(),
         address: form.address.trim(),
@@ -139,7 +139,7 @@ export default function LocationsPage() {
 
   function handleDelete() {
     if (!deleteId) return;
-    deleteLocation(deleteId);
+    void deleteLocation(deleteId);
     if (defaultId === deleteId) {
       const remaining = locations.filter((l) => l.id !== deleteId);
       if (remaining[0]) setDefault(remaining[0].id);

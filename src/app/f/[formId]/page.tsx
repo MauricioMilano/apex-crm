@@ -127,7 +127,7 @@ export default function PublicFormPage({ params }: PageProps) {
 
     const defaultStatus = leadStatuses.find((s) => s.isDefault) ?? leadStatuses[0];
 
-    addLead({
+    void addLead({
       organizationId: form.organizationId,
       statusId: defaultStatus?.id ?? 'status_1',
       firstName,

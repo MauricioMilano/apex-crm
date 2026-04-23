@@ -266,7 +266,7 @@ export function CalendarGrid({ onAppointmentClick }: CalendarGridProps) {
                           appointment={appt}
                           onViewDetail={() => onAppointmentClick?.(appt.id)}
                           onStatusChange={status =>
-                            updateAppointment(appt.id, { status })
+                            void updateAppointment(appt.id, { status })
                           }
                         />
                       </PopoverContent>
