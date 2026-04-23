@@ -1,8 +1,9 @@
 import { NextRequest } from "next/server"
-import { apiSuccess, apiError } from "@/lib/api-helpers"
+import { apiSuccess, apiError, withSessionOrApiAuth } from "@/lib/api-helpers"
 import { getApiKeys, createApiKey } from "@/actions/api-keys"
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  if (!await withSessionOrApiAuth(request)) return apiError("Unauthorized", 401)
   try {
     const result = await getApiKeys()
     if (!result.success) return apiError(result.error)
@@ -13,6 +14,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  if (!await withSessionOrApiAuth(request)) return apiError("Unauthorized", 401)
   try {
     const body = await request.json()
     const result = await createApiKey(body)

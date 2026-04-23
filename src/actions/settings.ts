@@ -1,6 +1,8 @@
 "use server"
 
 import { z } from "zod"
+import { randomBytes } from "crypto"
+import bcrypt from "bcryptjs"
 import { UserRole } from "@prisma/client"
 import { prisma } from "@/lib/db"
 
@@ -132,6 +134,36 @@ export async function deactivateUser(id: string) {
     const user = await prisma.user.update({
       where: { id },
       data: { isActive: false },
+      select: userSelectFields,
+    })
+    return { success: true as const, data: user }
+  } catch (error) {
+    return { success: false as const, error: String(error) }
+  }
+}
+
+export async function inviteTeamMember(data: {
+  organizationId: string
+  email: string
+  firstName: string
+  lastName: string
+  role: UserRole
+}) {
+  try {
+    const existing = await prisma.user.findUnique({ where: { email: data.email } })
+    if (existing) return { success: false as const, error: "Email already registered" }
+    const tempPassword = randomBytes(16).toString("hex")
+    const passwordHash = await bcrypt.hash(tempPassword, 12)
+    const user = await prisma.user.create({
+      data: {
+        organizationId: data.organizationId,
+        email: data.email,
+        firstName: data.firstName || "New",
+        lastName: data.lastName || "Member",
+        role: data.role,
+        passwordHash,
+        isActive: true,
+      },
       select: userSelectFields,
     })
     return { success: true as const, data: user }

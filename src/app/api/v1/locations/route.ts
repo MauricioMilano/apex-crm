@@ -1,8 +1,9 @@
 import { NextRequest } from "next/server"
-import { apiSuccess, apiError } from "@/lib/api-helpers"
+import { apiSuccess, apiError, withSessionOrApiAuth } from "@/lib/api-helpers"
 import { getLocations } from "@/actions/settings"
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  if (!await withSessionOrApiAuth(request)) return apiError("Unauthorized", 401)
   try {
     const result = await getLocations()
     if (!result.success) return apiError(result.error)

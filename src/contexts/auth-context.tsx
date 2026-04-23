@@ -33,7 +33,18 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-const AUTH_STORAGE_KEY = 'crm_session_user_id';
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function extractUser(payload: unknown): User | null {
+  if (!payload || typeof payload !== 'object') return null;
+  const candidate = payload as Partial<User> & { data?: unknown };
+  if (typeof candidate.id === 'string') return candidate as User;
+  const nested = candidate.data;
+  if (nested && typeof nested === 'object' && typeof (nested as Partial<User>).id === 'string') {
+    return nested as User;
+  }
+  return null;
+}
 
 // ─── Provider ────────────────────────────────────────────────────────────────
 
@@ -41,67 +52,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Restore session on mount
+  // Restore session on mount via HTTP-only session cookie
   useEffect(() => {
-    try {
-      const storedId = localStorage.getItem(AUTH_STORAGE_KEY);
-      if (storedId) {
-        ;(async () => {
-          try {
-            const res = await getCurrentUser(storedId)
-            if (res.success) {
-              setCurrentUser(res.data)
-            } else {
-              localStorage.removeItem(AUTH_STORAGE_KEY)
-            }
-          } catch {
-            localStorage.removeItem(AUTH_STORAGE_KEY)
-          }
-        })()
+    ;(async () => {
+      try {
+        const res = await getCurrentUser();
+        if (res.success) {
+          const user = extractUser(res.data);
+          if (user) setCurrentUser(user);
+        }
+      } catch {
+        // no active session
+      } finally {
+        setIsLoading(false);
       }
-    } catch {
-      // localStorage unavailable (e.g. SSR guard)
-    } finally {
-      setIsLoading(false);
-    }
+    })();
   }, []);
 
   const login = useCallback(
     async (email: string, password: string): Promise<boolean> => {
       try {
-        const res = await loginAction(email, password)
-        if (!res.success) return false
-        const user = res.data
-        setCurrentUser(user)
-        try {
-          localStorage.setItem(AUTH_STORAGE_KEY, user.id)
-        } catch {
-          // ignore storage errors
-        }
-        return true
+        const res = await loginAction(email, password);
+        if (!res.success) return false;
+        const user = extractUser(res.data);
+        if (user) setCurrentUser(user);
+        return true;
       } catch {
-        return false
+        return false;
       }
     },
     [],
   );
 
   const logout = useCallback(() => {
-    setCurrentUser(null)
-    try {
-      localStorage.removeItem(AUTH_STORAGE_KEY)
-    } catch {
-      // ignore storage errors
-    }
-    // best-effort server parity
-    void logoutAction()
+    setCurrentUser(null);
+    void logoutAction();
   }, []);
 
-  /**
-   * Registration is read-only against mock data.
-   * Returns false if the e-mail already exists; otherwise creates an
-   * in-memory user for the duration of the session.
-   */
   const register = useCallback(
     async (data: RegisterData): Promise<boolean> => {
       try {
@@ -111,18 +98,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email: data.email,
           password: data.password,
           organizationName: 'Personal',
-        })
-        if (!res.success) return false
-        const user = res.data
-        setCurrentUser(user)
-        try {
-          localStorage.setItem(AUTH_STORAGE_KEY, user.id)
-        } catch {
-          // ignore storage errors
-        }
-        return true
+        });
+        if (!res.success) return false;
+        const user = extractUser(res.data);
+        if (user) setCurrentUser(user);
+        return true;
       } catch {
-        return false
+        return false;
       }
     },
     [],

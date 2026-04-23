@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useCRM } from '@/contexts/crm-context';
+import { useCurrentUser } from '@/hooks/use-current-user';
 import type { Appointment } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -44,6 +45,7 @@ export function BookingFlow({
   onCancel,
 }: BookingFlowProps) {
   const { services, users, clients, appointments, addAppointment } = useCRM();
+  const currentUser = useCurrentUser();
 
   const [step, setStep] = useState<Step>(1);
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
@@ -109,7 +111,7 @@ export function BookingFlow({
     const endTime = addMinutes(startTime, svc.duration);
 
     const appt = await addAppointment({
-      organizationId: 'org_1',
+      organizationId: currentUser?.organizationId ?? '',
       clientId: selectedClientId,
       employeeId: effectiveEmployeeId,
       serviceId: selectedServiceId,

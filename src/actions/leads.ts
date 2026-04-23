@@ -46,7 +46,12 @@ export async function getLeads(filters?: {
 
     const leads = await prisma.lead.findMany({
       where,
-      include: { status: true, assignee: true },
+      include: {
+        status: true,
+        assignee: {
+          select: { id: true, firstName: true, lastName: true, email: true, role: true },
+        },
+      },
       orderBy: { createdAt: "desc" },
     })
     return { success: true as const, data: leads }
@@ -59,7 +64,9 @@ export async function getLead(id: string) {
   try {
     const lead = await prisma.lead.findFirst({
       where: { id, organizationId: ORG_ID },
-      include: { status: true, assignee: true, location: true, form: true },
+      include: { status: true, assignee: {
+        select: { id: true, firstName: true, lastName: true, email: true, role: true },
+      }, location: true, form: true },
     })
     if (!lead) return { success: false as const, error: "Lead not found" }
     return { success: true as const, data: lead }

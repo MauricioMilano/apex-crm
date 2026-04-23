@@ -1,10 +1,11 @@
 import { NextRequest } from "next/server"
-import { apiSuccess, apiError } from "@/lib/api-helpers"
+import { apiSuccess, apiError, withSessionOrApiAuth } from "@/lib/api-helpers"
 import { prisma } from "@/lib/db"
 
 const ORG_ID = process.env.DEFAULT_ORG_ID ?? "org_default"
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  if (!await withSessionOrApiAuth(request)) return apiError("Unauthorized", 401)
   try {
     const statuses = await prisma.leadStatus.findMany({
       where: { organizationId: ORG_ID },
@@ -17,6 +18,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  if (!await withSessionOrApiAuth(request)) return apiError("Unauthorized", 401)
   try {
     const body = await request.json()
     const status = await prisma.leadStatus.create({

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCRM } from '@/contexts/crm-context';
+import { useCurrentUser } from '@/hooks/use-current-user';
 import { Form } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -52,12 +53,13 @@ import {
 export default function FormsPage() {
   const router = useRouter();
   const { forms, addForm, deleteForm } = useCRM();
+  const currentUser = useCurrentUser();
   const [embedForm, setEmbedForm] = useState<Form | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Form | null>(null);
 
   const handleNewForm = async () => {
     const created = await addForm({
-      organizationId: 'org_1',
+      organizationId: currentUser?.organizationId ?? '',
       name: 'Untitled Form',
       fields: [],
       isActive: false,

@@ -9,6 +9,8 @@ import {
   ChevronUp,
 } from 'lucide-react';
 import { useCRM } from '@/contexts/crm-context';
+import { useCurrentUser } from '@/hooks/use-current-user';
+import { inviteTeamMember } from '@/actions/settings';
 import type { User, UserRole, WorkingHours, DaySchedule } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -110,7 +112,8 @@ function emptyInvite(): InviteForm {
 }
 
 export default function TeamPage() {
-  const { users, addUser, updateUser, deleteUser } = useCRM();
+  const { users, updateUser, deleteUser } = useCRM();
+  const currentUser = useCurrentUser();
   const teamMembers = users.filter((u) => u.role === 'admin' || u.role === 'employee');
 
   const [inviteOpen, setInviteOpen] = useState(false);
@@ -140,20 +143,27 @@ export default function TeamPage() {
     toast.success('Hours updated');
   }
 
-  function handleInvite() {
+  async function handleInvite() {
     if (!invite.email.trim()) {
       toast.error('Email is required');
       return;
     }
-    addUser({
-      organizationId: 'org_1',
+    const orgId = currentUser?.organizationId;
+    if (!orgId) {
+      toast.error('Could not determine organization');
+      return;
+    }
+    const result = await inviteTeamMember({
+      organizationId: orgId,
       email: invite.email.trim(),
       firstName: invite.firstName.trim() || 'New',
       lastName: invite.lastName.trim() || 'Member',
       role: invite.role,
-      passwordHash: 'changeme',
-      isActive: true,
     });
+    if (!result.success) {
+      toast.error(result.error);
+      return;
+    }
     toast.success('Team member added');
     setInvite(emptyInvite());
     setInviteOpen(false);

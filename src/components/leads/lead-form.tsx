@@ -59,7 +59,7 @@ export function LeadForm({
   leadStatuses,
   users,
   defaultStatusId,
-  organizationId = 'org_1',
+  organizationId = '',
   onSubmit,
   onCancel,
 }: LeadFormProps) {

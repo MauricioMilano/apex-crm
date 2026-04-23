@@ -43,7 +43,14 @@ export async function getAppointments(filters?: {
 
     const appointments = await prisma.appointment.findMany({
       where,
-      include: { client: true, employee: true, service: true, location: true },
+      include: {
+        client: true,
+        employee: {
+          select: { id: true, firstName: true, lastName: true, email: true, role: true },
+        },
+        service: true,
+        location: true,
+      },
       orderBy: { startTime: "asc" },
     })
     return { success: true as const, data: appointments }
@@ -56,7 +63,14 @@ export async function getAppointment(id: string) {
   try {
     const appointment = await prisma.appointment.findFirst({
       where: { id, organizationId: ORG_ID },
-      include: { client: true, employee: true, service: true, location: true },
+      include: {
+        client: true,
+        employee: {
+          select: { id: true, firstName: true, lastName: true, email: true, role: true },
+        },
+        service: true,
+        location: true,
+      },
     })
     if (!appointment) return { success: false as const, error: "Appointment not found" }
     return { success: true as const, data: appointment }

@@ -30,8 +30,8 @@ export async function register(data: {
   return { success: true as const, data: body }
 }
 
-export async function getCurrentUser(id: string): Promise<{ success: true; data: User } | { success: false; error: string }> {
-  const res = await fetch(`${API_PREFIX}/me?id=${encodeURIComponent(id)}`)
+export async function getCurrentUser(): Promise<{ success: true; data: User } | { success: false; error: string }> {
+  const res = await fetch(`${API_PREFIX}/me`)
   if (!res.ok) return { success: false, error: await res.text() }
   const body = await res.json()
   return { success: true, data: body }

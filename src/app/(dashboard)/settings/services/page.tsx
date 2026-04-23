@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { useCRM } from '@/contexts/crm-context';
+import { useCurrentUser } from '@/hooks/use-current-user';
 import type { Service } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -55,6 +56,7 @@ const emptyForm = (): ServiceForm => ({
 
 export default function ServicesPage() {
   const { services, addService, updateService, deleteService } = useCRM();
+  const currentUser = useCurrentUser();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Service | null>(null);
   const [form, setForm] = useState<ServiceForm>(emptyForm());
@@ -94,7 +96,7 @@ export default function ServicesPage() {
       toast.success('Service updated');
     } else {
       addService({
-        organizationId: 'org_1',
+        organizationId: currentUser?.organizationId ?? '',
         name: form.name.trim(),
         description: form.description.trim() || undefined,
         duration: form.duration,

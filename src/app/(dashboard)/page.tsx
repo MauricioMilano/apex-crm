@@ -65,6 +65,9 @@ export default function DashboardPage() {
 
   const now = new Date();
   const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const prevMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+
   const monthlyRevenue = appointments
     .filter(
       (a) =>
@@ -76,10 +79,38 @@ export default function DashboardPage() {
       return sum + (svc?.price ?? 0);
     }, 0);
 
-  // Simple trend placeholders (comparing to half the total for demo)
-  const leadTrend = totalLeads > 0 ? 12.5 : 0;
-  const clientTrend = activeClients > 0 ? 8.3 : 0;
-  const revenueTrend = monthlyRevenue > 0 ? 15.2 : 0;
+  const prevMonthRevenue = appointments
+    .filter(
+      (a) =>
+        a.status === 'completed' &&
+        new Date(a.startTime) >= prevMonthStart &&
+        new Date(a.startTime) <= prevMonthEnd,
+    )
+    .reduce((sum, a) => {
+      const svc = services.find((s) => s.id === a.serviceId);
+      return sum + (svc?.price ?? 0);
+    }, 0);
+
+  const currMonthLeads = leads.filter((l) => new Date(l.createdAt) >= currentMonthStart).length;
+  const prevMonthLeads = leads.filter(
+    (l) => new Date(l.createdAt) >= prevMonthStart && new Date(l.createdAt) <= prevMonthEnd,
+  ).length;
+
+  const currMonthClients = clients.filter(
+    (c) => c.isActive && new Date(c.createdAt) >= currentMonthStart,
+  ).length;
+  const prevMonthClients = clients.filter(
+    (c) => c.isActive && new Date(c.createdAt) >= prevMonthStart && new Date(c.createdAt) <= prevMonthEnd,
+  ).length;
+
+  function pctChange(curr: number, prev: number): number {
+    if (prev === 0) return curr > 0 ? 100 : 0;
+    return Math.round(((curr - prev) / prev) * 1000) / 10;
+  }
+
+  const leadTrend = pctChange(currMonthLeads, prevMonthLeads);
+  const clientTrend = pctChange(currMonthClients, prevMonthClients);
+  const revenueTrend = pctChange(monthlyRevenue, prevMonthRevenue);
 
   // ── Recent leads (last 5 by createdAt) ──────────────────────────────────
 

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { useCRM } from '@/contexts/crm-context';
+import { useCurrentUser } from '@/hooks/use-current-user';
 import { Form, FormField, FormFieldType, FormStyling } from '@/types';
 import { FieldEditor } from './field-editor';
 import { FormPreview } from './form-preview';
@@ -75,6 +76,7 @@ interface FormBuilderProps {
 
 export function FormBuilder({ formId, onSave }: FormBuilderProps) {
   const { forms, addForm, updateForm } = useCRM();
+  const currentUser = useCurrentUser();
 
   const existingForm = formId ? forms.find((f) => f.id === formId) : undefined;
 
@@ -159,7 +161,7 @@ export function FormBuilder({ formId, onSave }: FormBuilderProps) {
 
   const handleSave = async () => {
     const data = {
-      organizationId: existingForm?.organizationId ?? 'org_1',
+      organizationId: existingForm?.organizationId ?? currentUser?.organizationId ?? '',
       name: formName,
       description: formDescription || undefined,
       fields,
@@ -181,7 +183,7 @@ export function FormBuilder({ formId, onSave }: FormBuilderProps) {
 
   const previewForm: Form = {
     id: existingForm?.id ?? 'preview',
-    organizationId: existingForm?.organizationId ?? 'org_1',
+    organizationId: existingForm?.organizationId ?? currentUser?.organizationId ?? '',
     name: formName,
     description: formDescription || undefined,
     fields,

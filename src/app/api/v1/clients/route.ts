@@ -1,8 +1,9 @@
 import { NextRequest } from "next/server"
-import { apiSuccess, apiError } from "@/lib/api-helpers"
+import { apiSuccess, apiError, withSessionOrApiAuth } from "@/lib/api-helpers"
 import { getClients, createClient } from "@/actions/clients"
 
 export async function GET(request: NextRequest) {
+  if (!await withSessionOrApiAuth(request)) return apiError("Unauthorized", 401)
   try {
     const { searchParams } = new URL(request.url)
     const tagsParam = searchParams.get("tags")
@@ -20,6 +21,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  if (!await withSessionOrApiAuth(request)) return apiError("Unauthorized", 401)
   try {
     const body = await request.json()
     const result = await createClient(body)

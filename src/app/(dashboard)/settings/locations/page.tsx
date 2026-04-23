@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Plus, Pencil, Trash2, MapPin, Star } from 'lucide-react';
 import { useCRM } from '@/contexts/crm-context';
+import { useCurrentUser } from '@/hooks/use-current-user';
 import type { Location } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -74,6 +75,7 @@ const DEFAULT_LOC_KEY = 'crm_default_location';
 
 export default function LocationsPage() {
   const { locations, addLocation, updateLocation, deleteLocation } = useCRM();
+  const currentUser = useCurrentUser();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Location | null>(null);
   const [form, setForm] = useState<LocationForm>(emptyForm());
@@ -121,7 +123,7 @@ export default function LocationsPage() {
       toast.success('Location updated');
     } else {
       const loc = await addLocation({
-        organizationId: 'org_1',
+        organizationId: currentUser?.organizationId ?? '',
         name: form.name.trim(),
         address: form.address.trim(),
         city: form.city.trim(),

@@ -1,9 +1,10 @@
 import { NextRequest } from "next/server"
-import { apiSuccess, apiError } from "@/lib/api-helpers"
+import { apiSuccess, apiError, withSessionOrApiAuth } from "@/lib/api-helpers"
 import { getAppointments, createAppointment } from "@/actions/appointments"
 import { AppointmentStatus } from "@prisma/client"
 
 export async function GET(request: NextRequest) {
+  if (!await withSessionOrApiAuth(request)) return apiError("Unauthorized", 401)
   try {
     const { searchParams } = new URL(request.url)
     const statusParam = searchParams.get("status")
@@ -22,6 +23,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  if (!await withSessionOrApiAuth(request)) return apiError("Unauthorized", 401)
   try {
     const body = await request.json()
     const result = await createAppointment(body)

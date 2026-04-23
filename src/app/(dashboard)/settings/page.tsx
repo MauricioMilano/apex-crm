@@ -15,6 +15,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { getOrganization, updateOrganization } from '@/actions/settings';
+import { useCurrentUser } from '@/hooks/use-current-user';
 
 const STORAGE_KEY = 'crm_org_settings';
 
@@ -75,6 +76,7 @@ const defaultSettings: OrgSettings = {
 
 export default function GeneralSettingsPage() {
   const [settings, setSettings] = useState<OrgSettings>(defaultSettings);
+  const currentUser = useCurrentUser();
 
   useEffect(() => {
     try {
@@ -83,15 +85,18 @@ export default function GeneralSettingsPage() {
     } catch {
       // ignore
     }
-    getOrganization('org_apex_business_solutions')
+    const orgId = currentUser?.organizationId;
+    if (!orgId) return;
+    getOrganization(orgId)
       .then((res) => { if (res.success) setSettings((s) => ({ ...s, orgName: res.data.name })); })
       .catch(() => {});
-  }, []);
+  }, [currentUser?.organizationId]);
 
   async function handleSave() {
+    const orgId = currentUser?.organizationId;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-      await updateOrganization('org_apex_business_solutions', { name: settings.orgName });
+      if (orgId) await updateOrganization(orgId, { name: settings.orgName });
       toast.success('Settings saved');
     } catch {
       toast.error('Failed to save settings');

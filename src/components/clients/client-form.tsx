@@ -51,7 +51,7 @@ interface ClientFormProps {
 
 export function ClientForm({
   client,
-  organizationId = 'org_1',
+  organizationId = '',
   onSubmit,
   onCancel,
 }: ClientFormProps) {

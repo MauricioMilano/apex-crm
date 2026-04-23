@@ -1,9 +1,17 @@
 'use client';
 
-import { use, useState } from 'react';
-import { useCRM } from '@/contexts/crm-context';
+import { use, useState, useEffect } from 'react';
 import { FormField, FormStyling } from '@/types';
 import { CheckCircle2 } from 'lucide-react';
+
+interface PublicForm {
+  id: string;
+  name: string;
+  description?: string;
+  fields: FormField[];
+  styling?: FormStyling;
+  organizationId: string;
+}
 
 interface PageProps {
   params: Promise<{ formId: string }>;
@@ -11,15 +19,31 @@ interface PageProps {
 
 export default function PublicFormPage({ params }: PageProps) {
   const { formId } = use(params);
-  const { forms, addLead, leadStatuses } = useCRM();
 
-  const form = forms.find((f) => f.id === formId);
-
+  const [form, setForm] = useState<PublicForm | null>(null);
+  const [defaultStatusId, setDefaultStatusId] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<'not_found' | 'inactive' | null>(null);
   const [values, setValues] = useState<Record<string, string | boolean>>({});
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  if (!form) {
+  useEffect(() => {
+    fetch(`/api/v1/public/forms/${formId}`)
+      .then(async (res) => {
+        if (res.status === 404) { setLoadError('not_found'); return; }
+        if (res.status === 403) { setLoadError('inactive'); return; }
+        const body = await res.json() as { success: boolean; data?: { form: PublicForm; defaultStatusId: string | null } };
+        if (body.success && body.data) {
+          setForm(body.data.form);
+          setDefaultStatusId(body.data.defaultStatusId);
+        } else {
+          setLoadError('not_found');
+        }
+      })
+      .catch(() => setLoadError('not_found'));
+  }, [formId]);
+
+  if (loadError === 'not_found') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center text-gray-500">
@@ -30,12 +54,22 @@ export default function PublicFormPage({ params }: PageProps) {
     );
   }
 
-  if (!form.isActive) {
+  if (loadError === 'inactive') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center text-gray-500">
           <p className="text-lg font-medium">Form unavailable</p>
           <p className="text-sm mt-1">This form is not currently accepting submissions.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!form) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center text-gray-400">
+          <p className="text-sm">Loading…</p>
         </div>
       </div>
     );
@@ -86,59 +120,49 @@ export default function PublicFormPage({ params }: PageProps) {
     e.preventDefault();
     if (!validate()) return;
 
-    // Try to find name fields
+    // Serialize all field values for submission
+    const payload: Record<string, unknown> = {};
+    sortedFields.forEach((f) => {
+      payload[f.id] = values[f.id];
+    });
+
+    // Best-effort field mapping for the lead record
     const nameField = sortedFields.find((f) =>
-      ['full name', 'name', 'your name'].some((l) =>
-        f.label.toLowerCase().includes(l),
-      ),
+      ['full name', 'name', 'your name'].some((l) => f.label.toLowerCase().includes(l)),
     );
-    const firstNameField = sortedFields.find((f) =>
-      f.label.toLowerCase().includes('first name'),
-    );
-    const lastNameField = sortedFields.find((f) =>
-      f.label.toLowerCase().includes('last name'),
-    );
+    const firstNameField = sortedFields.find((f) => f.label.toLowerCase().includes('first name'));
+    const lastNameField = sortedFields.find((f) => f.label.toLowerCase().includes('last name'));
     const emailField = sortedFields.find((f) => f.type === 'email');
     const phoneField = sortedFields.find((f) => f.type === 'phone');
-    const companyField = sortedFields.find((f) =>
-      f.label.toLowerCase().includes('company'),
-    );
+    const companyField = sortedFields.find((f) => f.label.toLowerCase().includes('company'));
 
     let firstName = 'Unknown';
     let lastName = '';
-
     if (firstNameField) {
       firstName = String(values[firstNameField.id] ?? '') || 'Unknown';
     } else if (nameField) {
-      const fullName = String(values[nameField.id] ?? '').trim();
-      const parts = fullName.split(' ');
+      const parts = String(values[nameField.id] ?? '').trim().split(' ');
       firstName = parts[0] || 'Unknown';
       lastName = parts.slice(1).join(' ');
     }
-    if (lastNameField) {
-      lastName = String(values[lastNameField.id] ?? '') || lastName;
-    }
+    if (lastNameField) lastName = String(values[lastNameField.id] ?? '') || lastName;
 
-    // Serialize all values to notes
-    const notesLines = sortedFields.map((f) => {
-      const val = values[f.id];
-      return `${f.label}: ${val === true ? 'Yes' : val === false ? 'No' : (val ?? '')}`;
-    });
-
-    const defaultStatus = leadStatuses.find((s) => s.isDefault) ?? leadStatuses[0];
-
-    void addLead({
-      organizationId: form.organizationId,
-      statusId: defaultStatus?.id ?? 'status_1',
+    const submissionPayload = {
       firstName,
       lastName,
       email: emailField ? String(values[emailField.id] ?? '') : undefined,
       phone: phoneField ? String(values[phoneField.id] ?? '') : undefined,
       company: companyField ? String(values[companyField.id] ?? '') : undefined,
-      source: `Form: ${form.name}`,
-      notes: notesLines.join('\n'),
-      tags: ['form-submission'],
-    });
+      statusId: defaultStatusId ?? undefined,
+      fields: payload,
+    };
+
+    fetch(`/api/v1/forms/${formId}/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(submissionPayload),
+    })
+      .catch(() => { /* best-effort */ });
 
     setSubmitted(true);
   };

@@ -48,7 +48,11 @@ export async function getClients(filters?: {
 
     const clients = await prisma.client.findMany({
       where,
-      include: { assignee: true },
+      include: {
+        assignee: {
+          select: { id: true, firstName: true, lastName: true, email: true, role: true },
+        },
+      },
       orderBy: { createdAt: "desc" },
     })
     return { success: true as const, data: clients }

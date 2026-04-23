@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Plus, Pencil, Trash2, Copy, Zap, Check } from 'lucide-react';
 import { useCRM } from '@/contexts/crm-context';
+import { useCurrentUser } from '@/hooks/use-current-user';
 import type { Webhook } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -79,6 +80,7 @@ const emptyForm = (): WebhookForm => ({
 
 export default function WebhooksPage() {
   const { webhooks, addWebhook, updateWebhook, deleteWebhook } = useCRM();
+  const currentUser = useCurrentUser();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Webhook | null>(null);
   const [form, setForm] = useState<WebhookForm>(emptyForm());
@@ -130,7 +132,7 @@ export default function WebhooksPage() {
       toast.success('Webhook updated');
     } else {
       addWebhook({
-        organizationId: 'org_1',
+        organizationId: currentUser?.organizationId ?? '',
         name: form.name.trim() || form.url.trim(),
         url: form.url.trim(),
         events: form.events,
