@@ -1,5 +1,6 @@
-import { PrismaClient, AppointmentStatus } from '@prisma/client'
+import { Prisma, PrismaClient, AppointmentStatus } from '@prisma/client'
 import bcrypt from 'bcryptjs'
+import { createSeedWorkingHours } from '@/lib/working-hours'
 
 const prisma = new PrismaClient()
 
@@ -128,22 +129,12 @@ async function main() {
   ])
 
   // ── 5. Employee profiles ──────────────────────────────────────────────────
-  const workingHours = {
-    monday: { start: '09:00', end: '17:00', enabled: true },
-    tuesday: { start: '09:00', end: '17:00', enabled: true },
-    wednesday: { start: '09:00', end: '17:00', enabled: true },
-    thursday: { start: '09:00', end: '17:00', enabled: true },
-    friday: { start: '09:00', end: '16:00', enabled: true },
-    saturday: { start: '10:00', end: '14:00', enabled: false },
-    sunday: { start: '10:00', end: '14:00', enabled: false },
-  }
-
   const [empProfile1, empProfile2] = await prisma.$transaction([
     prisma.employeeProfile.create({
       data: {
         userId: emp1.id,
         bio: 'Senior business consultant with 10 years of experience.',
-        workingHours,
+        workingHours: createSeedWorkingHours() as unknown as Prisma.InputJsonValue,
         bufferMinutes: 15,
       },
     }),
@@ -151,7 +142,7 @@ async function main() {
       data: {
         userId: emp2.id,
         bio: 'Certified financial advisor and business strategist.',
-        workingHours,
+        workingHours: createSeedWorkingHours() as unknown as Prisma.InputJsonValue,
         bufferMinutes: 10,
       },
     }),

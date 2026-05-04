@@ -12,6 +12,7 @@ import { useCRM } from '@/contexts/crm-context';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { inviteTeamMember } from '@/actions/settings';
 import type { User, UserRole, WorkingHours, DaySchedule } from '@/types';
+import { createDefaultWorkingHours, normalizeWorkingHours } from '@/lib/working-hours';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -71,13 +72,7 @@ const DAY_LABELS: Record<Day, string> = {
 };
 
 const defaultWorkingHours = (): WorkingHours => ({
-  monday: { isWorking: true, startTime: '09:00', endTime: '17:00' },
-  tuesday: { isWorking: true, startTime: '09:00', endTime: '17:00' },
-  wednesday: { isWorking: true, startTime: '09:00', endTime: '17:00' },
-  thursday: { isWorking: true, startTime: '09:00', endTime: '17:00' },
-  friday: { isWorking: true, startTime: '09:00', endTime: '17:00' },
-  saturday: { isWorking: false, startTime: '09:00', endTime: '13:00' },
-  sunday: { isWorking: false, startTime: '09:00', endTime: '13:00' },
+  ...createDefaultWorkingHours(),
 });
 
 const HOURS_KEY = (userId: string) => `crm_working_hours_${userId}`;
@@ -85,16 +80,16 @@ const HOURS_KEY = (userId: string) => `crm_working_hours_${userId}`;
 function loadHours(userId: string): WorkingHours {
   try {
     const raw = localStorage.getItem(HOURS_KEY(userId));
-    if (raw) return JSON.parse(raw);
+    if (raw) return normalizeWorkingHours(JSON.parse(raw));
   } catch {
-    // ignore
+    return normalizeWorkingHours(undefined);
   }
   return defaultWorkingHours();
 }
 
 function saveHours(userId: string, hours: WorkingHours) {
   try {
-    localStorage.setItem(HOURS_KEY(userId), JSON.stringify(hours));
+    localStorage.setItem(HOURS_KEY(userId), JSON.stringify(normalizeWorkingHours(hours)));
   } catch {
     // ignore
   }

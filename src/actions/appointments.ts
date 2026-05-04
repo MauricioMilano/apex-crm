@@ -3,6 +3,7 @@
 import { z } from "zod"
 import { AppointmentStatus, Prisma } from "@prisma/client"
 import { prisma } from "@/lib/db"
+import { generateAvailableSlotTimes, normalizeWorkingHours } from "@/lib/working-hours"
 import type { WorkingHours } from "@/types"
 
 const ORG_ID = process.env.DEFAULT_ORG_ID ?? "org_default"
@@ -178,12 +179,8 @@ export async function getAvailableSlots(
       timeZone: "UTC",
     }).toLowerCase() as keyof WorkingHours
 
-    const workingHours = employeeProfile.workingHours as unknown as WorkingHours
+    const workingHours = normalizeWorkingHours(employeeProfile.workingHours)
     const daySchedule = workingHours[dayName]
-
-    if (!daySchedule?.isWorking) {
-      return { success: true as const, data: [] }
-    }
 
     const existingAppointments = await prisma.appointment.findMany({
       where: {
@@ -197,34 +194,13 @@ export async function getAvailableSlots(
     })
 
     const slotDuration = service.duration + (employeeProfile.bufferMinutes ?? 0)
-
-    const [startHour, startMin] = daySchedule.startTime.split(":").map(Number)
-    const [endHour, endMin] = daySchedule.endTime.split(":").map(Number)
-    const startMinutes = startHour * 60 + startMin
-    const endMinutes = endHour * 60 + endMin
-
-    const slots: string[] = []
-
-    for (let m = startMinutes; m + slotDuration <= endMinutes; m += 30) {
-      const slotStart = new Date(`${date}T00:00:00Z`)
-      slotStart.setUTCMinutes(slotStart.getUTCMinutes() + m)
-      const slotEnd = new Date(slotStart)
-      slotEnd.setUTCMinutes(slotEnd.getUTCMinutes() + slotDuration)
-
-      const hasAppointmentConflict = existingAppointments.some(
-        (appt) => slotStart < appt.endTime && slotEnd > appt.startTime
-      )
-
-      const isBlocked = employeeProfile.blockedSlots.some(
-        (block) => slotStart < block.endTime && slotEnd > block.startTime
-      )
-
-      if (!hasAppointmentConflict && !isBlocked) {
-        const h = Math.floor(m / 60).toString().padStart(2, "0")
-        const min = (m % 60).toString().padStart(2, "0")
-        slots.push(`${h}:${min}`)
-      }
-    }
+    const slots = generateAvailableSlotTimes({
+      daySchedule,
+      date,
+      slotDuration,
+      existingAppointments,
+      blockedSlots: employeeProfile.blockedSlots,
+    })
 
     return { success: true as const, data: slots }
   } catch (error) {
