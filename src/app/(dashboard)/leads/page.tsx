@@ -38,7 +38,7 @@ export default function LeadsPage() {
   );
 
   const totalValue = useMemo(
-    () => (leads ?? []).reduce((sum, l) => sum + (l.value ?? 0), 0),
+    () => (leads ?? []).reduce((sum, l) => Number(sum) + (Number(l.value) || 0), 0),
     [leads],
   );
 

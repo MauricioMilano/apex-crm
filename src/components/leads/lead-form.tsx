@@ -293,7 +293,7 @@ export function LeadForm({
             <FormItem>
               <FormLabel className="text-gray-300">Assigned To</FormLabel>
               <Select
-                onValueChange={(v) => field.onChange(v === 'unassigned' ? null : v)}
+                onValueChange={(v) => field.onChange(v === 'unassigned' ? undefined : v)}
                 value={field.value ?? 'unassigned'}
               >
                 <FormControl>
