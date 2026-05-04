@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
-import { Loader2 } from 'lucide-react';
+import { Loader } from 'lucide-react';
 
 export default function Home() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -12,7 +12,7 @@ export default function Home() {
   useEffect(() => {
     if (!isLoading) {
       if (isAuthenticated) {
-        router.replace('/clients');
+        router.replace('/dashboard');
       } else {
         router.replace('/login');
       }
@@ -21,7 +21,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
-      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      <Loader className="h-8 w-8 animate-spin text-muted-foreground" />
     </div>
   );
 }
