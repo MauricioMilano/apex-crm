@@ -5,12 +5,13 @@ import { useCRM } from '@/contexts/crm-context';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import type { Appointment } from '@/types';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { format, parseISO, isSameDay, addMinutes } from 'date-fns';
-import { CheckCircle, Clock, User, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CheckCircle, Clock, User, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Search, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type Step = 1 | 2 | 3 | 4;
@@ -54,9 +55,24 @@ export function BookingFlow({
   const [selectedTime, setSelectedTime] = useState<string | null>(initialTime ?? null);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(initialClientId ?? null);
   const [notes, setNotes] = useState('');
+  const [clientSearchQuery, setClientSearchQuery] = useState('');
 
   const activeServices = services.filter(s => s.isActive);
   const employees = users.filter(u => (u.role === 'employee' || u.role === 'admin') && u.isActive);
+
+  const filteredClients = useMemo(() => {
+    return clients.filter(c => {
+      if (!c.isActive) return false;
+      if (!clientSearchQuery) return true;
+      
+      const query = clientSearchQuery.toLowerCase();
+      const fullName = `${c.firstName} ${c.lastName}`.toLowerCase();
+      const company = (c.company || '').toLowerCase();
+      const email = (c.email || '').toLowerCase();
+      
+      return fullName.includes(query) || company.includes(query) || email.includes(query);
+    });
+  }, [clients, clientSearchQuery]);
 
   const selectedService = services.find(s => s.id === selectedServiceId);
   const selectedEmployee = users.find(u => u.id === selectedEmployeeId);
@@ -333,31 +349,66 @@ export function BookingFlow({
 
           {/* Client selection (only if not pre-set) */}
           {!initialClientId && (
-            <div className="space-y-2">
+            <div className="space-y-3">
               <label className="text-sm text-gray-400 font-medium">Select Client</label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
-                {clients
-                  .filter(c => c.isActive)
-                  .map(c => (
-                    <button
-                      key={c.id}
-                      onClick={() => setSelectedClientId(c.id)}
-                      className={cn(
-                        'text-left px-3 py-2 rounded-lg border text-sm transition-all',
-                        selectedClientId === c.id
-                          ? 'border-blue-500 bg-blue-500/10 text-white'
-                          : 'border-gray-700 bg-gray-800 text-gray-300 hover:border-gray-600',
-                      )}
-                    >
-                      <span className="font-medium">
-                        {c.firstName} {c.lastName}
-                      </span>
-                      {c.company && (
-                        <span className="text-gray-500 text-xs block">{c.company}</span>
-                      )}
-                    </button>
-                  ))}
-              </div>
+              {!selectedClientId ? (
+                <>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      placeholder="Search clients by name, email, or company..."
+                      value={clientSearchQuery}
+                      onChange={(e) => setClientSearchQuery(e.target.value)}
+                      className="pl-9 bg-gray-800 border-gray-700 text-white"
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
+                    {filteredClients.length > 0 ? (
+                      filteredClients.map(c => (
+                        <button
+                          key={c.id}
+                          onClick={() => setSelectedClientId(c.id)}
+                          className="text-left px-3 py-2 rounded-lg border text-sm transition-all border-gray-700 bg-gray-800 text-gray-300 hover:border-gray-600"
+                        >
+                          <span className="font-medium text-white block">
+                            {c.firstName} {c.lastName}
+                          </span>
+                          {c.company && <span className="text-gray-500 text-xs block">{c.company}</span>}
+                        </button>
+                      ))
+                    ) : (
+                      <div className="col-span-full py-4 text-center text-sm text-gray-500">
+                        No clients found.
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="flex items-center justify-between p-3 rounded-lg border border-blue-500 bg-blue-500/10">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-blue-600/20 text-blue-400 flex items-center justify-center font-medium shrink-0">
+                      <User className="h-5 w-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-medium text-white truncate">
+                        {selectedClient?.firstName} {selectedClient?.lastName}
+                      </p>
+                      {selectedClient?.company && <p className="text-xs text-gray-400 truncate">{selectedClient.company}</p>}
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      setSelectedClientId(null);
+                      setClientSearchQuery('');
+                    }}
+                    className="text-gray-400 hover:text-gray-300 hover:bg-gray-800"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
             </div>
           )}
 
