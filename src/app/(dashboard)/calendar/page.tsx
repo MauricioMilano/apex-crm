@@ -94,7 +94,7 @@ export default function CalendarPage() {
       {view === 'week' && (
         <div className="flex-1 min-h-0">
           <CalendarGrid
-            onAppointmentClick={id => router.push(`/dashboard/appointments/${id}`)}
+            onAppointmentClick={id => router.push(`/appointments/${id}`)}
           />
         </div>
       )}
@@ -182,7 +182,7 @@ export default function CalendarPage() {
                               STATUS_BADGE[a.status],
                             )}
                             onClick={() =>
-                              router.push(`/dashboard/appointments/${a.id}`)
+                              router.push(`/appointments/${a.id}`)
                             }
                           >
                             {format(parseISO(a.startTime), 'h:mma')}{' '}
@@ -252,13 +252,13 @@ export default function CalendarPage() {
                 const client = clients.find(c => c.id === a.clientId);
                 const service = services.find(s => s.id === a.serviceId);
                 return (
-                  <button
+                    <button
                     key={a.id}
                     className={cn(
                       'w-full text-left p-4 rounded-lg border cursor-pointer hover:brightness-110 transition-all',
                       STATUS_BADGE[a.status],
                     )}
-                    onClick={() => router.push(`/dashboard/appointments/${a.id}`)}
+                    onClick={() => router.push(`/appointments/${a.id}`)}
                   >
                     <div className="flex items-center justify-between">
                       <p className="font-medium text-white">

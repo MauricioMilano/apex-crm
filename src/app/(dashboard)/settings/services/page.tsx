@@ -113,11 +113,15 @@ export default function ServicesPage() {
     setDialogOpen(false);
   }
 
-  function handleDelete() {
+  async function handleDelete() {
     if (!deleteId) return;
-    deleteService(deleteId);
-    toast.success('Service deleted');
-    setDeleteId(null);
+    try {
+      await deleteService(deleteId);
+      toast.success('Service deleted');
+      setDeleteId(null);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to delete service');
+    }
   }
 
   function toggleActive(svc: Service) {

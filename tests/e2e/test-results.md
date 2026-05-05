@@ -301,7 +301,7 @@ Nine functional areas of ApexCRM were tested via automated browser interaction. 
 
 #### BUG-01 — Sidebar Navigation (OPEN)
 
-**Description:** The sidebar component generates links with a `/dashboard/` prefix (e.g., `/dashboard/leads`, `/dashboard/clients`, `/dashboard/appointments`). The actual Next.js App Router routes are at the root level (`/leads`, `/clients`, `/appointments`). Every sidebar click navigates to a non-existent route.  
+**Description:** The sidebar component generates links with a `/dashboard/` prefix (e.g., `/dashboard/leads`, `/dashboard/clients`, `appointments`). The actual Next.js App Router routes are at the root level (`/leads`, `/clients`, `/appointments`). Every sidebar click navigates to a non-existent route.  
 **Impact:** Users cannot navigate to any section of the application using the sidebar.  
 **Fix:** Update all `href` values in the sidebar component to remove the `/dashboard` prefix.
 

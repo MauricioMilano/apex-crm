@@ -384,7 +384,7 @@ export default function AppointmentsPage() {
                           className="h-7 w-7 p-0 text-gray-400 hover:text-white"
                           title="View Details"
                           onClick={() =>
-                            router.push(`/dashboard/appointments/${appt.id}`)
+                            router.push(`/appointments/${appt.id}`)
                           }
                         >
                           <Eye className="h-3.5 w-3.5" />

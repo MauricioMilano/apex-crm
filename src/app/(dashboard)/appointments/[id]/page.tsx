@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useCRM } from '@/contexts/crm-context';
-import type { AppointmentStatus } from '@/types';
+import type { Appointment, AppointmentStatus } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -68,24 +68,57 @@ export default function AppointmentDetailPage() {
   const { appointments, clients, services, users, updateAppointment, deleteAppointment } =
     useCRM();
 
-  const appt = appointments.find(a => a.id === params.id);
+  const [fetchedAppt, setFetchedAppt] = useState<Appointment | null>(null);
+  const [fetchingAppt, setFetchingAppt] = useState(false);
+
+  useEffect(() => {
+    const id = params.id;
+    if (!id) return;
+    if (appointments.some((a) => a.id === id)) return;
+    if (fetchedAppt && fetchedAppt.id === id) return;
+
+    let cancelled = false;
+    setFetchingAppt(true);
+    (async () => {
+      try {
+        const res = await fetch(`/api/v1/appointments/${id}`);
+        if (!res.ok) return;
+        const json = await res.json();
+        const data = json?.data ?? json;
+        if (!cancelled) setFetchedAppt(data as Appointment);
+      } catch (e) {
+        // ignore
+      } finally {
+        if (!cancelled) setFetchingAppt(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [params.id, appointments, fetchedAppt]);
+
+  const appt = appointments.find((a) => a.id === params.id) ?? fetchedAppt;
 
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [notes, setNotes] = useState(appt?.notes ?? '');
+  const [notes, setNotes] = useState('');
   const [notesSaved, setNotesSaved] = useState(false);
   const [rescheduleOpen, setRescheduleOpen] = useState(false);
   const [newDate, setNewDate] = useState<Date | undefined>(undefined);
   const [newTime, setNewTime] = useState<string | null>(null);
 
+  useEffect(() => {
+    setNotes(appt?.notes ?? '');
+  }, [appt?.notes]);
+
   if (!appt) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <AlertCircle className="h-12 w-12 text-gray-600 mb-3" />
-        <p className="text-gray-400 text-lg mb-4">Appointment not found</p>
+        <p className="text-gray-400 text-lg mb-4">{fetchingAppt ? 'Loading appointment...' : 'Appointment not found'}</p>
         <Button
           variant="ghost"
           className="text-gray-400 hover:text-white"
-          onClick={() => router.back()}
+          onClick={() => router.push('/appointments')}
         >
           <ChevronLeft className="h-4 w-4 mr-1" /> Go Back
         </Button>
@@ -144,7 +177,7 @@ export default function AppointmentDetailPage() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => router.back()}
+            onClick={() => router.push('/appointments')}
             className="text-gray-400 hover:text-white"
           >
             <ChevronLeft className="h-4 w-4" />

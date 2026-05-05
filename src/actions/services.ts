@@ -1,6 +1,7 @@
 "use server"
 
 import { z } from "zod"
+import { Prisma } from "@prisma/client"
 import { prisma } from "@/lib/db"
 
 const ORG_ID = process.env.DEFAULT_ORG_ID ?? "org_default"
@@ -76,9 +77,36 @@ export async function updateService(id: string, data: Partial<CreateServiceInput
 
 export async function deleteService(id: string) {
   try {
+    const [service, appointmentCount] = await Promise.all([
+      prisma.service.findFirst({
+        where: { id, organizationId: ORG_ID },
+        select: { id: true },
+      }),
+      prisma.appointment.count({
+        where: { serviceId: id, organizationId: ORG_ID },
+      }),
+    ])
+
+    if (!service) {
+      return { success: false as const, error: "Service not found" }
+    }
+
+    if (appointmentCount > 0) {
+      return {
+        success: false as const,
+        error: "Cannot delete a service that has existing appointments",
+      }
+    }
+
     await prisma.service.delete({ where: { id } })
     return { success: true as const, data: { id } }
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2003") {
+      return {
+        success: false as const,
+        error: "Cannot delete a service that has existing appointments",
+      }
+    }
     return { success: false as const, error: String(error) }
   }
 }
