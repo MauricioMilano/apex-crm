@@ -27,6 +27,9 @@ import {
   addMinutes,
 } from 'date-fns';
 import { cn } from '@/lib/utils';
+import StatusSelect from '@/components/appointments/status-select';
+import { useCurrentUser } from '@/hooks/use-current-user';
+import { allowedStatusesForRole } from '@/lib/permissions';
 import {
   Calendar,
   Clock,
@@ -169,8 +172,11 @@ export default function AppointmentDetailPage() {
   const canManage =
     appt.status === 'pending' || appt.status === 'confirmed';
 
+  const currentUser = useCurrentUser();
+  const allowedStatuses = allowedStatusesForRole(currentUser?.role ?? 'employee');
+
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
@@ -202,8 +208,11 @@ export default function AppointmentDetailPage() {
         </div>
       </div>
 
-      {/* Appointment Info */}
-      <Card className="bg-gray-900 border-gray-700">
+      {/* Page grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          {/* Appointment Info */}
+          <Card className="bg-gray-900 border-gray-700">
         <CardHeader>
           <CardTitle className="text-white text-base">Appointment Info</CardTitle>
         </CardHeader>
@@ -249,261 +258,225 @@ export default function AppointmentDetailPage() {
             </div>
           )}
         </CardContent>
-      </Card>
+          </Card>
 
-      {/* Client */}
-      {client && (
-        <Card className="bg-gray-900 border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-white text-base flex items-center gap-2">
-              <User className="h-4 w-4 text-gray-400" /> Client
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium text-sm shrink-0">
-                {client.firstName?.[0] ?? ''}
-                {client.lastName?.[0] ?? ''}
-              </div>
-              <div className="flex-1 min-w-0">
-                <Link
-                  href={`/dashboard/clients/${client.id}`}
-                  className="text-white font-medium hover:text-blue-400 transition-colors"
-                >
-                  {client.firstName} {client.lastName}
-                </Link>
-                {client.company && (
-                  <p className="text-sm text-gray-400">{client.company}</p>
-                )}
-                {client.email && (
-                  <p className="text-sm text-gray-500">{client.email}</p>
-                )}
-              </div>
-              <Link href={`/dashboard/clients/${client.id}`}>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="border-gray-700 text-gray-400 hover:text-white shrink-0"
-                >
-                  View Client
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Employee */}
-      {employee && (
-        <Card className="bg-gray-900 border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-white text-base flex items-center gap-2">
-              <User className="h-4 w-4 text-gray-400" /> Employee
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center text-white font-medium text-sm shrink-0">
-                {employee.firstName?.[0] ?? ''}
-                {employee.lastName?.[0] ?? ''}
-              </div>
-              <div>
-                <p className="text-white font-medium">
-                  {employee.firstName} {employee.lastName}
-                </p>
-                <p className="text-sm text-gray-400 capitalize">{employee.role}</p>
-                {employee.email && (
-                  <p className="text-sm text-gray-500">{employee.email}</p>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Service */}
-      {service && (
-        <Card className="bg-gray-900 border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-white text-base flex items-center gap-2">
-              <FileText className="h-4 w-4 text-gray-400" /> Service
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-white font-medium">{service.name}</p>
-                {service.description && (
-                  <p className="text-sm text-gray-400 mt-1">{service.description}</p>
-                )}
-                <p className="text-sm text-gray-500 mt-1">{service.duration} min</p>
-              </div>
-              <Badge
-                variant="outline"
-                className="text-green-400 border-green-500/30 shrink-0"
-              >
-                ${service.price}
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Status Management */}
-      <Card className="bg-gray-900 border-gray-700">
-        <CardHeader>
-          <CardTitle className="text-white text-base">Status Management</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {appt.status === 'pending' && (
-            <div className="flex flex-wrap gap-2">
-              <Button
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-                onClick={() => handleStatusChange('confirmed')}
-              >
-                <CheckCircle className="h-4 w-4 mr-1" /> Confirm
-              </Button>
-              <Button
-                variant="outline"
-                className="border-red-500/50 text-red-400 hover:bg-red-500/20"
-                onClick={() => handleStatusChange('cancelled')}
-              >
-                <XCircle className="h-4 w-4 mr-1" /> Cancel
-              </Button>
-            </div>
-          )}
-          {appt.status === 'confirmed' && (
-            <div className="flex flex-wrap gap-2">
-              <Button
-                className="bg-green-600 hover:bg-green-700 text-white"
-                onClick={() => handleStatusChange('completed')}
-              >
-                <CheckCircle className="h-4 w-4 mr-1" /> Mark Complete
-              </Button>
-              <Button
-                variant="outline"
-                className="border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/20"
-                onClick={() => handleStatusChange('no_show')}
-              >
-                <AlertCircle className="h-4 w-4 mr-1" /> No Show
-              </Button>
-              <Button
-                variant="outline"
-                className="border-red-500/50 text-red-400 hover:bg-red-500/20"
-                onClick={() => handleStatusChange('cancelled')}
-              >
-                <XCircle className="h-4 w-4 mr-1" /> Cancel
-              </Button>
-            </div>
-          )}
-          {!canManage && (
-            <p className="text-sm text-gray-500">
-              This appointment is {statusCfg.label.toLowerCase()}. No further
-              status changes available.
-            </p>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Reschedule */}
-      {canManage && (
-        <Card className="bg-gray-900 border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-white text-base flex items-center justify-between">
-              Reschedule
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-blue-400 hover:text-blue-300 text-sm"
-                onClick={() => setRescheduleOpen(v => !v)}
-              >
-                {rescheduleOpen ? 'Hide' : 'Pick New Time'}
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          {rescheduleOpen && (
-            <CardContent className="space-y-4">
-              <div className="flex flex-col lg:flex-row gap-6">
-                <div className="flex justify-center lg:justify-start">
-                  <CalendarUI
-                    mode="single"
-                    selected={newDate}
-                    onSelect={d => {
-                      setNewDate(d);
-                      setNewTime(null);
-                    }}
-                    disabled={{ before: new Date() }}
-                    className="rounded-lg border border-gray-700 bg-gray-800"
-                  />
-                </div>
-                {newDate && (
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-400 mb-3">
-                      Time slots for{' '}
-                      <span className="text-white">{format(newDate, 'MMMM d')}</span>
-                    </p>
-                    <div className="grid grid-cols-3 gap-2">
-                      {TIME_SLOTS.map(slot => (
-                        <button
-                          key={slot}
-                          onClick={() => setNewTime(slot)}
-                          className={cn(
-                            'py-2 px-2 rounded-lg text-sm font-medium transition-all',
-                            newTime === slot
-                              ? 'bg-blue-500 text-white'
-                              : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700',
-                          )}
-                        >
-                          {formatSlotLabel(slot)}
-                        </button>
-                      ))}
-                    </div>
+          {/* Client */}
+          {client && (
+            <Card className="bg-gray-900 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white text-base flex items-center gap-2">
+                  <User className="h-4 w-4 text-gray-400" /> Client
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium text-sm shrink-0">
+                    {client.firstName?.[0] ?? ''}
+                    {client.lastName?.[0] ?? ''}
                   </div>
-                )}
-              </div>
+                  <div className="flex-1 min-w-0">
+                    <Link
+                      href={`/clients/${client.id}`}
+                      className="text-white font-medium hover:text-blue-400 transition-colors"
+                    >
+                      {client.firstName} {client.lastName}
+                    </Link>
+                    {client.company && (
+                      <p className="text-sm text-gray-400">{client.company}</p>
+                    )}
+                    {client.email && (
+                      <p className="text-sm text-gray-500">{client.email}</p>
+                    )}
+                  </div>
+                  <Link href={`/clients/${client.id}`}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-gray-700 text-gray-400 hover:text-white shrink-0"
+                    >
+                      View Client
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Service */}
+          {service && (
+            <Card className="bg-gray-900 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white text-base flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-gray-400" /> Service
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-white font-medium">{service.name}</p>
+                    {service.description && (
+                      <p className="text-sm text-gray-400 mt-1">{service.description}</p>
+                    )}
+                    <p className="text-sm text-gray-500 mt-1">{service.duration} min</p>
+                  </div>
+                  <Badge
+                    variant="outline"
+                    className="text-green-400 border-green-500/30 shrink-0"
+                  >
+                    ${service.price}
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        <div className="space-y-6">
+          {/* Employee */}
+          {employee && (
+            <Card className="bg-gray-900 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white text-base flex items-center gap-2">
+                  <User className="h-4 w-4 text-gray-400" /> Employee
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center text-white font-medium text-sm shrink-0">
+                    {employee.firstName?.[0] ?? ''}
+                    {employee.lastName?.[0] ?? ''}
+                  </div>
+                  <div>
+                    <p className="text-white font-medium">
+                      {employee.firstName} {employee.lastName}
+                    </p>
+                    <p className="text-sm text-gray-400 capitalize">{employee.role}</p>
+                    {employee.email && (
+                      <p className="text-sm text-gray-500">{employee.email}</p>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Status Management */}
+          <Card className="bg-gray-900 border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-white text-base">Status Management</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <StatusSelect value={appt.status} onChange={handleStatusChange} allowed={allowedStatuses} disabled={!canManage} />
+              {!canManage && (
+                <p className="text-sm text-gray-500 mt-3">
+                  This appointment is {statusCfg.label.toLowerCase()}. No further
+                  status changes available.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Reschedule */}
+          {canManage && (
+            <Card className="bg-gray-900 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white text-base flex items-center justify-between">
+                  Reschedule
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-blue-400 hover:text-blue-300 text-sm"
+                    onClick={() => setRescheduleOpen(v => !v)}
+                  >
+                    {rescheduleOpen ? 'Hide' : 'Pick New Time'}
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              {rescheduleOpen && (
+                <CardContent className="space-y-4">
+                  <div className="flex flex-col lg:flex-row gap-6">
+                    <div className="flex justify-center lg:justify-start">
+                      <CalendarUI
+                        mode="single"
+                        selected={newDate}
+                        onSelect={d => {
+                          setNewDate(d);
+                          setNewTime(null);
+                        }}
+                        disabled={{ before: new Date() }}
+                        className="rounded-lg border border-gray-700 bg-gray-800"
+                      />
+                    </div>
+                    {newDate && (
+                      <div className="flex-1">
+                        <p className="text-sm text-gray-400 mb-3">
+                          Time slots for{' '}
+                          <span className="text-white">{format(newDate, 'MMMM d')}</span>
+                        </p>
+                        <div className="grid grid-cols-3 gap-2">
+                          {TIME_SLOTS.map(slot => (
+                            <button
+                              key={slot}
+                              onClick={() => setNewTime(slot)}
+                              className={cn(
+                                'py-2 px-2 rounded-lg text-sm font-medium transition-all',
+                                newTime === slot
+                                  ? 'bg-blue-500 text-white'
+                                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700',
+                              )}
+                            >
+                              {formatSlotLabel(slot)}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <Button
+                    onClick={handleReschedule}
+                    disabled={!newDate || !newTime}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    <Calendar className="h-4 w-4 mr-1" /> Confirm Reschedule
+                  </Button>
+                </CardContent>
+              )}
+            </Card>
+          )}
+
+          {/* Notes */}
+          <Card className="bg-gray-900 border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-white text-base">Notes</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Textarea
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
+                placeholder="Add notes about this appointment..."
+                className="bg-gray-800 border-gray-700 text-white resize-none"
+                rows={4}
+              />
               <Button
-                onClick={handleReschedule}
-                disabled={!newDate || !newTime}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={handleSaveNotes}
+                variant="outline"
+                className="border-gray-700 text-gray-300 hover:text-white"
               >
-                <Calendar className="h-4 w-4 mr-1" /> Confirm Reschedule
+                {notesSaved ? (
+                  <>
+                    <CheckCircle className="h-4 w-4 mr-1 text-green-400" /> Saved!
+                  </>
+                ) : (
+                  'Save Notes'
+                )}
               </Button>
             </CardContent>
-          )}
-        </Card>
-      )}
+          </Card>
 
-      {/* Notes */}
-      <Card className="bg-gray-900 border-gray-700">
-        <CardHeader>
-          <CardTitle className="text-white text-base">Notes</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <Textarea
-            value={notes}
-            onChange={e => setNotes(e.target.value)}
-            placeholder="Add notes about this appointment..."
-            className="bg-gray-800 border-gray-700 text-white resize-none"
-            rows={4}
-          />
-          <Button
-            onClick={handleSaveNotes}
-            variant="outline"
-            className="border-gray-700 text-gray-300 hover:text-white"
-          >
-            {notesSaved ? (
-              <>
-                <CheckCircle className="h-4 w-4 mr-1 text-green-400" /> Saved!
-              </>
-            ) : (
-              'Save Notes'
-            )}
-          </Button>
-        </CardContent>
-      </Card>
-
-      {/* Delete confirmation */}
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+          {/* Delete confirmation */}
+          </div>
+        </div>
+        <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent className="bg-gray-900 border-gray-700">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white">
