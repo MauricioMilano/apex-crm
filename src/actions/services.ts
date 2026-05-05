@@ -16,6 +16,13 @@ const createServiceSchema = z.object({
 
 type CreateServiceInput = z.infer<typeof createServiceSchema>
 
+function normalizeServicePrice<T extends { price: unknown }>(service: T) {
+  return {
+    ...service,
+    price: Number(service.price),
+  }
+}
+
 export async function getServices(includeInactive = false) {
   try {
     const services = await prisma.service.findMany({
@@ -25,7 +32,7 @@ export async function getServices(includeInactive = false) {
       },
       orderBy: { name: "asc" },
     })
-    return { success: true as const, data: services }
+    return { success: true as const, data: services.map(normalizeServicePrice) }
   } catch (error) {
     return { success: false as const, error: String(error) }
   }
@@ -37,7 +44,7 @@ export async function getService(id: string) {
       where: { id, organizationId: ORG_ID },
     })
     if (!service) return { success: false as const, error: "Service not found" }
-    return { success: true as const, data: service }
+    return { success: true as const, data: normalizeServicePrice(service) }
   } catch (error) {
     return { success: false as const, error: String(error) }
   }
@@ -52,7 +59,7 @@ export async function createService(data: CreateServiceInput) {
     const service = await prisma.service.create({
       data: { ...parsed.data, organizationId: ORG_ID },
     })
-    return { success: true as const, data: service }
+    return { success: true as const, data: normalizeServicePrice(service) }
   } catch (error) {
     return { success: false as const, error: String(error) }
   }
@@ -61,7 +68,7 @@ export async function createService(data: CreateServiceInput) {
 export async function updateService(id: string, data: Partial<CreateServiceInput>) {
   try {
     const service = await prisma.service.update({ where: { id }, data })
-    return { success: true as const, data: service }
+    return { success: true as const, data: normalizeServicePrice(service) }
   } catch (error) {
     return { success: false as const, error: String(error) }
   }
@@ -87,7 +94,7 @@ export async function getEmployeeServices(employeeId: string) {
     if (!profile) return { success: false as const, error: "Employee not found" }
     return {
       success: true as const,
-      data: profile.services.map((es) => es.service),
+      data: profile.services.map((es) => normalizeServicePrice(es.service)),
     }
   } catch (error) {
     return { success: false as const, error: String(error) }

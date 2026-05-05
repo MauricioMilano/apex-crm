@@ -46,6 +46,11 @@ type ServiceForm = {
   isActive: boolean;
 };
 
+function formatServicePrice(price: number | string) {
+  const value = Number(price);
+  return Number.isFinite(value) ? value.toFixed(2) : '0.00';
+}
+
 const emptyForm = (): ServiceForm => ({
   name: '',
   description: '',
@@ -74,7 +79,7 @@ export default function ServicesPage() {
       name: svc.name,
       description: svc.description ?? '',
       duration: svc.duration,
-      price: svc.price,
+      price: Number(svc.price),
       isActive: svc.isActive,
     });
     setDialogOpen(true);
@@ -166,7 +171,7 @@ export default function ServicesPage() {
                   </div>
                 </TableCell>
                 <TableCell className="text-gray-300">{svc.duration} min</TableCell>
-                <TableCell className="text-gray-300">${svc.price.toFixed(2)}</TableCell>
+                <TableCell className="text-gray-300">${formatServicePrice(svc.price)}</TableCell>
                 <TableCell>
                   <Switch
                     checked={svc.isActive}
