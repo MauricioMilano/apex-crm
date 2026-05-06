@@ -11,9 +11,10 @@ COPY prisma ./prisma/
 RUN pnpm install --frozen-lockfile
 
 COPY . .
-
+ARG DATABASE_URL
 ENV DATABASE_URL=$DATABASE_URL
 RUN echo "DATABASE_URL: ${DATABASE_URL}"
+
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV PORT=3000
