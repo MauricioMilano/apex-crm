@@ -1,18 +1,27 @@
-'use client';
+"use client";
 
-import { useState, useMemo } from 'react';
-import { useCRM } from '@/contexts/crm-context';
-import { useCurrentUser } from '@/hooks/use-current-user';
-import type { Appointment } from '@/types';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { Calendar } from '@/components/ui/calendar';
-import { format, parseISO, isSameDay, addMinutes } from 'date-fns';
-import { CheckCircle, Clock, User, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Search, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useState, useMemo } from "react";
+import { useCRM } from "@/contexts/crm-context";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import type { Appointment } from "@/types";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
+import { format, parseISO, isSameDay, addMinutes } from "date-fns";
+import {
+  CheckCircle,
+  Clock,
+  User,
+  Calendar as CalendarIcon,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  X,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -20,14 +29,14 @@ const TIME_SLOTS = Array.from({ length: 17 }, (_, i) => {
   const totalMinutes = 9 * 60 + i * 30;
   const h = Math.floor(totalMinutes / 60);
   const m = totalMinutes % 60;
-  return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+  return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
 }); // "09:00" … "17:00"
 
 function formatSlotLabel(slot: string): string {
-  const [h, m] = slot.split(':').map(Number);
-  const ampm = h >= 12 ? 'PM' : 'AM';
+  const [h, m] = slot.split(":").map(Number);
+  const ampm = h >= 12 ? "PM" : "AM";
   const hour = h === 0 ? 12 : h > 12 ? h - 12 : h;
-  return `${hour}:${m.toString().padStart(2, '0')} ${ampm}`;
+  return `${hour}:${m.toString().padStart(2, "0")} ${ampm}`;
 }
 
 interface BookingFlowProps {
@@ -45,66 +54,97 @@ export function BookingFlow({
   onComplete,
   onCancel,
 }: BookingFlowProps) {
-  const { services, users, clients, appointments, addAppointment } = useCRM();
+  const { services, users, clients, leads, appointments, addAppointment } =
+    useCRM();
   const currentUser = useCurrentUser();
 
   const [step, setStep] = useState<Step>(1);
-  const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(initialDate);
-  const [selectedTime, setSelectedTime] = useState<string | null>(initialTime ?? null);
-  const [selectedClientId, setSelectedClientId] = useState<string | null>(initialClientId ?? null);
-  const [notes, setNotes] = useState('');
-  const [clientSearchQuery, setClientSearchQuery] = useState('');
+  const [selectedServiceId, setSelectedServiceId] = useState<string | null>(
+    null,
+  );
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(
+    null,
+  );
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    initialDate,
+  );
+  const [selectedTime, setSelectedTime] = useState<string | null>(
+    initialTime ?? null,
+  );
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(
+    initialClientId ?? null,
+  );
+  const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
+  const [notes, setNotes] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [entityType, setEntityType] = useState<"client" | "lead">("client");
 
-  const activeServices = services.filter(s => s.isActive);
-  const employees = users.filter(u => (u.role === 'employee' || u.role === 'admin') && u.isActive);
+  const activeServices = services.filter((s) => s.isActive);
+  const employees = users.filter(
+    (u) => (u.role === "employee" || u.role === "admin") && u.isActive,
+  );
 
-  const filteredClients = useMemo(() => {
-    return clients.filter(c => {
-      if (!c.isActive) return false;
-      if (!clientSearchQuery) return true;
-      
-      const query = clientSearchQuery.toLowerCase();
-      const fullName = `${c.firstName} ${c.lastName}`.toLowerCase();
-      const company = (c.company || '').toLowerCase();
-      const email = (c.email || '').toLowerCase();
-      
-      return fullName.includes(query) || company.includes(query) || email.includes(query);
-    });
-  }, [clients, clientSearchQuery]);
+  const filteredEntities = useMemo(() => {
+    if (entityType === "client") {
+      return clients.filter((c) => {
+        if (!c.isActive) return false;
+        if (!searchQuery) return true;
+        const query = searchQuery.toLowerCase();
+        const fullName = `${c.firstName} ${c.lastName}`.toLowerCase();
+        return (
+          fullName.includes(query) ||
+          (c.company || "").toLowerCase().includes(query) ||
+          (c.email || "").toLowerCase().includes(query)
+        );
+      });
+    } else {
+      return leads.filter((l) => {
+        if (!searchQuery) return true;
+        const query = searchQuery.toLowerCase();
+        const fullName = `${l.firstName} ${l.lastName}`.toLowerCase();
+        return (
+          fullName.includes(query) ||
+          (l.company || "").toLowerCase().includes(query) ||
+          (l.email || "").toLowerCase().includes(query)
+        );
+      });
+    }
+  }, [clients, leads, searchQuery, entityType]);
 
-  const selectedService = services.find(s => s.id === selectedServiceId);
-  const selectedEmployee = users.find(u => u.id === selectedEmployeeId);
-  const selectedClient = clients.find(c => c.id === selectedClientId);
+  const selectedService = services.find((s) => s.id === selectedServiceId);
+  const selectedEmployee = users.find((u) => u.id === selectedEmployeeId);
+  const selectedClient = clients.find((c) => c.id === selectedClientId);
+  const selectedLead = leads.find((l) => l.id === selectedLeadId);
 
   const takenSlots = useMemo(() => {
     if (!selectedDate) return new Set<string>();
     const slots = new Set<string>();
     appointments
-      .filter(a => {
+      .filter((a) => {
         const sameDay = isSameDay(parseISO(a.startTime), selectedDate);
-        const sameEmp = selectedEmployeeId ? a.employeeId === selectedEmployeeId : false;
-        return sameDay && sameEmp && a.status !== 'cancelled';
+        const sameEmp = selectedEmployeeId
+          ? a.employeeId === selectedEmployeeId
+          : false;
+        return sameDay && sameEmp && a.status !== "cancelled";
       })
-      .forEach(a => {
+      .forEach((a) => {
         const d = parseISO(a.startTime);
         slots.add(
-          `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`,
+          `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`,
         );
       });
     return slots;
   }, [appointments, selectedDate, selectedEmployeeId]);
 
   function goNext() {
-    setStep(s => (s + 1) as Step);
+    setStep((s) => (s + 1) as Step);
   }
 
   function goBack() {
     if (step === 1) {
       onCancel();
     } else {
-      setStep(s => (s - 1) as Step);
+      setStep((s) => (s - 1) as Step);
     }
   }
 
@@ -115,23 +155,30 @@ export function BookingFlow({
   }
 
   async function handleConfirm() {
-    if (!selectedServiceId || !selectedDate || !selectedTime || !selectedClientId) return;
+    if (
+      !selectedServiceId ||
+      !selectedDate ||
+      !selectedTime ||
+      (!selectedClientId && !selectedLeadId)
+    )
+      return;
 
     const effectiveEmployeeId =
-      selectedEmployeeId ?? (employees[0]?.id ?? 'user_2');
-    const svc = services.find(s => s.id === selectedServiceId)!;
+      selectedEmployeeId ?? employees[0]?.id ?? "user_2";
+    const svc = services.find((s) => s.id === selectedServiceId)!;
 
-    const [h, m] = selectedTime.split(':').map(Number);
+    const [h, m] = selectedTime.split(":").map(Number);
     const startTime = new Date(selectedDate);
     startTime.setHours(h, m, 0, 0);
     const endTime = addMinutes(startTime, svc.duration);
 
     const appt = await addAppointment({
-      organizationId: currentUser?.organizationId ?? '',
-      clientId: selectedClientId,
+      organizationId: currentUser?.organizationId ?? "",
+      clientId: selectedClientId ?? undefined,
+      leadId: selectedLeadId ?? undefined,
       employeeId: effectiveEmployeeId,
       serviceId: selectedServiceId,
-      status: 'pending',
+      status: "pending",
       startTime: startTime.toISOString(),
       endTime: endTime.toISOString(),
       notes,
@@ -140,32 +187,40 @@ export function BookingFlow({
     onComplete(appt);
   }
 
-  const stepLabels: string[] = ['Service', 'Employee', 'Date & Time', 'Confirm'];
+  const stepLabels: string[] = [
+    "Service",
+    "Employee",
+    "Date & Time",
+    "Confirm",
+  ];
 
   return (
     <div className="space-y-6">
       {/* Step indicator */}
       <div className="flex items-center gap-2">
         {stepLabels.map((label, idx) => (
-          <div key={idx} className="flex items-center gap-1 flex-1 last:flex-none">
+          <div
+            key={idx}
+            className="flex items-center gap-1 flex-1 last:flex-none"
+          >
             <div
               className={cn(
-                'flex items-center gap-1.5 text-sm whitespace-nowrap',
+                "flex items-center gap-1.5 text-sm whitespace-nowrap",
                 idx + 1 === step
-                  ? 'text-blue-400'
+                  ? "text-blue-400"
                   : idx + 1 < step
-                  ? 'text-green-400'
-                  : 'text-gray-500',
+                    ? "text-green-400"
+                    : "text-gray-500",
               )}
             >
               <div
                 className={cn(
-                  'w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0',
+                  "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0",
                   idx + 1 === step
-                    ? 'bg-blue-500 text-white'
+                    ? "bg-blue-500 text-white"
                     : idx + 1 < step
-                    ? 'bg-green-500 text-white'
-                    : 'bg-gray-700 text-gray-400',
+                      ? "bg-green-500 text-white"
+                      : "bg-gray-700 text-gray-400",
                 )}
               >
                 {idx + 1 < step ? <CheckCircle className="h-3 w-3" /> : idx + 1}
@@ -175,8 +230,8 @@ export function BookingFlow({
             {idx < stepLabels.length - 1 && (
               <div
                 className={cn(
-                  'flex-1 h-px mx-2',
-                  idx + 1 < step ? 'bg-green-500/50' : 'bg-gray-700',
+                  "flex-1 h-px mx-2",
+                  idx + 1 < step ? "bg-green-500/50" : "bg-gray-700",
                 )}
               />
             )}
@@ -189,15 +244,15 @@ export function BookingFlow({
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-white">Select a Service</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {activeServices.map(svc => (
+            {activeServices.map((svc) => (
               <button
                 key={svc.id}
                 onClick={() => setSelectedServiceId(svc.id)}
                 className={cn(
-                  'text-left p-4 rounded-lg border transition-all',
+                  "text-left p-4 rounded-lg border transition-all",
                   selectedServiceId === svc.id
-                    ? 'border-blue-500 bg-blue-500/10'
-                    : 'border-gray-700 bg-gray-800 hover:border-gray-600',
+                    ? "border-blue-500 bg-blue-500/10"
+                    : "border-gray-700 bg-gray-800 hover:border-gray-600",
                 )}
               >
                 <div className="flex items-center justify-between mb-1">
@@ -207,14 +262,18 @@ export function BookingFlow({
                   )}
                 </div>
                 {svc.description && (
-                  <p className="text-xs text-gray-400 mb-2 line-clamp-2">{svc.description}</p>
+                  <p className="text-xs text-gray-400 mb-2 line-clamp-2">
+                    {svc.description}
+                  </p>
                 )}
                 <div className="flex items-center gap-3 text-sm text-gray-400">
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
                     {svc.duration} min
                   </span>
-                  <span className="text-green-400 font-medium">${svc.price}</span>
+                  <span className="text-green-400 font-medium">
+                    ${svc.price}
+                  </span>
                 </div>
               </button>
             ))}
@@ -225,15 +284,17 @@ export function BookingFlow({
       {/* ── Step 2: Select Employee ── */}
       {step === 2 && (
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-white">Select an Employee</h3>
+          <h3 className="text-lg font-semibold text-white">
+            Select an Employee
+          </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
               onClick={() => setSelectedEmployeeId(null)}
               className={cn(
-                'text-left p-4 rounded-lg border transition-all',
+                "text-left p-4 rounded-lg border transition-all",
                 selectedEmployeeId === null
-                  ? 'border-blue-500 bg-blue-500/10'
-                  : 'border-gray-700 bg-gray-800 hover:border-gray-600',
+                  ? "border-blue-500 bg-blue-500/10"
+                  : "border-gray-700 bg-gray-800 hover:border-gray-600",
               )}
             >
               <div className="flex items-center gap-3">
@@ -242,7 +303,9 @@ export function BookingFlow({
                 </div>
                 <div className="flex-1">
                   <p className="font-medium text-white">Any Available</p>
-                  <p className="text-xs text-gray-400">Auto-assign to available staff</p>
+                  <p className="text-xs text-gray-400">
+                    Auto-assign to available staff
+                  </p>
                 </div>
                 {selectedEmployeeId === null && (
                   <CheckCircle className="h-4 w-4 text-blue-400" />
@@ -250,27 +313,29 @@ export function BookingFlow({
               </div>
             </button>
 
-            {employees.map(emp => (
+            {employees.map((emp) => (
               <button
                 key={emp.id}
                 onClick={() => setSelectedEmployeeId(emp.id)}
                 className={cn(
-                  'text-left p-4 rounded-lg border transition-all',
+                  "text-left p-4 rounded-lg border transition-all",
                   selectedEmployeeId === emp.id
-                    ? 'border-blue-500 bg-blue-500/10'
-                    : 'border-gray-700 bg-gray-800 hover:border-gray-600',
+                    ? "border-blue-500 bg-blue-500/10"
+                    : "border-gray-700 bg-gray-800 hover:border-gray-600",
                 )}
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium text-sm shrink-0">
-                    {emp.firstName?.[0] ?? ''}
-                    {emp.lastName?.[0] ?? ''}
+                    {emp.firstName?.[0] ?? ""}
+                    {emp.lastName?.[0] ?? ""}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-white">
                       {emp.firstName} {emp.lastName}
                     </p>
-                    <p className="text-xs text-gray-400 capitalize">{emp.role}</p>
+                    <p className="text-xs text-gray-400 capitalize">
+                      {emp.role}
+                    </p>
                   </div>
                   {selectedEmployeeId === emp.id && (
                     <CheckCircle className="h-4 w-4 text-blue-400" />
@@ -285,13 +350,15 @@ export function BookingFlow({
       {/* ── Step 3: Select Date & Time ── */}
       {step === 3 && (
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-white">Select Date & Time</h3>
+          <h3 className="text-lg font-semibold text-white">
+            Select Date & Time
+          </h3>
           <div className="flex flex-col lg:flex-row gap-6">
             <div className="flex justify-center lg:justify-start">
               <Calendar
                 mode="single"
                 selected={selectedDate}
-                onSelect={d => {
+                onSelect={(d) => {
                   setSelectedDate(d);
                   setSelectedTime(null);
                 }}
@@ -303,13 +370,13 @@ export function BookingFlow({
             {selectedDate && (
               <div className="flex-1">
                 <p className="text-sm text-gray-400 mb-3">
-                  Available slots for{' '}
+                  Available slots for{" "}
                   <span className="text-white font-medium">
-                    {format(selectedDate, 'EEEE, MMMM d')}
+                    {format(selectedDate, "EEEE, MMMM d")}
                   </span>
                 </p>
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                  {TIME_SLOTS.map(slot => {
+                  {TIME_SLOTS.map((slot) => {
                     const taken = takenSlots.has(slot);
                     return (
                       <button
@@ -317,12 +384,12 @@ export function BookingFlow({
                         disabled={taken}
                         onClick={() => setSelectedTime(slot)}
                         className={cn(
-                          'py-2 px-3 rounded-lg text-sm font-medium transition-all',
+                          "py-2 px-3 rounded-lg text-sm font-medium transition-all",
                           taken
-                            ? 'bg-gray-800 text-gray-600 cursor-not-allowed line-through'
+                            ? "bg-gray-800 text-gray-600 cursor-not-allowed line-through"
                             : selectedTime === slot
-                            ? 'bg-blue-500 text-white'
-                            : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700',
+                              ? "bg-blue-500 text-white"
+                              : "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700",
                         )}
                       >
                         {formatSlotLabel(slot)}
@@ -345,40 +412,87 @@ export function BookingFlow({
       {/* ── Step 4: Confirm ── */}
       {step === 4 && (
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-white">Confirm Appointment</h3>
+          <h3 className="text-lg font-semibold text-white">
+            Confirm Appointment
+          </h3>
 
-          {/* Client selection (only if not pre-set) */}
+          {/* Client/Lead selection (only if not pre-set) */}
           {!initialClientId && (
             <div className="space-y-3">
-              <label className="text-sm text-gray-400 font-medium">Select Client</label>
-              {!selectedClientId ? (
+              <div className="flex items-center justify-between">
+                <label className="text-sm text-gray-400 font-medium">
+                  Select {entityType === "client" ? "Client" : "Lead"}
+                </label>
+                {!selectedClientId && !selectedLeadId && (
+                  <div className="flex bg-gray-900 rounded-md p-0.5 border border-gray-700">
+                    <button
+                      onClick={() => {
+                        setEntityType("client");
+                        setSearchQuery("");
+                      }}
+                      className={cn(
+                        "px-2 py-1 text-xs rounded-sm transition-colors",
+                        entityType === "client"
+                          ? "bg-blue-600 text-white"
+                          : "text-gray-400 hover:text-gray-200",
+                      )}
+                    >
+                      Client
+                    </button>
+                    <button
+                      onClick={() => {
+                        setEntityType("lead");
+                        setSearchQuery("");
+                      }}
+                      className={cn(
+                        "px-2 py-1 text-xs rounded-sm transition-colors",
+                        entityType === "lead"
+                          ? "bg-blue-600 text-white"
+                          : "text-gray-400 hover:text-gray-200",
+                      )}
+                    >
+                      Lead
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {!selectedClientId && !selectedLeadId ? (
                 <>
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
-                      placeholder="Search clients by name, email, or company..."
-                      value={clientSearchQuery}
-                      onChange={(e) => setClientSearchQuery(e.target.value)}
+                      placeholder={`Search ${entityType}s by name, email, or company...`}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-9 bg-gray-800 border-gray-700 text-white"
                     />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
-                    {filteredClients.length > 0 ? (
-                      filteredClients.map(c => (
+                    {filteredEntities.length > 0 ? (
+                      filteredEntities.map((e) => (
                         <button
-                          key={c.id}
-                          onClick={() => setSelectedClientId(c.id)}
+                          key={e.id}
+                          onClick={() =>
+                            entityType === "client"
+                              ? setSelectedClientId(e.id)
+                              : setSelectedLeadId(e.id)
+                          }
                           className="text-left px-3 py-2 rounded-lg border text-sm transition-all border-gray-700 bg-gray-800 text-gray-300 hover:border-gray-600"
                         >
                           <span className="font-medium text-white block">
-                            {c.firstName} {c.lastName}
+                            {e.firstName} {e.lastName}
                           </span>
-                          {c.company && <span className="text-gray-500 text-xs block">{c.company}</span>}
+                          {e.company && (
+                            <span className="text-gray-500 text-xs block">
+                              {e.company}
+                            </span>
+                          )}
                         </button>
                       ))
                     ) : (
                       <div className="col-span-full py-4 text-center text-sm text-gray-500">
-                        No clients found.
+                        No {entityType}s found.
                       </div>
                     )}
                   </div>
@@ -391,9 +505,15 @@ export function BookingFlow({
                     </div>
                     <div className="min-w-0">
                       <p className="font-medium text-white truncate">
-                        {selectedClient?.firstName} {selectedClient?.lastName}
+                        {selectedClient
+                          ? `${selectedClient.firstName} ${selectedClient.lastName}`
+                          : `${selectedLead?.firstName} ${selectedLead?.lastName}`}
                       </p>
-                      {selectedClient?.company && <p className="text-xs text-gray-400 truncate">{selectedClient.company}</p>}
+                      <p className="text-xs text-gray-400 truncate">
+                        {selectedClient
+                          ? selectedClient.company || "Client"
+                          : selectedLead?.company || "Lead"}
+                      </p>
                     </div>
                   </div>
                   <Button
@@ -401,7 +521,8 @@ export function BookingFlow({
                     size="icon"
                     onClick={() => {
                       setSelectedClientId(null);
-                      setClientSearchQuery('');
+                      setSelectedLeadId(null);
+                      setSearchQuery("");
                     }}
                     className="text-gray-400 hover:text-gray-300 hover:bg-gray-800"
                   >
@@ -415,12 +536,16 @@ export function BookingFlow({
           {/* Summary */}
           <Card className="bg-gray-800 border-gray-700">
             <CardContent className="p-4 space-y-3">
-              {selectedClient && (
+              {(selectedClient || selectedLead) && (
                 <div className="flex items-center gap-2 text-sm">
                   <User className="h-4 w-4 text-gray-400 shrink-0" />
-                  <span className="text-gray-400">Client:</span>
+                  <span className="text-gray-400">
+                    {selectedClient ? "Client:" : "Lead:"}
+                  </span>
                   <span className="text-white font-medium">
-                    {selectedClient.firstName} {selectedClient.lastName}
+                    {selectedClient
+                      ? `${selectedClient.firstName} ${selectedClient.lastName}`
+                      : `${selectedLead?.firstName} ${selectedLead?.lastName}`}
                   </span>
                 </div>
               )}
@@ -440,7 +565,9 @@ export function BookingFlow({
                   <div className="flex items-center gap-2 text-sm">
                     <Clock className="h-4 w-4 text-gray-400 shrink-0" />
                     <span className="text-gray-400">Duration:</span>
-                    <span className="text-white">{selectedService.duration} min</span>
+                    <span className="text-white">
+                      {selectedService.duration} min
+                    </span>
                   </div>
                 </>
               )}
@@ -449,7 +576,8 @@ export function BookingFlow({
                   <CalendarIcon className="h-4 w-4 text-gray-400 shrink-0" />
                   <span className="text-gray-400">When:</span>
                   <span className="text-white">
-                    {format(selectedDate, 'MMM d, yyyy')} at {formatSlotLabel(selectedTime)}
+                    {format(selectedDate, "MMM d, yyyy")} at{" "}
+                    {formatSlotLabel(selectedTime)}
                   </span>
                 </div>
               )}
@@ -473,10 +601,12 @@ export function BookingFlow({
           </Card>
 
           <div className="space-y-2">
-            <label className="text-sm text-gray-400 font-medium">Notes (optional)</label>
+            <label className="text-sm text-gray-400 font-medium">
+              Notes (optional)
+            </label>
             <Textarea
               value={notes}
-              onChange={e => setNotes(e.target.value)}
+              onChange={(e) => setNotes(e.target.value)}
               placeholder="Add any notes or special requests..."
               className="bg-gray-800 border-gray-700 text-white resize-none"
               rows={3}
@@ -493,7 +623,7 @@ export function BookingFlow({
           className="text-gray-400 hover:text-white"
         >
           <ChevronLeft className="h-4 w-4 mr-1" />
-          {step === 1 ? 'Cancel' : 'Back'}
+          {step === 1 ? "Cancel" : "Back"}
         </Button>
 
         {step < 4 ? (
@@ -508,7 +638,10 @@ export function BookingFlow({
           <Button
             onClick={handleConfirm}
             disabled={
-              !selectedClientId || !selectedServiceId || !selectedDate || !selectedTime
+              (!selectedClientId && !selectedLeadId) ||
+              !selectedServiceId ||
+              !selectedDate ||
+              !selectedTime
             }
             className="bg-blue-600 hover:bg-blue-700 text-white"
           >

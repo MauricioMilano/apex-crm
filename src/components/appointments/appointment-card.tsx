@@ -32,9 +32,10 @@ export function AppointmentCard({
   onCancel,
   onReschedule,
 }: AppointmentCardProps) {
-  const { clients, users, services } = useCRM();
+  const { clients, leads, users, services } = useCRM();
 
   const client = clients.find(c => c.id === appointment.clientId);
+  const lead = leads.find(l => l.id === appointment.leadId);
   const employee = users.find(u => u.id === appointment.employeeId);
   const service = services.find(s => s.id === appointment.serviceId);
 
@@ -55,8 +56,13 @@ export function AppointmentCard({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <span className="font-medium text-white truncate">
-                {client ? `${client.firstName} ${client.lastName}` : 'Unknown Client'}
+                {client ? `${client.firstName} ${client.lastName}` : lead ? `${lead.firstName} ${lead.lastName}` : 'Unknown Entity'}
               </span>
+              {lead && !client && (
+                <Badge variant="outline" className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[10px] h-4">
+                  Lead
+                </Badge>
+              )}
               <Badge variant="outline" className={cn('shrink-0 text-xs', status.className)}>
                 {status.label}
               </Badge>

@@ -73,7 +73,7 @@ type SortDir = 'asc' | 'desc';
 
 export default function AppointmentsPage() {
   const router = useRouter();
-  const { appointments, clients, services, users, updateAppointment, deleteAppointment } =
+  const { appointments, clients, leads, services, users, updateAppointment, deleteAppointment } =
     useCRM();
 
   const [newApptOpen, setNewApptOpen] = useState(false);
@@ -123,8 +123,11 @@ export default function AppointmentsPage() {
       } else if (sortKey === 'clientName') {
         const ca = clients.find(c => c.id === a.clientId);
         const cb = clients.find(c => c.id === b.clientId);
-        av = ca ? `${ca.firstName} ${ca.lastName}` : '';
-        bv = cb ? `${cb.firstName} ${cb.lastName}` : '';
+        const la = leads.find(l => l.id === a.leadId);
+        const lb = leads.find(l => l.id === b.leadId);
+        
+        av = ca ? `${ca.firstName} ${ca.lastName}` : (la ? `${la.firstName} ${la.lastName}` : '');
+        bv = cb ? `${cb.firstName} ${cb.lastName}` : (lb ? `${lb.firstName} ${lb.lastName}` : '');
       } else if (sortKey === 'serviceName') {
         av = services.find(s => s.id === a.serviceId)?.name ?? '';
         bv = services.find(s => s.id === b.serviceId)?.name ?? '';
@@ -298,6 +301,7 @@ export default function AppointmentsPage() {
               )}
               {filtered.map(appt => {
                 const client = clients.find(c => c.id === appt.clientId);
+                const lead = leads.find(l => l.id === appt.leadId);
                 const service = services.find(s => s.id === appt.serviceId);
                 const employee = users.find(u => u.id === appt.employeeId);
                 const start = parseISO(appt.startTime);
@@ -317,6 +321,8 @@ export default function AppointmentsPage() {
                     <TableCell className="text-gray-300">
                       {client
                         ? `${client.firstName} ${client.lastName}`
+                        : lead
+                        ? `${lead.firstName} ${lead.lastName} (Lead)`
                         : '—'}
                     </TableCell>
                     <TableCell className="text-gray-300">

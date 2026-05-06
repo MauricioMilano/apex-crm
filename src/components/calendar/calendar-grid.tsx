@@ -55,7 +55,7 @@ interface CalendarGridProps {
 }
 
 export function CalendarGrid({ onAppointmentClick }: CalendarGridProps) {
-  const { appointments, clients, services, users, updateAppointment } = useCRM();
+  const { appointments, clients, leads, services, users, updateAppointment } = useCRM();
 
   const [currentWeekStart, setCurrentWeekStart] = useState(() =>
     startOfWeek(new Date(), { weekStartsOn: 1 }),
@@ -233,6 +233,7 @@ export function CalendarGrid({ onAppointmentClick }: CalendarGridProps) {
                   const style = getAppointmentStyle(appt);
                   const colors = STATUS_COLORS[appt.status];
                   const client = clients.find(c => c.id === appt.clientId);
+                  const lead = leads.find(l => l.id === appt.leadId);
                   const service = services.find(s => s.id === appt.serviceId);
                   const startDt = parseISO(appt.startTime);
 
@@ -251,7 +252,11 @@ export function CalendarGrid({ onAppointmentClick }: CalendarGridProps) {
                           onClick={e => e.stopPropagation()}
                         >
                           <p className="font-semibold truncate">
-                            {client ? `${client.firstName} ${client.lastName}` : 'Client'}
+                            {client 
+                              ? `${client.firstName} ${client.lastName}` 
+                              : lead 
+                              ? `${lead.firstName} ${lead.lastName} (Lead)` 
+                              : 'Appointment'}
                           </p>
                           {service && <p className="opacity-70 truncate">{service.name}</p>}
                           <p className="opacity-60">{format(startDt, 'h:mm a')}</p>
@@ -308,9 +313,10 @@ function AppointmentPopover({
   onViewDetail: () => void;
   onStatusChange: (status: AppointmentStatus) => void;
 }) {
-  const { clients, services, users } = useCRM();
+  const { clients, leads, services, users } = useCRM();
 
   const client = clients.find(c => c.id === appointment.clientId);
+  const lead = leads.find(l => l.id === appointment.leadId);
   const service = services.find(s => s.id === appointment.serviceId);
   const employee = users.find(u => u.id === appointment.employeeId);
   const start = parseISO(appointment.startTime);
@@ -328,7 +334,11 @@ function AppointmentPopover({
     <div className="space-y-3">
       <div>
         <p className="font-semibold text-white">
-          {client ? `${client.firstName} ${client.lastName}` : 'Unknown Client'}
+          {client 
+            ? `${client.firstName} ${client.lastName}` 
+            : lead 
+            ? `${lead.firstName} ${lead.lastName} (Lead)` 
+            : 'Unknown'}
         </p>
         <p className="text-sm text-gray-400">{service?.name}</p>
         <p className="text-xs text-gray-500 mt-0.5">

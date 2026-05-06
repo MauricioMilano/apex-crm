@@ -8,31 +8,30 @@ datasource db {
 }
 
 model Organization {
-  id        String   @id @default(cuid())
-  name      String
-  slug      String   @unique
-  logo      String?
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  locations    Location[]
-  users        User[]
+  id           String        @id @default(cuid())
+  name         String
+  slug         String        @unique
+  logo         String?
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  apiKeys      ApiKey[]
+  appointments Appointment[]
+  auditLogs    AuditLog[]
+  clients      Client[]
+  forms        Form[]
   leadStatuses LeadStatus[]
   leads        Lead[]
-  clients      Client[]
+  locations    Location[]
   services     Service[]
-  forms        Form[]
+  users        User[]
   webhooks     Webhook[]
-  apiKeys      ApiKey[]
-  auditLogs    AuditLog[]
-  appointments Appointment[]
 
   @@map("organizations")
 }
 
 model Location {
-  id             String   @id @default(cuid())
-  organizationId String   @map("organization_id")
+  id             String        @id @default(cuid())
+  organizationId String        @map("organization_id")
   name           String
   address        String?
   city           String?
@@ -40,49 +39,289 @@ model Location {
   zip            String?
   phone          String?
   email          String?
-  timezone       String   @default("America/Chicago")
-  isActive       Boolean  @default(true) @map("is_active")
-  isDefault      Boolean  @default(false) @map("is_default")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
-
-  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  users        User[]
-  leads        Lead[]
-  clients      Client[]
-  appointments Appointment[]
-  blockedSlots BlockedSlot[]
+  timezone       String        @default("America/Chicago")
+  isActive       Boolean       @default(true) @map("is_active")
+  isDefault      Boolean       @default(false) @map("is_default")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+  appointments   Appointment[]
+  blockedSlots   BlockedSlot[]
+  clients        Client[]
+  leads          Lead[]
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  users          User[]
 
   @@map("locations")
 }
 
 model User {
-  id               String    @id @default(cuid())
-  organizationId   String    @map("organization_id")
-  locationId       String?   @map("location_id")
-  email            String    @unique
-  passwordHash     String?   @map("password_hash")
-  magicLinkToken   String?   @map("magic_link_token")
-  magicLinkExpires DateTime? @map("magic_link_expires")
-  role             UserRole  @default(employee)
-  firstName        String    @map("first_name")
-  lastName         String    @map("last_name")
+  id               String           @id @default(cuid())
+  organizationId   String           @map("organization_id")
+  locationId       String?          @map("location_id")
+  email            String           @unique
+  passwordHash     String?          @map("password_hash")
+  magicLinkToken   String?          @map("magic_link_token")
+  magicLinkExpires DateTime?        @map("magic_link_expires")
+  role             UserRole         @default(employee)
+  firstName        String           @map("first_name")
+  lastName         String           @map("last_name")
   phone            String?
   avatar           String?
-  isActive         Boolean   @default(true) @map("is_active")
-  createdAt        DateTime  @default(now()) @map("created_at")
-  updatedAt        DateTime  @updatedAt @map("updated_at")
-
-  organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  location        Location?        @relation(fields: [locationId], references: [id])
-  employeeProfile EmployeeProfile?
-  leadsAssigned   Lead[]           @relation("LeadAssignee")
-  clientsAssigned Client[]         @relation("ClientAssignee")
-  appointments    Appointment[]    @relation("EmployeeAppointments")
-  auditLogs       AuditLog[]
-  clientFiles     ClientFile[]
+  isActive         Boolean          @default(true) @map("is_active")
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+  appointments     Appointment[]    @relation("EmployeeAppointments")
+  auditLogs        AuditLog[]
+  clientFiles      ClientFile[]
+  clientsAssigned  Client[]         @relation("ClientAssignee")
+  employeeProfile  EmployeeProfile?
+  leadsAssigned    Lead[]           @relation("LeadAssignee")
+  location         Location?        @relation(fields: [locationId], references: [id])
+  organization     Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@map("users")
+}
+
+model EmployeeProfile {
+  id            String            @id @default(cuid())
+  userId        String            @unique @map("user_id")
+  bio           String?
+  workingHours  Json              @default("{}") @map("working_hours")
+  bufferMinutes Int               @default(0) @map("buffer_minutes")
+  createdAt     DateTime          @default(now()) @map("created_at")
+  updatedAt     DateTime          @updatedAt @map("updated_at")
+  blockedSlots  BlockedSlot[]
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  services      EmployeeService[]
+
+  @@map("employee_profiles")
+}
+
+model Service {
+  id               String            @id @default(cuid())
+  organizationId   String            @map("organization_id")
+  name             String
+  description      String?
+  duration         Int
+  price            Decimal           @db.Decimal(10, 2)
+  color            String?
+  isActive         Boolean           @default(true) @map("is_active")
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+  appointments     Appointment[]
+  employeeServices EmployeeService[]
+  organization     Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("services")
+}
+
+model EmployeeService {
+  id             String          @id @default(cuid())
+  employeeId     String          @map("employee_id")
+  serviceId      String          @map("service_id")
+  customDuration Int?            @map("custom_duration")
+  customPrice    Decimal?        @map("custom_price") @db.Decimal(10, 2)
+  createdAt      DateTime        @default(now()) @map("created_at")
+  employee       EmployeeProfile @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  service        Service         @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, serviceId])
+  @@map("employee_services")
+}
+
+model LeadStatus {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  name           String
+  color          String       @default("#6366f1")
+  order          Int          @default(0)
+  isDefault      Boolean      @default(false) @map("is_default")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  leads          Lead[]
+
+  @@map("lead_statuses")
+}
+
+model Lead {
+  id                  String        @id @default(cuid())
+  organizationId      String        @map("organization_id")
+  locationId          String?       @map("location_id")
+  statusId            String        @map("status_id")
+  assignedTo          String?       @map("assigned_to")
+  firstName           String        @map("first_name")
+  lastName            String        @map("last_name")
+  email               String?
+  phone               String?
+  company             String?
+  source              String?
+  notes               String?
+  value               Decimal?      @db.Decimal(10, 2)
+  tags                String[]      @default([])
+  convertedToClientId String?       @map("converted_to_client_id")
+  formId              String?       @map("form_id")
+  customFields        Json          @default("{}") @map("custom_fields")
+  createdAt           DateTime      @default(now()) @map("created_at")
+  updatedAt           DateTime      @updatedAt @map("updated_at")
+  appointments        Appointment[]
+  assignee            User?         @relation("LeadAssignee", fields: [assignedTo], references: [id])
+  form                Form?         @relation(fields: [formId], references: [id])
+  location            Location?     @relation(fields: [locationId], references: [id])
+  organization        Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  status              LeadStatus    @relation(fields: [statusId], references: [id])
+
+  @@map("leads")
+}
+
+model Client {
+  id             String        @id @default(cuid())
+  organizationId String        @map("organization_id")
+  locationId     String?       @map("location_id")
+  assignedTo     String?       @map("assigned_to")
+  leadId         String?       @map("lead_id")
+  firstName      String        @map("first_name")
+  lastName       String        @map("last_name")
+  email          String?
+  phone          String?
+  company        String?
+  address        String?
+  city           String?
+  state          String?
+  zip            String?
+  notes          String?
+  tags           String[]      @default([])
+  isActive       Boolean       @default(true) @map("is_active")
+  customFields   Json          @default("{}") @map("custom_fields")
+  billingInfo    Json          @default("{}") @map("billing_info")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+  appointments   Appointment[]
+  files          ClientFile[]
+  assignee       User?         @relation("ClientAssignee", fields: [assignedTo], references: [id])
+  location       Location?     @relation(fields: [locationId], references: [id])
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("clients")
+}
+
+model ClientFile {
+  id             String   @id @default(cuid())
+  clientId       String   @map("client_id")
+  uploadedBy     String   @map("uploaded_by")
+  fileName       String   @map("file_name")
+  fileUrl        String   @map("file_url")
+  fileType       String   @map("file_type")
+  fileSize       Int?     @map("file_size")
+  createdAt      DateTime @default(now()) @map("created_at")
+  client         Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  uploadedByUser User     @relation(fields: [uploadedBy], references: [id])
+
+  @@map("client_files")
+}
+
+model Form {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  name           String
+  description    String?
+  fields         Json         @default("[]")
+  styling        Json         @default("{}")
+  isPublished    Boolean      @default(false) @map("is_published")
+  embedCode      String?      @map("embed_code")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  leads          Lead[]
+
+  @@map("forms")
+}
+
+model Appointment {
+  id             String            @id @default(cuid())
+  organizationId String            @map("organization_id")
+  locationId     String?           @map("location_id")
+  clientId       String?           @map("client_id")
+  employeeId     String            @map("employee_id")
+  serviceId      String            @map("service_id")
+  status         AppointmentStatus @default(pending)
+  startTime      DateTime          @map("start_time")
+  endTime        DateTime          @map("end_time")
+  notes          String?
+  cancelReason   String?           @map("cancel_reason")
+  recurringId    String?           @map("recurring_id")
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
+  leadId         String?           @map("lead_id")
+  client         Client?           @relation(fields: [clientId], references: [id])
+  employee       User              @relation("EmployeeAppointments", fields: [employeeId], references: [id])
+  lead           Lead?             @relation(fields: [leadId], references: [id])
+  location       Location?         @relation(fields: [locationId], references: [id])
+  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  service        Service           @relation(fields: [serviceId], references: [id])
+
+  @@map("appointments")
+}
+
+model BlockedSlot {
+  id         String          @id @default(cuid())
+  employeeId String          @map("employee_id")
+  locationId String?         @map("location_id")
+  startTime  DateTime        @map("start_time")
+  endTime    DateTime        @map("end_time")
+  reason     String?
+  createdAt  DateTime        @default(now()) @map("created_at")
+  updatedAt  DateTime        @updatedAt @map("updated_at")
+  employee   EmployeeProfile @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  location   Location?       @relation(fields: [locationId], references: [id])
+
+  @@map("blocked_slots")
+}
+
+model Webhook {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  name           String
+  url            String
+  events         String[]     @default([])
+  secret         String?
+  isActive       Boolean      @default(true) @map("is_active")
+  lastTriggered  DateTime?    @map("last_triggered")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("webhooks")
+}
+
+model ApiKey {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  name           String
+  keyHash        String       @map("key_hash")
+  keyPrefix      String       @map("key_prefix")
+  permissions    String[]     @default([])
+  lastUsedAt     DateTime?    @map("last_used_at")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("api_keys")
+}
+
+model AuditLog {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  userId         String       @map("user_id")
+  action         String
+  entityType     String       @map("entity_type")
+  entityId       String?      @map("entity_id")
+  details        Json         @default("{}")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
 }
 
 enum UserRole {
@@ -94,193 +333,6 @@ enum UserRole {
   @@map("user_role")
 }
 
-model EmployeeProfile {
-  id            String   @id @default(cuid())
-  userId        String   @unique @map("user_id")
-  bio           String?
-  workingHours  Json     @default("{}") @map("working_hours")
-  bufferMinutes Int      @default(0) @map("buffer_minutes")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
-
-  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  services     EmployeeService[]
-  blockedSlots BlockedSlot[]
-
-  @@map("employee_profiles")
-}
-
-model Service {
-  id             String   @id @default(cuid())
-  organizationId String   @map("organization_id")
-  name           String
-  description    String?
-  duration       Int // minutes
-  price          Decimal  @db.Decimal(10, 2)
-  color          String?
-  isActive       Boolean  @default(true) @map("is_active")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
-
-  organization     Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  employeeServices EmployeeService[]
-  appointments     Appointment[]
-
-  @@map("services")
-}
-
-model EmployeeService {
-  id             String   @id @default(cuid())
-  employeeId     String   @map("employee_id")
-  serviceId      String   @map("service_id")
-  customDuration Int?     @map("custom_duration")
-  customPrice    Decimal? @map("custom_price") @db.Decimal(10, 2)
-  createdAt      DateTime @default(now()) @map("created_at")
-
-  employee EmployeeProfile @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  service  Service         @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-
-  @@unique([employeeId, serviceId])
-  @@map("employee_services")
-}
-
-model LeadStatus {
-  id             String   @id @default(cuid())
-  organizationId String   @map("organization_id")
-  name           String
-  color          String   @default("#6366f1")
-  order          Int      @default(0)
-  isDefault      Boolean  @default(false) @map("is_default")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
-
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  leads        Lead[]
-
-  @@map("lead_statuses")
-}
-
-model Lead {
-  id                  String   @id @default(cuid())
-  organizationId      String   @map("organization_id")
-  locationId          String?  @map("location_id")
-  statusId            String   @map("status_id")
-  assignedTo          String?  @map("assigned_to")
-  firstName           String   @map("first_name")
-  lastName            String   @map("last_name")
-  email               String?
-  phone               String?
-  company             String?
-  source              String?
-  notes               String?
-  value               Decimal? @db.Decimal(10, 2)
-  tags                String[] @default([])
-  convertedToClientId String?  @map("converted_to_client_id")
-  formId              String?  @map("form_id")
-  customFields        Json     @default("{}") @map("custom_fields")
-  createdAt           DateTime @default(now()) @map("created_at")
-  updatedAt           DateTime @updatedAt @map("updated_at")
-
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  location     Location?    @relation(fields: [locationId], references: [id])
-  status       LeadStatus   @relation(fields: [statusId], references: [id])
-  assignee     User?        @relation("LeadAssignee", fields: [assignedTo], references: [id])
-  form         Form?        @relation(fields: [formId], references: [id])
-
-  @@map("leads")
-}
-
-model Client {
-  id             String   @id @default(cuid())
-  organizationId String   @map("organization_id")
-  locationId     String?  @map("location_id")
-  assignedTo     String?  @map("assigned_to")
-  leadId         String?  @map("lead_id")
-  firstName      String   @map("first_name")
-  lastName       String   @map("last_name")
-  email          String?
-  phone          String?
-  company        String?
-  address        String?
-  city           String?
-  state          String?
-  zip            String?
-  notes          String?
-  tags           String[] @default([])
-  isActive       Boolean  @default(true) @map("is_active")
-  customFields   Json     @default("{}") @map("custom_fields")
-  billingInfo    Json     @default("{}") @map("billing_info")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
-
-  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  location     Location?     @relation(fields: [locationId], references: [id])
-  assignee     User?         @relation("ClientAssignee", fields: [assignedTo], references: [id])
-  appointments Appointment[]
-  files        ClientFile[]
-
-  @@map("clients")
-}
-
-model ClientFile {
-  id           String   @id @default(cuid())
-  clientId     String   @map("client_id")
-  uploadedBy   String   @map("uploaded_by")
-  fileName     String   @map("file_name")
-  fileUrl      String   @map("file_url")
-  fileType     String   @map("file_type")
-  fileSize     Int?     @map("file_size")
-  createdAt    DateTime @default(now()) @map("created_at")
-
-  client         Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  uploadedByUser User   @relation(fields: [uploadedBy], references: [id])
-
-  @@map("client_files")
-}
-
-model Form {
-  id             String   @id @default(cuid())
-  organizationId String   @map("organization_id")
-  name           String
-  description    String?
-  fields         Json     @default("[]")
-  styling        Json     @default("{}")
-  isPublished    Boolean  @default(false) @map("is_published")
-  embedCode      String?  @map("embed_code")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
-
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  leads        Lead[]
-
-  @@map("forms")
-}
-
-model Appointment {
-  id             String            @id @default(cuid())
-  organizationId String            @map("organization_id")
-  locationId     String?           @map("location_id")
-  clientId       String            @map("client_id")
-  employeeId     String            @map("employee_id")
-  serviceId      String            @map("service_id")
-  status         AppointmentStatus @default(pending)
-  startTime      DateTime          @map("start_time")
-  endTime        DateTime          @map("end_time")
-  notes          String?
-  cancelReason   String?           @map("cancel_reason")
-  recurringId    String?           @map("recurring_id")
-  createdAt      DateTime          @default(now()) @map("created_at")
-  updatedAt      DateTime          @updatedAt @map("updated_at")
-
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  location     Location?    @relation(fields: [locationId], references: [id])
-  client       Client       @relation(fields: [clientId], references: [id])
-  employee     User         @relation("EmployeeAppointments", fields: [employeeId], references: [id])
-  service      Service      @relation(fields: [serviceId], references: [id])
-
-  @@map("appointments")
-}
-
 enum AppointmentStatus {
   pending
   confirmed
@@ -289,69 +341,4 @@ enum AppointmentStatus {
   no_show
 
   @@map("appointment_status")
-}
-
-model BlockedSlot {
-  id         String   @id @default(cuid())
-  employeeId String   @map("employee_id")
-  locationId String?  @map("location_id")
-  startTime  DateTime @map("start_time")
-  endTime    DateTime @map("end_time")
-  reason     String?
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-
-  employee EmployeeProfile @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  location Location?       @relation(fields: [locationId], references: [id])
-
-  @@map("blocked_slots")
-}
-
-model Webhook {
-  id             String    @id @default(cuid())
-  organizationId String    @map("organization_id")
-  name           String
-  url            String
-  events         String[]  @default([])
-  secret         String?
-  isActive       Boolean   @default(true) @map("is_active")
-  lastTriggered  DateTime? @map("last_triggered")
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
-
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  @@map("webhooks")
-}
-
-model ApiKey {
-  id             String    @id @default(cuid())
-  organizationId String    @map("organization_id")
-  name           String
-  keyHash        String    @map("key_hash")
-  keyPrefix      String    @map("key_prefix")
-  permissions    String[]  @default([])
-  lastUsedAt     DateTime? @map("last_used_at")
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
-
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  @@map("api_keys")
-}
-
-model AuditLog {
-  id             String   @id @default(cuid())
-  organizationId String   @map("organization_id")
-  userId         String   @map("user_id")
-  action         String
-  entityType     String   @map("entity_type")
-  entityId       String?  @map("entity_id")
-  details        Json     @default("{}")
-  createdAt      DateTime @default(now()) @map("created_at")
-
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  user         User         @relation(fields: [userId], references: [id])
-
-  @@map("audit_logs")
 }

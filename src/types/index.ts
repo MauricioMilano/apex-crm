@@ -141,7 +141,8 @@ export interface Appointment {
   id: string;
   organizationId: string;
   locationId?: string;
-  clientId: string;
+  clientId?: string;
+  leadId?: string;
   employeeId: string;
   serviceId: string;
   status: AppointmentStatus;

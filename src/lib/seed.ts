@@ -531,7 +531,50 @@ async function main() {
     )
   )
 
-  // ── 11. Webhooks ──────────────────────────────────────────────────────────
+  // ── 11. Forms ─────────────────────────────────────────────────────────────
+  const formData = [
+    {
+      name: 'Contact Us',
+      description: 'General inquiry form for website visitors.',
+      isPublished: true,
+      fields: [
+        { id: 'f1', type: 'text', label: 'First Name', required: true },
+        { id: 'f2', type: 'text', label: 'Last Name', required: true },
+        { id: 'f3', type: 'email', label: 'Email', required: true },
+        { id: 'f4', type: 'textarea', label: 'Message', required: false }
+      ],
+      styling: { primaryColor: '#6366f1', showLogo: true },
+    },
+    {
+      name: 'Consultation Request',
+      description: 'Form to request a business consultation.',
+      isPublished: true,
+      fields: [
+        { id: 'c1', type: 'text', label: 'Full Name', required: true },
+        { id: 'c2', type: 'email', label: 'Email', required: true },
+        { id: 'c3', type: 'text', label: 'Company', required: false },
+        { id: 'c4', type: 'select', label: 'Service Interest', required: true, options: ['Strategy', 'Financial', 'Consulting'] }
+      ],
+      styling: { primaryColor: '#10b981', showLogo: false },
+    }
+  ]
+
+  await prisma.$transaction(
+    formData.map((f) =>
+      prisma.form.create({
+        data: {
+          organizationId: org.id,
+          name: f.name,
+          description: f.description,
+          isPublished: f.isPublished,
+          fields: f.fields as unknown as Prisma.InputJsonValue,
+          styling: f.styling as unknown as Prisma.InputJsonValue,
+        },
+      })
+    )
+  )
+
+  // ── 12. Webhooks ──────────────────────────────────────────────────────────
   await prisma.$transaction([
     prisma.webhook.create({
       data: {
@@ -562,6 +605,7 @@ async function main() {
   console.log(`  Leads: ${leadsData.length}`)
   console.log(`  Clients: ${clientsData.length}`)
   console.log(`  Appointments: ${appointmentsData.length}`)
+  console.log(`  Forms: ${formData.length}`)
   console.log(`  Webhooks: 2`)
 }
 

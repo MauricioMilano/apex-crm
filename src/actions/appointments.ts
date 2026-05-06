@@ -9,13 +9,17 @@ import type { WorkingHours } from "@/types"
 const ORG_ID = process.env.DEFAULT_ORG_ID ?? "org_default"
 
 const createAppointmentSchema = z.object({
-  clientId: z.string().min(1),
+  clientId: z.string().optional(),
+  leadId: z.string().optional(),
   employeeId: z.string().min(1),
   serviceId: z.string().min(1),
   startTime: z.string(),
   endTime: z.string(),
   locationId: z.string().optional(),
   notes: z.string().optional(),
+}).refine(data => data.clientId || data.leadId, {
+  message: "Either clientId or leadId must be provided",
+  path: ["clientId"],
 })
 
 type CreateAppointmentInput = z.infer<typeof createAppointmentSchema>
@@ -24,6 +28,7 @@ export async function getAppointments(filters?: {
   status?: AppointmentStatus
   employeeId?: string
   clientId?: string
+  leadId?: string
   dateFrom?: string
   dateTo?: string
 }) {
@@ -35,6 +40,7 @@ export async function getAppointments(filters?: {
     if (filters?.status) where.status = filters.status
     if (filters?.employeeId) where.employeeId = filters.employeeId
     if (filters?.clientId) where.clientId = filters.clientId
+    if (filters?.leadId) where.leadId = filters.leadId
     if (filters?.dateFrom || filters?.dateTo) {
       where.startTime = {
         ...(filters.dateFrom ? { gte: new Date(filters.dateFrom) } : {}),
@@ -46,6 +52,7 @@ export async function getAppointments(filters?: {
       where,
       include: {
         client: true,
+        lead: true,
         employee: {
           select: { id: true, firstName: true, lastName: true, email: true, role: true },
         },
@@ -66,6 +73,7 @@ export async function getAppointment(id: string) {
       where: { id, organizationId: ORG_ID },
       include: {
         client: true,
+        lead: true,
         employee: {
           select: { id: true, firstName: true, lastName: true, email: true, role: true },
         },
@@ -93,7 +101,7 @@ export async function createAppointment(data: CreateAppointmentInput) {
         startTime: new Date(parsed.data.startTime),
         endTime: new Date(parsed.data.endTime),
       },
-      include: { client: true, employee: true, service: true },
+      include: { client: true, lead: true, employee: true, service: true },
     })
     return { success: true as const, data: appointment }
   } catch (error) {
@@ -113,7 +121,7 @@ export async function updateAppointment(
         startTime: data.startTime ? new Date(data.startTime) : undefined,
         endTime: data.endTime ? new Date(data.endTime) : undefined,
       },
-      include: { client: true, employee: true, service: true },
+      include: { client: true, lead: true, employee: true, service: true },
     })
     return { success: true as const, data: appointment }
   } catch (error) {
