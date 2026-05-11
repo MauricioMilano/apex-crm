@@ -10,6 +10,7 @@ import {
   MapPin,
   Webhook,
   KeyRound,
+  ListChecks,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -17,6 +18,7 @@ const navItems = [
   { label: 'General', href: '/settings', icon: Settings },
   { label: 'Business Hours', href: '/settings/hours', icon: Clock },
   { label: 'Services', href: '/settings/services', icon: Wrench },
+  { label: 'Lead Statuses', href: '/settings/lead-statuses', icon: ListChecks },
   { label: 'Team', href: '/settings/team', icon: Users },
   { label: 'Locations', href: '/settings/locations', icon: MapPin },
   { label: 'Webhooks', href: '/settings/webhooks', icon: Webhook },
