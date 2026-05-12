@@ -15,6 +15,8 @@ import {
   X,
   Plus,
   Loader2,
+  CreditCard,
+  ListChecks,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -22,6 +24,8 @@ const navLinks = [
   { href: '/portal/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/portal/book', label: 'Book Appointment', icon: Plus },
   { href: '/portal/appointments', label: 'My Appointments', icon: CalendarDays },
+  { href: '/portal/plans', label: 'Plans', icon: CreditCard },
+  { href: '/portal/subscriptions', label: 'My Subscriptions', icon: ListChecks },
   { href: '/portal/profile', label: 'Profile', icon: User },
 ];
 

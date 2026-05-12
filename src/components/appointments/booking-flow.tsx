@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useCRM } from "@/contexts/crm-context";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import type { Appointment } from "@/types";
@@ -20,8 +20,31 @@ import {
   ChevronRight,
   Search,
   X,
+  CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+interface PlanCoverage {
+  isCovered: boolean;
+  plans: Array<{
+    subscriptionId: string;
+    planName: string;
+    planId: string;
+    remaining: number;
+    appointmentsUsed: number;
+    maxPerPeriod: number;
+  }>;
+}
+
+interface ServiceWithCoverage {
+  id: string;
+  name: string;
+  description?: string;
+  duration: number;
+  price: number;
+  isActive: boolean;
+  planCoverage: PlanCoverage;
+}
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -78,8 +101,38 @@ export function BookingFlow({
   const [notes, setNotes] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [entityType, setEntityType] = useState<"client" | "lead">("client");
+  const [servicesWithCoverage, setServicesWithCoverage] = useState<ServiceWithCoverage[]>([]);
+  const [selectedSubscriptionId, setSelectedSubscriptionId] = useState<string | null>(null);
+  const [planCoverageLoaded, setPlanCoverageLoaded] = useState(false);
 
-  const activeServices = services.filter((s) => s.isActive);
+  // Fetch plan coverage for the client
+  const fetchPlanCoverage = useCallback(async () => {
+    if (!selectedClientId) {
+      setServicesWithCoverage([]);
+      setPlanCoverageLoaded(true);
+      return;
+    }
+    try {
+      const res = await fetch(`/api/v1/services/with-plan-status?clientId=${selectedClientId}`);
+      const json = await res.json();
+      if (json.success) {
+        setServicesWithCoverage(json.data);
+      }
+    } catch { /* use fallback below */ }
+    setPlanCoverageLoaded(true);
+  }, [selectedClientId]);
+
+  useEffect(() => { void fetchPlanCoverage(); }, [fetchPlanCoverage]);
+
+  // Use enriched services if available, fallback to plain services
+  const displayServices: ServiceWithCoverage[] = planCoverageLoaded && servicesWithCoverage.length > 0
+    ? servicesWithCoverage
+    : services.filter((s) => s.isActive).map((s) => ({
+        ...s,
+        planCoverage: { isCovered: false, plans: [] },
+      }));
+
+  const activeServices = displayServices;
   const employees = users.filter(
     (u) => (u.role === "employee" || u.role === "admin") && u.isActive,
   );
@@ -111,7 +164,7 @@ export function BookingFlow({
     }
   }, [clients, leads, searchQuery, entityType]);
 
-  const selectedService = services.find((s) => s.id === selectedServiceId);
+  const selectedService = displayServices.find((s) => s.id === selectedServiceId);
   const selectedEmployee = users.find((u) => u.id === selectedEmployeeId);
   const selectedClient = clients.find((c) => c.id === selectedClientId);
   const selectedLead = leads.find((l) => l.id === selectedLeadId);
@@ -151,6 +204,13 @@ export function BookingFlow({
   function canAdvance(): boolean {
     if (step === 1) return !!selectedServiceId;
     if (step === 3) return !!selectedDate && !!selectedTime;
+    if (step === 4) {
+      // Must select a subscription plan if service is covered by multiple plans
+      const coverage = selectedService?.planCoverage;
+      if (coverage?.isCovered && coverage.plans.length > 1 && !selectedSubscriptionId) {
+        return true; // Allow proceeding, form will prompt
+      }
+    }
     return true;
   }
 
@@ -165,12 +225,23 @@ export function BookingFlow({
 
     const effectiveEmployeeId =
       selectedEmployeeId ?? employees[0]?.id ?? "user_2";
-    const svc = services.find((s) => s.id === selectedServiceId)!;
+    const svc = displayServices.find((s) => s.id === selectedServiceId)!;
 
     const [h, m] = selectedTime.split(":").map(Number);
     const startTime = new Date(selectedDate);
     startTime.setHours(h, m, 0, 0);
     const endTime = addMinutes(startTime, svc.duration);
+
+    // Determine subscription to use
+    const coverage = svc.planCoverage;
+    let clientSubscriptionId: string | undefined;
+    if (coverage?.isCovered) {
+      if (coverage.plans.length === 1) {
+        clientSubscriptionId = coverage.plans[0].subscriptionId;
+      } else {
+        clientSubscriptionId = selectedSubscriptionId ?? undefined;
+      }
+    }
 
     const appt = await addAppointment({
       organizationId: currentUser?.organizationId ?? "",
@@ -178,6 +249,7 @@ export function BookingFlow({
       leadId: selectedLeadId ?? undefined,
       employeeId: effectiveEmployeeId,
       serviceId: selectedServiceId,
+      clientSubscriptionId,
       status: "pending",
       startTime: startTime.toISOString(),
       endTime: endTime.toISOString(),
@@ -244,39 +316,60 @@ export function BookingFlow({
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-white">Select a Service</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {activeServices.map((svc) => (
-              <button
-                key={svc.id}
-                onClick={() => setSelectedServiceId(svc.id)}
-                className={cn(
-                  "text-left p-4 rounded-lg border transition-all",
-                  selectedServiceId === svc.id
-                    ? "border-blue-500 bg-blue-500/10"
-                    : "border-gray-700 bg-gray-800 hover:border-gray-600",
-                )}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-medium text-white">{svc.name}</span>
-                  {selectedServiceId === svc.id && (
-                    <CheckCircle className="h-4 w-4 text-blue-400" />
+            {activeServices.map((svc) => {
+              const coverage = (svc as ServiceWithCoverage).planCoverage;
+              const isCovered = coverage?.isCovered;
+              const planNames = coverage?.plans.map((p) => p.planName).join(", ");
+
+              return (
+                <button
+                  key={svc.id}
+                  onClick={() => {
+                    setSelectedServiceId(svc.id);
+                    // Auto-select single plan
+                    if (coverage?.plans.length === 1) {
+                      setSelectedSubscriptionId(coverage.plans[0].subscriptionId);
+                    } else {
+                      setSelectedSubscriptionId(null);
+                    }
+                  }}
+                  className={cn(
+                    "text-left p-4 rounded-lg border transition-all",
+                    selectedServiceId === svc.id
+                      ? "border-blue-500 bg-blue-500/10"
+                      : "border-gray-700 bg-gray-800 hover:border-gray-600",
                   )}
-                </div>
-                {svc.description && (
-                  <p className="text-xs text-gray-400 mb-2 line-clamp-2">
-                    {svc.description}
-                  </p>
-                )}
-                <div className="flex items-center gap-3 text-sm text-gray-400">
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    {svc.duration} min
-                  </span>
-                  <span className="text-green-400 font-medium">
-                    ${svc.price}
-                  </span>
-                </div>
-              </button>
-            ))}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-medium text-white">{svc.name}</span>
+                    {selectedServiceId === svc.id && (
+                      <CheckCircle className="h-4 w-4 text-blue-400" />
+                    )}
+                  </div>
+                  {svc.description && (
+                    <p className="text-xs text-gray-400 mb-2 line-clamp-2">
+                      {svc.description}
+                    </p>
+                  )}
+                  <div className="flex items-center gap-3 text-sm text-gray-400">
+                    <span className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {svc.duration} min
+                    </span>
+                    {isCovered ? (
+                      <span className="text-blue-400 font-medium text-xs flex items-center gap-1">
+                        <CreditCard className="h-3 w-3" />
+                        Included {planNames ? `(${planNames})` : ""}
+                      </span>
+                    ) : (
+                      <span className="text-green-400 font-medium">
+                        ${Number(svc.price).toFixed(2)}
+                      </span>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
@@ -555,12 +648,22 @@ export function BookingFlow({
                     <CalendarIcon className="h-4 w-4 text-gray-400 shrink-0" />
                     <span className="text-gray-400">Service:</span>
                     <span className="text-white">{selectedService.name}</span>
-                    <Badge
-                      variant="outline"
-                      className="text-green-400 border-green-500/30 text-xs ml-auto"
-                    >
-                      ${selectedService.price}
-                    </Badge>
+                    {(selectedService as ServiceWithCoverage).planCoverage?.isCovered ? (
+                      <Badge
+                        variant="outline"
+                        className="text-blue-400 border-blue-500/30 text-xs ml-auto"
+                      >
+                        <CreditCard className="h-3 w-3 mr-1" />
+                        Included
+                      </Badge>
+                    ) : (
+                      <Badge
+                        variant="outline"
+                        className="text-green-400 border-green-500/30 text-xs ml-auto"
+                      >
+                        ${Number(selectedService.price).toFixed(2)}
+                      </Badge>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <Clock className="h-4 w-4 text-gray-400 shrink-0" />
@@ -569,6 +672,35 @@ export function BookingFlow({
                       {selectedService.duration} min
                     </span>
                   </div>
+
+                  {/* Plan selector when multiple plans cover the same service */}
+                  {(selectedService as ServiceWithCoverage).planCoverage?.isCovered &&
+                    (selectedService as ServiceWithCoverage).planCoverage.plans.length > 1 && (
+                    <div className="pt-2 border-t border-gray-700">
+                      <label className="text-sm text-gray-400 font-medium block mb-2">
+                        Use which plan?
+                      </label>
+                      <div className="space-y-1.5">
+                        {(selectedService as ServiceWithCoverage).planCoverage.plans.map((p) => (
+                          <button
+                            key={p.subscriptionId}
+                            onClick={() => setSelectedSubscriptionId(p.subscriptionId)}
+                            className={cn(
+                              "w-full text-left px-3 py-2 rounded-lg border text-sm transition-all",
+                              selectedSubscriptionId === p.subscriptionId
+                                ? "border-blue-500 bg-blue-500/10 text-blue-300"
+                                : "border-gray-700 bg-gray-800 text-gray-300 hover:border-gray-600",
+                            )}
+                          >
+                            <span className="font-medium">{p.planName}</span>
+                            <span className="text-xs ml-2 text-gray-500">
+                              ({p.remaining} remaining)
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </>
               )}
               {selectedDate && selectedTime && (

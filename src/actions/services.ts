@@ -3,6 +3,7 @@
 import { z } from "zod"
 import { Prisma } from "@prisma/client"
 import { prisma } from "@/lib/db"
+import { getEligibleSubscriptions } from "./client-subscriptions"
 
 const ORG_ID = process.env.DEFAULT_ORG_ID ?? "org_default"
 
@@ -124,6 +125,44 @@ export async function getEmployeeServices(employeeId: string) {
       success: true as const,
       data: profile.services.map((es) => normalizeServicePrice(es.service)),
     }
+  } catch (error) {
+    return { success: false as const, error: String(error) }
+  }
+}
+
+/**
+ * Returns services enriched with plan coverage info for a given client.
+ * Each service includes: whether it's covered, eligible subscriptions,
+ * remaining appointments, and the standalone price as fallback.
+ */
+export async function getServicesWithPlanStatus(clientId: string, includeInactive = false) {
+  try {
+    const services = await prisma.service.findMany({
+      where: {
+        organizationId: ORG_ID,
+        ...(!includeInactive ? { isActive: true } : {}),
+      },
+      orderBy: { name: "asc" },
+    })
+
+    const enriched = await Promise.all(
+      services.map(async (svc) => {
+        const eligible = await getEligibleSubscriptions(clientId, svc.id)
+        const coverage = eligible.success && eligible.data.length > 0
+          ? {
+              isCovered: true,
+              plans: eligible.data,
+            }
+          : { isCovered: false, plans: [] as Awaited<ReturnType<typeof getEligibleSubscriptions>>["data"] }
+
+        return {
+          ...normalizeServicePrice(svc),
+          planCoverage: coverage,
+        }
+      }),
+    )
+
+    return { success: true as const, data: enriched }
   } catch (error) {
     return { success: false as const, error: String(error) }
   }

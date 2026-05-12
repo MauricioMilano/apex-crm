@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useCRM } from '@/contexts/crm-context';
 import { ClientForm } from '@/components/clients/client-form';
+import { ClientSubscriptionsPanel } from '@/components/clients/client-subscriptions-panel';
 import { Client, AppointmentStatus, ClientFile } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -45,6 +46,7 @@ import {
   File,
   Image,
   FileSpreadsheet,
+  CreditCard,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -249,6 +251,10 @@ export default function ClientDetailPage() {
               </span>
             )}
           </TabsTrigger>
+          <TabsTrigger value="subscriptions">
+            <CreditCard className="h-4 w-4 mr-1.5" />
+            Subscriptions
+          </TabsTrigger>
           <TabsTrigger value="files">
             <FileText className="h-4 w-4 mr-1.5" />
             Files
@@ -431,6 +437,11 @@ export default function ClientDetailPage() {
                 })}
             </div>
           )}
+        </TabsContent>
+
+        {/* ── Subscriptions ── */}
+        <TabsContent value="subscriptions" className="mt-4">
+          <ClientSubscriptionsPanel clientId={params.id} />
         </TabsContent>
 
         {/* ── Files ── */}

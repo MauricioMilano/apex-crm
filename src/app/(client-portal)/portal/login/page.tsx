@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { Mail, Lock, Building2, ArrowLeft, Loader2 } from 'lucide-react';
+import { Mail, Lock, Building2, ArrowLeft, Loader2, UserPlus } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -131,7 +131,16 @@ export default function ClientPortalLoginPage() {
             </Form>
 
             <p className="text-center text-xs text-gray-400 mt-4">
-              Demo: client@example.com / client123
+              Demo: client@example.com / Password123!
+            </p>
+            <p className="text-center text-sm text-gray-500 mt-4">
+              <Link
+                href="/portal/register"
+                className="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-700 font-medium"
+              >
+                <UserPlus className="h-3.5 w-3.5" />
+                Don&apos;t have an account? Register
+              </Link>
             </p>
           </CardContent>
         </Card>

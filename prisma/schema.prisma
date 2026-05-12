@@ -22,9 +22,10 @@ model Organization {
   leadStatuses LeadStatus[]
   leads        Lead[]
   locations    Location[]
-  services     Service[]
-  users        User[]
-  webhooks     Webhook[]
+  services            Service[]
+  subscriptionPlans   SubscriptionPlan[]
+  users               User[]
+  webhooks            Webhook[]
 
   @@map("organizations")
 }
@@ -108,9 +109,10 @@ model Service {
   isActive         Boolean           @default(true) @map("is_active")
   createdAt        DateTime          @default(now()) @map("created_at")
   updatedAt        DateTime          @updatedAt @map("updated_at")
-  appointments     Appointment[]
-  employeeServices EmployeeService[]
-  organization     Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  appointments           Appointment[]
+  employeeServices       EmployeeService[]
+  planServices           SubscriptionPlanService[]
+  organization           Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@map("services")
 }
@@ -196,8 +198,9 @@ model Client {
   billingInfo    Json          @default("{}") @map("billing_info")
   createdAt      DateTime      @default(now()) @map("created_at")
   updatedAt      DateTime      @updatedAt @map("updated_at")
-  appointments   Appointment[]
-  files          ClientFile[]
+  appointments        Appointment[]
+  clientSubscriptions ClientSubscription[]
+  files               ClientFile[]
   assignee       User?         @relation("ClientAssignee", fields: [assignedTo], references: [id])
   location       Location?     @relation(fields: [locationId], references: [id])
   organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -249,12 +252,14 @@ model Appointment {
   endTime        DateTime          @map("end_time")
   notes          String?
   cancelReason   String?           @map("cancel_reason")
-  recurringId    String?           @map("recurring_id")
-  createdAt      DateTime          @default(now()) @map("created_at")
+  clientSubscriptionId String?           @map("client_subscription_id")
+  recurringId          String?           @map("recurring_id")
+  createdAt            DateTime          @default(now()) @map("created_at")
   updatedAt      DateTime          @updatedAt @map("updated_at")
   leadId         String?           @map("lead_id")
-  client         Client?           @relation(fields: [clientId], references: [id])
-  employee       User              @relation("EmployeeAppointments", fields: [employeeId], references: [id])
+  client             Client?             @relation(fields: [clientId], references: [id])
+  clientSubscription ClientSubscription? @relation(fields: [clientSubscriptionId], references: [id])
+  employee           User                @relation("EmployeeAppointments", fields: [employeeId], references: [id])
   lead           Lead?             @relation(fields: [leadId], references: [id])
   location       Location?         @relation(fields: [locationId], references: [id])
   organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -322,6 +327,75 @@ model AuditLog {
   user           User         @relation(fields: [userId], references: [id])
 
   @@map("audit_logs")
+}
+
+model SubscriptionPlan {
+  id                String                    @id @default(cuid())
+  organizationId    String                    @map("organization_id")
+  name              String
+  description       String?
+  price             Decimal                   @db.Decimal(10, 2)
+  billingPeriod     BillingPeriod             @default(monthly)
+  maxApptsPerPeriod Int?                      @map("max_appts_per_period")
+  isActive          Boolean                   @default(true) @map("is_active")
+  createdAt         DateTime                  @default(now()) @map("created_at")
+  updatedAt         DateTime                  @updatedAt @map("updated_at")
+
+  organization        Organization              @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  planServices        SubscriptionPlanService[]
+  clientSubscriptions ClientSubscription[]
+
+  @@map("subscription_plans")
+}
+
+model SubscriptionPlanService {
+  id           String            @id @default(cuid())
+  planId       String            @map("plan_id")
+  serviceId    String            @map("service_id")
+  maxPerPeriod Int?              @map("max_per_period")
+
+  plan    SubscriptionPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  service Service          @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, serviceId])
+  @@map("subscription_plan_services")
+}
+
+model ClientSubscription {
+  id                 String              @id @default(cuid())
+  clientId           String              @map("client_id")
+  planId             String              @map("plan_id")
+  status             SubscriptionStatus  @default(active)
+  startDate          DateTime            @default(now()) @map("start_date")
+  endDate            DateTime?           @map("end_date")
+  currentPeriodStart DateTime            @default(now()) @map("current_period_start")
+  currentPeriodEnd   DateTime            @map("current_period_end")
+  appointmentsUsed   Int                 @default(0) @map("appointments_used")
+  createdAt          DateTime            @default(now()) @map("created_at")
+  updatedAt          DateTime            @updatedAt @map("updated_at")
+
+  client       Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  plan         SubscriptionPlan   @relation(fields: [planId], references: [id])
+  appointments Appointment[]
+
+  @@map("client_subscriptions")
+}
+
+enum BillingPeriod {
+  monthly
+  quarterly
+  semiannual
+  annual
+
+  @@map("billing_period")
+}
+
+enum SubscriptionStatus {
+  active
+  cancelled
+  expired
+
+  @@map("subscription_status")
 }
 
 enum UserRole {

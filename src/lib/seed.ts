@@ -14,6 +14,9 @@ async function main() {
   await prisma.blockedSlot.deleteMany()
   await prisma.appointment.deleteMany()
   await prisma.clientFile.deleteMany()
+  await prisma.clientSubscription.deleteMany()
+  await prisma.subscriptionPlanService.deleteMany()
+  await prisma.subscriptionPlan.deleteMany()
   await prisma.client.deleteMany()
   await prisma.lead.deleteMany()
   await prisma.leadStatus.deleteMany()
@@ -212,7 +215,70 @@ async function main() {
     prisma.employeeService.create({ data: { employeeId: empProfile2.id, serviceId: svcConsult.id } }),
   ])
 
-  // ── 8. Leads ──────────────────────────────────────────────────────────────
+  // ── 8. Subscription Plans ──────────────────────────────────────────────────
+  const [planBasic, planPremium, planUnlimited] = await prisma.$transaction([
+    prisma.subscriptionPlan.create({
+      data: {
+        organizationId: org.id,
+        name: 'Basic',
+        description: 'Essential business advisory services.',
+        price: 199.0,
+        billingPeriod: 'monthly',
+        maxApptsPerPeriod: 4,
+        isActive: true,
+      },
+    }),
+    prisma.subscriptionPlan.create({
+      data: {
+        organizationId: org.id,
+        name: 'Premium',
+        description: 'Full access to all advisory services.',
+        price: 399.0,
+        billingPeriod: 'monthly',
+        maxApptsPerPeriod: 8,
+        isActive: true,
+      },
+    }),
+    prisma.subscriptionPlan.create({
+      data: {
+        organizationId: org.id,
+        name: 'Unlimited',
+        description: 'Unlimited access to all services.',
+        price: 699.0,
+        billingPeriod: 'monthly',
+        isActive: true,
+      },
+    }),
+  ])
+
+  // Plan <-> Service assignments
+  await prisma.$transaction([
+    // Basic includes Consultation only
+    prisma.subscriptionPlanService.create({
+      data: { planId: planBasic.id, serviceId: svcConsult.id, maxPerPeriod: 4 },
+    }),
+    // Premium includes Consultation + Strategy
+    prisma.subscriptionPlanService.create({
+      data: { planId: planPremium.id, serviceId: svcConsult.id, maxPerPeriod: 6 },
+    }),
+    prisma.subscriptionPlanService.create({
+      data: { planId: planPremium.id, serviceId: svcStrategy.id, maxPerPeriod: 2 },
+    }),
+    // Unlimited includes all services
+    prisma.subscriptionPlanService.create({
+      data: { planId: planUnlimited.id, serviceId: svcConsult.id },
+    }),
+    prisma.subscriptionPlanService.create({
+      data: { planId: planUnlimited.id, serviceId: svcStrategy.id },
+    }),
+    prisma.subscriptionPlanService.create({
+      data: { planId: planUnlimited.id, serviceId: svcFinancial.id },
+    }),
+  ])
+
+  console.log('  Subscription Plans: 3')
+
+  // ── 9. Leads ──────────────────────────────────────────────────────────────
   const leadsData = [
     {
       firstName: 'Alice',
@@ -414,6 +480,22 @@ async function main() {
   )
 
   const [client1, client2, client3, client4, client5] = clients
+
+  // Assign demo subscription: James Wilson (client1) gets Premium plan
+  const subNow = new Date()
+  const subPeriodEnd = new Date(subNow.getTime() + 30 * 24 * 60 * 60 * 1000)
+  await prisma.clientSubscription.create({
+    data: {
+      clientId: client1.id,
+      planId: planPremium.id,
+      status: 'active',
+      startDate: subNow,
+      currentPeriodStart: subNow,
+      currentPeriodEnd: subPeriodEnd,
+      appointmentsUsed: 2,
+    },
+  })
+  console.log('  Client Subscription: 1 (James Wilson -> Premium)')
 
   // ── 10. Appointments ──────────────────────────────────────────────────────
   const now = new Date()

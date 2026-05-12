@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { format, parseISO, isPast, isFuture } from 'date-fns';
@@ -17,6 +17,7 @@ import {
   Plus,
   CheckCircle,
   AlertCircle,
+  CreditCard,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { AppointmentStatus } from '@/types';
@@ -33,6 +34,7 @@ export default function ClientPortalDashboardPage() {
   const { currentUser } = useAuth();
   const { clients, appointments, services, users } = useCRM();
   const router = useRouter();
+  const [subscriptions, setSubscriptions] = useState<{ id: string; plan: { name: string; maxApptsPerPeriod?: number; price: number } | undefined; appointmentsUsed: number; status: string }[]>([]);
 
   const client = useMemo(
     () => clients.find((c) => c.email?.toLowerCase() === currentUser?.email?.toLowerCase()),
@@ -71,6 +73,17 @@ export default function ClientPortalDashboardPage() {
     const filled = fields.filter(Boolean).length;
     return Math.round((filled / fields.length) * 100);
   }, [client]);
+
+  // Fetch active subscriptions
+  useEffect(() => {
+    if (!client?.id) return;
+    fetch(`/api/v1/clients/${client.id}/subscriptions`)
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.success) setSubscriptions(json.data.filter((s: { status: string }) => s.status === 'active'));
+      })
+      .catch(() => {});
+  }, [client?.id]);
 
   const recentActivity = useMemo(
     () =>
@@ -287,6 +300,43 @@ export default function ClientPortalDashboardPage() {
               </Link>
             </CardContent>
           </Card>
+
+          {/* Active Subscriptions */}
+          {subscriptions.length > 0 && subscriptions.map((sub) => (
+            <Card key={sub.id}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <CreditCard className="h-4 w-4 text-blue-500" />
+                  {sub.plan?.name ?? 'Subscription'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {sub.plan?.maxApptsPerPeriod ? (
+                  <>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600">Usage this period</span>
+                      <span className="font-semibold text-gray-900">
+                        {sub.appointmentsUsed} / {sub.plan.maxApptsPerPeriod}
+                      </span>
+                    </div>
+                    <Progress
+                      value={(sub.appointmentsUsed / sub.plan.maxApptsPerPeriod) * 100}
+                      className="h-2"
+                    />
+                  </>
+                ) : (
+                  <p className="text-sm text-gray-500">
+                    {sub.appointmentsUsed} appointments used · Unlimited plan
+                  </p>
+                )}
+                <Link href="/portal/subscriptions">
+                  <Button variant="outline" size="sm" className="w-full">
+                    View Details
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          ))}
 
           {/* Quick actions */}
           <Card>

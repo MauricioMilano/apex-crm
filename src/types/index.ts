@@ -128,6 +128,49 @@ export interface EmployeeService {
   createdAt: string;
 }
 
+// ─── Subscription Plan ───────────────────────────────────────────────────────
+
+export type BillingPeriod = 'monthly' | 'quarterly' | 'semiannual' | 'annual';
+
+export interface SubscriptionPlan {
+  id: string;
+  organizationId: string;
+  name: string;
+  description?: string;
+  price: number;
+  billingPeriod: BillingPeriod;
+  maxApptsPerPeriod?: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SubscriptionPlanService {
+  id: string;
+  planId: string;
+  serviceId: string;
+  maxPerPeriod?: number;
+}
+
+export type SubscriptionStatus = 'active' | 'cancelled' | 'expired';
+
+export interface ClientSubscription {
+  id: string;
+  clientId: string;
+  planId: string;
+  status: SubscriptionStatus;
+  startDate: string;
+  endDate?: string;
+  currentPeriodStart: string;
+  currentPeriodEnd: string;
+  appointmentsUsed: number;
+  createdAt: string;
+  updatedAt: string;
+
+  /** Joined from relations */
+  plan?: SubscriptionPlan;
+}
+
 // ─── Appointment ─────────────────────────────────────────────────────────────
 
 export type AppointmentStatus =
@@ -145,6 +188,7 @@ export interface Appointment {
   leadId?: string;
   employeeId: string;
   serviceId: string;
+  clientSubscriptionId?: string;
   status: AppointmentStatus;
   /** ISO date-time string */
   startTime: string;

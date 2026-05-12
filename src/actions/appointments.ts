@@ -13,6 +13,7 @@ const createAppointmentSchema = z.object({
   leadId: z.string().optional(),
   employeeId: z.string().min(1),
   serviceId: z.string().min(1),
+  clientSubscriptionId: z.string().optional(),
   startTime: z.string(),
   endTime: z.string(),
   locationId: z.string().optional(),
@@ -94,15 +95,57 @@ export async function createAppointment(data: CreateAppointmentInput) {
     if (!parsed.success) {
       return { success: false as const, error: parsed.error.message }
     }
+
+    const { clientSubscriptionId, ...appointmentData } = parsed.data
+
+    // If using a subscription, verify it's active and has remaining appointments
+    if (clientSubscriptionId) {
+      const sub = await prisma.clientSubscription.findUnique({
+        where: { id: clientSubscriptionId },
+        include: { plan: true },
+      })
+      if (!sub || sub.status !== "active") {
+        return { success: false as const, error: "Subscription is not active" }
+      }
+
+      const planService = await prisma.subscriptionPlanService.findFirst({
+        where: { planId: sub.planId, serviceId: appointmentData.serviceId },
+      })
+
+      const globalLimit = sub.plan.maxApptsPerPeriod
+      const perServiceLimit = planService?.maxPerPeriod
+      const remaining = Math.min(
+        globalLimit != null ? globalLimit - sub.appointmentsUsed : Infinity,
+        perServiceLimit != null ? perServiceLimit - sub.appointmentsUsed : Infinity,
+      )
+
+      if (remaining <= 0) {
+        return {
+          success: false as const,
+          error: "Subscription has reached its appointment limit for this period",
+        }
+      }
+    }
+
     const appointment = await prisma.appointment.create({
       data: {
-        ...parsed.data,
+        ...appointmentData,
+        clientSubscriptionId: clientSubscriptionId ?? null,
         organizationId: ORG_ID,
-        startTime: new Date(parsed.data.startTime),
-        endTime: new Date(parsed.data.endTime),
+        startTime: new Date(appointmentData.startTime),
+        endTime: new Date(appointmentData.endTime),
       },
       include: { client: true, lead: true, employee: true, service: true },
     })
+
+    // Increment subscription usage counter
+    if (clientSubscriptionId) {
+      await prisma.clientSubscription.update({
+        where: { id: clientSubscriptionId },
+        data: { appointmentsUsed: { increment: 1 } },
+      })
+    }
+
     return { success: true as const, data: appointment }
   } catch (error) {
     return { success: false as const, error: String(error) }

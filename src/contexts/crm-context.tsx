@@ -18,6 +18,7 @@ import type {
   Location,
   Webhook,
   ApiKey,
+  SubscriptionPlan,
 } from '@/types';
 
 // ─── Context type ─────────────────────────────────────────────────────────────
@@ -74,6 +75,11 @@ interface CRMContextValue {
   updateApiKey: (id: string, updates: Partial<ApiKey>) => Promise<void>;
   deleteApiKey: (id: string) => Promise<void>;
 
+  subscriptionPlans: SubscriptionPlan[];
+  addSubscriptionPlan: (plan: Omit<SubscriptionPlan, 'id' | 'createdAt' | 'updatedAt'>) => Promise<SubscriptionPlan>;
+  updateSubscriptionPlan: (id: string, updates: Partial<SubscriptionPlan>) => Promise<void>;
+  deleteSubscriptionPlan: (id: string) => Promise<void>;
+
   /** Force a full reload from server */
   resetToMockData: () => void;
 }
@@ -120,12 +126,13 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
   const [locations, setLocations] = useState<Location[]>([]);
   const [webhooks, setWebhooks] = useState<Webhook[]>([]);
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
+  const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
 
   const fetchAll = useCallback(async () => {
     try {
       const [
         leadsRes, clientsRes, apptsRes, servicesRes, formsRes,
-        statusesRes, usersRes, locsRes, webhooksRes, apiKeysRes,
+        statusesRes, usersRes, locsRes, webhooksRes, apiKeysRes, plansRes,
       ] = await Promise.allSettled([
         fetch('/api/v1/leads'),
         fetch('/api/v1/clients'),
@@ -137,6 +144,7 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
         fetch('/api/v1/locations'),
         fetch('/api/v1/webhooks'),
         fetch('/api/v1/api-keys'),
+        fetch('/api/v1/subscription-plans'),
       ]);
 
       async function safeJson<T>(result: PromiseSettledResult<Response>): Promise<T[]> {
@@ -151,7 +159,7 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
 
       const [
         leadsData, clientsData, apptsData, servicesData, formsData,
-        statusesData, usersData, locsData, webhooksData, apiKeysData,
+        statusesData, usersData, locsData, webhooksData, apiKeysData, plansData,
       ] = await Promise.all([
         safeJson<Lead>(leadsRes),
         safeJson<Client>(clientsRes),
@@ -163,6 +171,7 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
         safeJson<Location>(locsRes),
         safeJson<Webhook>(webhooksRes),
         safeJson<ApiKey>(apiKeysRes),
+        safeJson<SubscriptionPlan>(plansRes),
       ]);
 
       setLeads(leadsData);
@@ -175,6 +184,7 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
       setLocations(locsData);
       setWebhooks(webhooksData);
       setApiKeys(apiKeysData);
+      setSubscriptionPlans(plansData);
     } catch {
       // best-effort: leave state as-is
     }
@@ -439,9 +449,36 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
     setApiKeys((prev) => prev.filter((k) => k.id !== id));
   }, []);
 
+  // ── Subscription Plans ───────────────────────────────────────────────────
+
+  const addSubscriptionPlan = useCallback(async (data: Omit<SubscriptionPlan, 'id' | 'createdAt' | 'updatedAt'>): Promise<SubscriptionPlan> => {
+    const plan = await apiFetch<SubscriptionPlan>('/api/v1/subscription-plans', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    setSubscriptionPlans((prev) => [plan, ...prev]);
+    return plan;
+  }, []);
+
+  const updateSubscriptionPlan = useCallback(async (id: string, updates: Partial<SubscriptionPlan>): Promise<void> => {
+    const plan = await apiFetch<SubscriptionPlan>(`/api/v1/subscription-plans/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    });
+    setSubscriptionPlans((prev) => prev.map((p) => (p.id === id ? plan : p)));
+  }, []);
+
+  const deleteSubscriptionPlan = useCallback(async (id: string): Promise<void> => {
+    await apiFetch(`/api/v1/subscription-plans/${id}`, { method: 'DELETE' });
+    setSubscriptionPlans((prev) => prev.filter((p) => p.id !== id));
+  }, []);
+
   const value: CRMContextValue = {
     leads, clients, appointments, services, forms,
     leadStatuses, users, locations, webhooks, apiKeys,
+    subscriptionPlans,
     addLead, updateLead, deleteLead,
     addClient, updateClient, deleteClient,
     addAppointment, updateAppointment, deleteAppointment,
@@ -452,6 +489,7 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
     addLocation, updateLocation, deleteLocation,
     addWebhook, updateWebhook, deleteWebhook,
     addApiKey, updateApiKey, deleteApiKey,
+    addSubscriptionPlan, updateSubscriptionPlan, deleteSubscriptionPlan,
     resetToMockData: () => void fetchAll(),
   };
 
