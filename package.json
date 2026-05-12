@@ -89,12 +89,5 @@
   },
   "prisma": {
     "seed": "tsx src/lib/seed.ts"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@prisma/engines",
-      "prisma",
-      "sharp"
-    ]
   }
 }

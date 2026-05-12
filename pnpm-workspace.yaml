@@ -1,0 +1,11 @@
+# pnpm 11 uses allowBuilds (replaces package.json onlyBuiltDependencies from v10)
+allowBuilds:
+  '@prisma/client': true
+  '@prisma/engines': true
+  esbuild: true
+  prisma: true
+  sharp: true
+
+# Increased timeout for large packages on slow connections (ms, default 60000)
+fetchTimeout: 600000
+fetchRetries: 5
