@@ -6,12 +6,33 @@ import { prisma } from "@/lib/db"
 
 const ORG_ID = process.env.DEFAULT_ORG_ID ?? "org_default"
 
+// ─── Zod Schemas ─────────────────────────────────────────────────────────────
+
 const createFormSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
   fields: z.array(z.record(z.unknown())).optional(),
   styling: z.record(z.unknown()).optional(),
 })
+
+// Schema for core form submission data (standardized fields)
+const coreSubmissionSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().optional(),
+  company: z.string().optional(),
+  notes: z.string().optional(),
+})
+
+// Schema for dynamic custom fields from form
+const customFieldsSchema = z.record(
+  z.string(),
+  z.union([z.string(), z.number(), z.boolean()])
+)
+
+// Combined schema with optional custom fields
+const formSubmissionSchema = coreSubmissionSchema.and(customFieldsSchema.optional())
 
 type CreateFormInput = z.infer<typeof createFormSchema>
 
@@ -82,6 +103,31 @@ export async function updateForm(
   }
 }
 
+export async function toggleFormStatus(formId: string) {
+  try {
+    // Fetch current form to get its organization and current published state
+    const current = await prisma.form.findFirst({
+      where: { id: formId },
+    })
+    
+    if (!current) {
+      return { success: false as const, error: "Form not found" }
+    }
+
+    // Toggle the isPublished flag
+    const newPublishedState = !current.isPublished
+    
+    const updated = await prisma.form.update({
+      where: { id: formId },
+      data: { isPublished: newPublishedState },
+    })
+    
+    return { success: true as const, data: updated }
+  } catch (error) {
+    return { success: false as const, error: String(error) }
+  }
+}
+
 export async function deleteForm(id: string) {
   try {
     await prisma.form.delete({ where: { id } })
@@ -96,13 +142,30 @@ export async function submitFormEntry(
   data: Record<string, unknown>
 ) {
   try {
-    const form = await prisma.form.findFirst({
-      where: { id: formId, organizationId: ORG_ID, isPublished: true },
-    })
-    if (!form) {
-      return { success: false as const, error: "Form not found or not published" }
+    // Validate core fields against schema
+    const parsed = formSubmissionSchema.safeParse(data)
+    if (!parsed.success) {
+      return { success: false as const, error: "Invalid submission data" }
     }
 
+    // Fetch the form to verify it exists and is published
+    const form = await prisma.form.findFirst({
+      where: { id: formId, organizationId: ORG_ID },
+    })
+    if (!form) {
+      return { success: false as const, error: "Form not found or unauthorized" }
+    }
+
+    // Check if form is published
+    if (!form.isPublished) {
+      return { 
+        success: false as const, 
+        error: "FORM_NOT_PUBLISHED",
+        message: "This form has not been published yet. Please contact the administrator." 
+      }
+    }
+
+    // Get default lead status for this organization
     const defaultStatus = await prisma.leadStatus.findFirst({
       where: { organizationId: ORG_ID, isDefault: true },
       orderBy: { order: "asc" },
@@ -111,21 +174,48 @@ export async function submitFormEntry(
       return { success: false as const, error: "No default lead status configured" }
     }
 
+    // Map core fields to standardized names for database insertion
+    const mappedData = {
+      organizationId: ORG_ID,
+      formId,
+      statusId: defaultStatus.id,
+      firstName: String(parsed.data.firstName ?? "Unknown"),
+      lastName: String(parsed.data.lastName ?? ""),
+      email: parsed.data.email ? String(parsed.data.email) : undefined,
+      phone: parsed.data.phone ? String(parsed.data.phone) : undefined,
+      company: parsed.data.company ? String(parsed.data.company) : undefined,
+      notes: parsed.data.notes ? String(parsed.data.notes) : undefined,
+      source: "form",
+    }
+
+    // Map custom fields - transform dynamic form field data into structured JSON
+    const customFields: Record<string, unknown> = {}
+    if (parsed.data.customFields && typeof parsed.data.customFields === 'object') {
+      for (const [key, value] of Object.entries(parsed.data.customFields)) {
+        // Convert values to appropriate types based on expected format
+        let typedValue: unknown = value
+        
+        // Handle string representations of numbers/booleans
+        if (typeof value === 'string') {
+          const num = Number(value)
+          if (!isNaN(num) && String(num) !== value) {
+            typedValue = num
+          } else if (value.toLowerCase() === 'true') {
+            typedValue = true
+          } else if (value.toLowerCase() === 'false') {
+            typedValue = false
+          }
+        }
+        
+        customFields[key] = typedValue
+      }
+    }
+
+    // Create the Lead record with mapped data and custom fields
     const lead = await prisma.lead.create({
-      data: {
-        organizationId: ORG_ID,
-        formId,
-        statusId: defaultStatus.id,
-        firstName: String(data.firstName ?? data.first_name ?? "Unknown"),
-        lastName: String(data.lastName ?? data.last_name ?? ""),
-        email: data.email ? String(data.email) : undefined,
-        phone: data.phone ? String(data.phone) : undefined,
-        company: data.company ? String(data.company) : undefined,
-        notes: data.notes ? String(data.notes) : undefined,
-        source: "form",
-        customFields: data as Prisma.InputJsonValue,
-      },
+      data: { ...mappedData, customFields: customFields as Prisma.InputJsonValue },
     })
+    
     return { success: true as const, data: lead }
   } catch (error) {
     return { success: false as const, error: String(error) }

@@ -84,7 +84,7 @@ export function FormBuilder({ formId, onSave }: FormBuilderProps) {
   const [formDescription, setFormDescription] = useState(existingForm?.description ?? '');
   const [fields, setFields] = useState<FormField[]>(existingForm?.fields ?? []);
   const [styling, setStyling] = useState<FormStyling>(existingForm?.styling ?? {});
-  const [isActive, setIsActive] = useState(existingForm?.isActive ?? false);
+  const [isPublished, setIsPublished] = useState(existingForm?.isPublished ?? false);
   const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [rightTab, setRightTab] = useState<'field' | 'style'>('field');
@@ -166,7 +166,7 @@ export function FormBuilder({ formId, onSave }: FormBuilderProps) {
       description: formDescription || undefined,
       fields,
       styling,
-      isActive,
+      isPublished,
       submissionsCount: existingForm?.submissionsCount ?? 0,
     };
 
@@ -188,7 +188,7 @@ export function FormBuilder({ formId, onSave }: FormBuilderProps) {
     description: formDescription || undefined,
     fields,
     styling,
-    isActive,
+    isPublished,
     submissionsCount: existingForm?.submissionsCount ?? 0,
     createdAt: existingForm?.createdAt ?? new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -232,15 +232,15 @@ export function FormBuilder({ formId, onSave }: FormBuilderProps) {
         <div className="flex items-center gap-2 ml-auto">
           {/* Publish toggle */}
           <button
-            onClick={() => setIsActive((v) => !v)}
+            onClick={() => setIsPublished((v) => !v)}
             className={cn(
               'text-xs px-3 py-1.5 rounded-full font-medium transition-colors',
-              isActive
+              isPublished
                 ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
                 : 'bg-gray-800 text-gray-400 hover:bg-gray-700',
             )}
           >
-            {isActive ? 'Published' : 'Unpublished'}
+            {isPublished ? 'Published' : 'Unpublished'}
           </button>
 
           {/* Preview */}

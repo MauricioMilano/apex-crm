@@ -201,7 +201,7 @@ export interface Form {
   description?: string;
   fields: FormField[];
   styling?: FormStyling;
-  isActive: boolean;
+  isPublished: boolean;
   submissionsCount: number;
   createdAt: string;
   updatedAt: string;

@@ -8,6 +8,9 @@ import { Form } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
+  Switch,
+} from '@/components/ui/switch';
+import {
   Card,
   CardContent,
   CardFooter,
@@ -57,12 +60,28 @@ export default function FormsPage() {
   const [embedForm, setEmbedForm] = useState<Form | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Form | null>(null);
 
+  // Toggle form publish status
+  const handleTogglePublish = async (formId: string, currentPublished: boolean) => {
+    const newPublished = !currentPublished;
+    
+    try {
+      await fetch('/api/v1/forms', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: formId, isPublished: newPublished }),
+      });
+      toast.success(`Form ${newPublished ? 'published' : 'unpublished'}`);
+    } catch (error) {
+      toast.error('Failed to update form status');
+    }
+  };
+
   const handleNewForm = async () => {
     const created = await addForm({
       organizationId: currentUser?.organizationId ?? '',
       name: 'Untitled Form',
       fields: [],
-      isActive: false,
+      isPublished: false,
       submissionsCount: 0,
     });
     router.push(`/forms/builder/${created.id}`);
@@ -192,19 +211,27 @@ export default function FormsPage() {
                 </div>
               </CardContent>
 
-              <CardFooter className="pt-3 border-t border-gray-800 flex items-center justify-between">
-                <span className="text-xs text-gray-600">
-                  {format(new Date(form.createdAt), 'MMM d, yyyy')}
-                </span>
-                <Badge
-                  className={
-                    form.isActive
-                      ? 'bg-green-500/20 text-green-400 border-green-500/30'
-                      : 'bg-gray-700/50 text-gray-500 border-gray-700'
-                  }
-                >
-                  {form.isActive ? 'Published' : 'Draft'}
-                </Badge>
+              <CardFooter className="pt-3 border-t border-gray-800 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-600">
+                    {format(new Date(form.createdAt), 'MMM d, yyyy')}
+                  </span>
+                  <Badge
+                    variant={form.isPublished ? "default" : "secondary"}
+                    className={
+                      form.isPublished
+                        ? 'bg-green-500/20 text-green-400 border-green-500/30'
+                        : 'bg-gray-700/50 text-gray-500 border-gray-700'
+                    }
+                  >
+                    {form.isPublished ? 'Published' : 'Draft'}
+                  </Badge>
+                </div>
+                <Switch
+                  checked={form.isPublished}
+                  onCheckedChange={(checked) => handleTogglePublish(form.id, form.isPublished)}
+                  className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-gray-700"
+                />
               </CardFooter>
             </Card>
           ))}
