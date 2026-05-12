@@ -26,6 +26,8 @@ model Organization {
   subscriptionPlans   SubscriptionPlan[]
   users               User[]
   webhooks            Webhook[]
+  organizationSettings OrganizationSetting?
+  emailTemplates      EmailTemplate[]
 
   @@map("organizations")
 }
@@ -379,6 +381,41 @@ model ClientSubscription {
   appointments Appointment[]
 
   @@map("client_subscriptions")
+}
+
+model OrganizationSetting {
+  id              String   @id @default(cuid())
+  organizationId  String   @unique @map("organization_id")
+  smtpEnabled     Boolean  @default(false) @map("smtp_enabled")
+  smtpHost        String?  @map("smtp_host")
+  smtpPort        Int?     @default(587) @map("smtp_port")
+  smtpUser        String?  @map("smtp_user")
+  smtpPass        String?  @map("smtp_pass")
+  smtpFrom        String?  @map("smtp_from")
+  smtpSecure      Boolean  @default(false) @map("smtp_secure")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("organization_settings")
+}
+
+model EmailTemplate {
+  id              String   @id @default(cuid())
+  organizationId  String   @map("organization_id")
+  name            String
+  subject         String
+  bodyHtml        String   @map("body_html")
+  category        String
+  isDefault       Boolean  @default(false) @map("is_default")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, name])
+  @@map("email_templates")
 }
 
 enum BillingPeriod {

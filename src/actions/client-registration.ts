@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs"
 import { cookies } from "next/headers"
 import { prisma } from "@/lib/db"
 import { SESSION_COOKIE } from "@/lib/api-helpers"
+import { sendEmail } from "@/lib/email/send"
 
 const registerClientSchema = z.object({
   orgSlug: z.string().min(1, "Organization slug is required"),
@@ -70,6 +71,19 @@ export async function registerClient(data: RegisterClientInput) {
       sameSite: "strict",
       maxAge: 60 * 60 * 24 * 7,
       path: "/",
+    })
+
+    // Send welcome email
+    const loginUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3001"}/portal/login`
+    void sendEmail({
+      templateName: "client-welcome",
+      to: email,
+      variables: {
+        clientName: `${firstName} ${lastName}`,
+        email,
+        orgName: org.name,
+        loginUrl,
+      },
     })
 
     const { passwordHash: _ph, magicLinkToken, magicLinkExpires, ...safeUser } = user

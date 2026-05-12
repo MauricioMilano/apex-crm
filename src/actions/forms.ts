@@ -3,6 +3,7 @@
 import { z } from "zod"
 import { Prisma } from "@prisma/client"
 import { prisma } from "@/lib/db"
+import { sendEmail } from "@/lib/email/send"
 
 const ORG_ID = process.env.DEFAULT_ORG_ID ?? "org_default"
 
@@ -215,6 +216,27 @@ export async function submitFormEntry(
     const lead = await prisma.lead.create({
       data: { ...mappedData, customFields: customFields as Prisma.InputJsonValue },
     })
+    
+    // Send lead notification email to org's configured from address
+    const settings = await prisma.organizationSetting.findUnique({
+      where: { organizationId: ORG_ID },
+    })
+    const notifyEmail = settings?.smtpFrom
+    if (notifyEmail) {
+      void sendEmail({
+        templateName: "lead-notification",
+        to: notifyEmail,
+        variables: {
+          firstName: String(parsed.data.firstName ?? "Unknown"),
+          lastName: String(parsed.data.lastName ?? ""),
+          email: String(parsed.data.email ?? ""),
+          phone: String(parsed.data.phone ?? ""),
+          company: String(parsed.data.company ?? ""),
+          service: form.name,
+          orgName: "Apex Business Solutions",
+        },
+      })
+    }
     
     return { success: true as const, data: lead }
   } catch (error) {

@@ -4,6 +4,8 @@ import { z } from "zod"
 import { AppointmentStatus, Prisma } from "@prisma/client"
 import { prisma } from "@/lib/db"
 import { generateAvailableSlotTimes, normalizeWorkingHours } from "@/lib/working-hours"
+import { sendEmail } from "@/lib/email/send"
+import { format } from "date-fns"
 import type { WorkingHours } from "@/types"
 
 const ORG_ID = process.env.DEFAULT_ORG_ID ?? "org_default"
@@ -135,7 +137,7 @@ export async function createAppointment(data: CreateAppointmentInput) {
         startTime: new Date(appointmentData.startTime),
         endTime: new Date(appointmentData.endTime),
       },
-      include: { client: true, lead: true, employee: true, service: true },
+      include: { client: true, lead: true, employee: true, service: true, location: true },
     })
 
     // Increment subscription usage counter
@@ -143,6 +145,26 @@ export async function createAppointment(data: CreateAppointmentInput) {
       await prisma.clientSubscription.update({
         where: { id: clientSubscriptionId },
         data: { appointmentsUsed: { increment: 1 } },
+      })
+    }
+
+    // Send confirmation email if client has an email
+    if (appointment.client?.email) {
+      const startTime = new Date(appointment.startTime)
+      void sendEmail({
+        templateName: "appointment-confirmed",
+        to: appointment.client.email,
+        variables: {
+          clientName: `${appointment.client.firstName} ${appointment.client.lastName}`,
+          date: format(startTime, "MMMM d, yyyy"),
+          time: format(startTime, "h:mm a"),
+          serviceName: appointment.service?.name ?? "Appointment",
+          employeeName: appointment.employee
+            ? `${appointment.employee.firstName} ${appointment.employee.lastName}`
+            : "Our team",
+          locationName: appointment.location?.name ?? "our office",
+          orgName: "Apex Business Solutions",
+        },
       })
     }
 

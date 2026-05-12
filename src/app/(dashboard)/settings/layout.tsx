@@ -8,6 +8,7 @@ import {
   Wrench,
   Users,
   MapPin,
+  Mail,
   Webhook,
   KeyRound,
   ListChecks,
@@ -23,6 +24,7 @@ const navItems = [
   { label: 'Lead Statuses', href: '/settings/lead-statuses', icon: ListChecks },
   { label: 'Team', href: '/settings/team', icon: Users },
   { label: 'Locations', href: '/settings/locations', icon: MapPin },
+  { label: 'Email', href: '/settings/email', icon: Mail },
   { label: 'Webhooks', href: '/settings/webhooks', icon: Webhook },
   { label: 'API Keys', href: '/settings/api', icon: KeyRound },
 ];

@@ -384,3 +384,32 @@ export interface NavSection {
   title?: string;
   items: NavItem[];
 }
+
+// ─── Email / SMTP ──────────────────────────────────────────────────────────────
+
+export interface OrganizationSetting {
+  id: string;
+  organizationId: string;
+  smtpEnabled: boolean;
+  smtpHost: string | null;
+  smtpPort: number | null;
+  smtpUser: string | null;
+  /** Masked/"••••••" when returned to frontend */
+  smtpPass: string | null;
+  smtpFrom: string | null;
+  smtpSecure: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface EmailTemplate {
+  id: string;
+  organizationId: string;
+  name: string;
+  subject: string;
+  bodyHtml: string;
+  category: string;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
