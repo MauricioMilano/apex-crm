@@ -3,6 +3,7 @@
 import { z } from "zod"
 import { Prisma } from "@prisma/client"
 import { prisma } from "@/lib/db"
+import { sendEmail } from "@/lib/email/send"
 
 const ORG_ID = process.env.DEFAULT_ORG_ID ?? "org_default"
 
@@ -89,8 +90,46 @@ export async function createLead(data: CreateLeadInput) {
         value: value !== undefined ? value : undefined,
         tags: tags ?? [],
       },
-      include: { status: true },
+      include: { status: true, assignee: { select: { id: true, firstName: true, lastName: true, email: true } } },
     })
+
+    // Notify assignee if set
+    if (lead.assignedTo && lead.assignee?.email) {
+      void sendEmail({
+        templateName: "lead-assigned",
+        to: lead.assignee.email,
+        variables: {
+          employeeName: `${lead.assignee.firstName} ${lead.assignee.lastName}`,
+          leadName: `${lead.firstName} ${lead.lastName}`,
+          email: lead.email ?? "",
+          phone: lead.phone ?? "",
+          company: lead.company ?? "",
+          source: lead.source ?? "Manual entry",
+          orgName: "Apex Business Solutions",
+        },
+      })
+    }
+
+    // Notify org about new manual lead
+    const settings = await prisma.organizationSetting.findUnique({
+      where: { organizationId: ORG_ID },
+    })
+    if (settings?.smtpFrom) {
+      void sendEmail({
+        templateName: "lead-notification",
+        to: settings.smtpFrom,
+        variables: {
+          firstName: lead.firstName,
+          lastName: lead.lastName,
+          email: lead.email ?? "",
+          phone: lead.phone ?? "",
+          company: lead.company ?? "",
+          service: "Manual entry",
+          orgName: "Apex Business Solutions",
+        },
+      })
+    }
+
     return { success: true as const, data: lead }
   } catch (error) {
     return { success: false as const, error: String(error) }
@@ -99,14 +138,58 @@ export async function createLead(data: CreateLeadInput) {
 
 export async function updateLead(id: string, data: Partial<CreateLeadInput>) {
   try {
+    // Fetch current to detect changes
+    const current = await prisma.lead.findUnique({
+      where: { id },
+      include: {
+        status: { select: { name: true } },
+        assignee: { select: { id: true, firstName: true, lastName: true, email: true } },
+      },
+    })
+    if (!current) return { success: false as const, error: "Lead not found" }
+
     const lead = await prisma.lead.update({
       where: { id },
       data: {
         ...data,
         tags: data.tags ?? undefined,
       },
-      include: { status: true },
+      include: { status: true, assignee: { select: { id: true, firstName: true, lastName: true, email: true } } },
     })
+
+    // Detect assignment change
+    if (data.assignedTo && data.assignedTo !== current.assignedTo && lead.assignee?.email) {
+      void sendEmail({
+        templateName: "lead-assigned",
+        to: lead.assignee.email,
+        variables: {
+          employeeName: `${lead.assignee.firstName} ${lead.assignee.lastName}`,
+          leadName: `${lead.firstName} ${lead.lastName}`,
+          email: lead.email ?? "",
+          phone: lead.phone ?? "",
+          company: lead.company ?? "",
+          source: lead.source ?? "Manual entry",
+          orgName: "Apex Business Solutions",
+        },
+      })
+    }
+
+    // Detect status change
+    if (data.statusId && data.statusId !== current.statusId && current.assignee?.email) {
+      const newStatus = lead.status?.name ?? "Changed"
+      const oldStatus = current.status?.name ?? "Unknown"
+      void sendEmail({
+        templateName: "lead-status-changed",
+        to: current.assignee.email,
+        variables: {
+          leadName: `${lead.firstName} ${lead.lastName}`,
+          oldStatus,
+          newStatus,
+          orgName: "Apex Business Solutions",
+        },
+      })
+    }
+
     return { success: true as const, data: lead }
   } catch (error) {
     return { success: false as const, error: String(error) }
@@ -152,6 +235,21 @@ export async function convertLeadToClient(leadId: string) {
       where: { id: leadId },
       data: { convertedToClientId: client.id },
     })
+
+    // Send conversion email
+    if (lead.email) {
+      const loginUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3001"}/portal/login`
+      void sendEmail({
+        templateName: "lead-converted",
+        to: lead.email,
+        variables: {
+          clientName: `${lead.firstName} ${lead.lastName}`,
+          email: lead.email,
+          orgName: "Apex Business Solutions",
+          loginUrl,
+        },
+      })
+    }
 
     return { success: true as const, data: client }
   } catch (error) {

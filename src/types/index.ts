@@ -43,6 +43,8 @@ export interface User {
   avatar?: string;
   phone?: string;
   isActive: boolean;
+  resetToken?: string;
+  resetTokenExpires?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -398,6 +400,7 @@ export interface OrganizationSetting {
   smtpPass: string | null;
   smtpFrom: string | null;
   smtpSecure: boolean;
+  emailVerificationEnabled: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -412,4 +415,17 @@ export interface EmailTemplate {
   isDefault: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface EmailSchedule {
+  id: string;
+  organizationId: string;
+  templateName: string;
+  to: string;
+  variables: Record<string, string>;
+  scheduledFor: string;
+  sentAt: string | null;
+  referenceType: string | null;
+  referenceId: string | null;
+  createdAt: string;
 }

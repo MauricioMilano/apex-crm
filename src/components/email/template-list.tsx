@@ -1,6 +1,6 @@
 "use client"
 
-import { Pencil, FileText, Calendar, User, UserPlus } from "lucide-react"
+import { Pencil, FileText, Calendar, User, UserPlus, Package, Users, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -23,18 +23,27 @@ const categoryIcons: Record<string, typeof FileText> = {
   appointment: Calendar,
   lead: User,
   client: UserPlus,
+  subscription: Package,
+  team: Users,
+  auth: Shield,
 }
 
 const categoryLabels: Record<string, string> = {
   appointment: "Appointment",
   lead: "Lead",
   client: "Client",
+  subscription: "Subscription",
+  team: "Team",
+  auth: "Auth / Security",
 }
 
 const categoryColors: Record<string, string> = {
   appointment: "text-blue-400 bg-blue-600/15",
   lead: "text-green-400 bg-green-600/15",
   client: "text-purple-400 bg-purple-600/15",
+  subscription: "text-amber-400 bg-amber-600/15",
+  team: "text-cyan-400 bg-cyan-600/15",
+  auth: "text-rose-400 bg-rose-600/15",
 }
 
 export function TemplateList({ templates, onEdit }: TemplateListProps) {

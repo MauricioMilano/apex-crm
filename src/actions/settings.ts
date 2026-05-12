@@ -5,6 +5,7 @@ import { randomBytes } from "crypto"
 import bcrypt from "bcryptjs"
 import { UserRole } from "@prisma/client"
 import { prisma } from "@/lib/db"
+import { sendEmail } from "@/lib/email/send"
 
 const ORG_ID = process.env.DEFAULT_ORG_ID ?? "org_default"
 
@@ -166,7 +167,31 @@ export async function inviteTeamMember(data: {
       },
       select: userSelectFields,
     })
-    return { success: true as const, data: user }
+
+    // Send invitation email
+    const loginUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3001"}/login`
+    const emailResult = await sendEmail({
+      templateName: "team-invite",
+      to: data.email,
+      variables: {
+        invitedName: `${data.firstName} ${data.lastName}`.trim() || "New Member",
+        email: data.email,
+        tempPassword,
+        orgName: "Apex Business Solutions",
+        invitedBy: "Your admin",
+        loginUrl,
+      },
+    })
+
+    return {
+      success: true as const,
+      data: {
+        ...user,
+        tempPassword,
+        emailSent: emailResult.success,
+        emailWarning: emailResult.success ? undefined : "User created but email not sent. SMTP may be disabled.",
+      },
+    }
   } catch (error) {
     return { success: false as const, error: String(error) }
   }

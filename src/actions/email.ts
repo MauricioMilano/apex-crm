@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db"
 import { encrypt } from "@/lib/email/encrypt"
 import { testSmtpConnection } from "@/lib/email/send"
 import { renderTemplate, sampleVariables } from "@/lib/email/renderer"
-import { getDefaultTemplate } from "@/lib/email/templates"
+import { getDefaultTemplate, defaultTemplates } from "@/lib/email/templates"
 
 const ORG_ID = process.env.DEFAULT_ORG_ID ?? "org_default"
 
@@ -147,22 +147,16 @@ export async function getEmailTemplates() {
       orderBy: [{ category: "asc" }, { name: "asc" }],
     })
 
-    // Merge with default templates so we always show all 3
-    const defaults = [
-      { name: "appointment-confirmed", category: "appointment" },
-      { name: "lead-notification", category: "lead" },
-      { name: "client-welcome", category: "client" },
-    ]
-
-    const merged = defaults.map((def) => {
+    // Merge with default templates so we always show all 24
+    // Dynamically built from defaultTemplates to avoid maintaining a separate list
+    const merged = defaultTemplates.map((def) => {
       const db = templates.find((t) => t.name === def.name)
-      const fallback = getDefaultTemplate(def.name)
       return {
         id: db?.id ?? `default-${def.name}`,
         organizationId: ORG_ID,
         name: def.name,
-        subject: db?.subject ?? fallback?.subject ?? "",
-        bodyHtml: db?.bodyHtml ?? fallback?.bodyHtml ?? "",
+        subject: db?.subject ?? def.subject,
+        bodyHtml: db?.bodyHtml ?? def.bodyHtml,
         category: def.category,
         isDefault: db?.isDefault ?? true,
         createdAt: db?.createdAt.toISOString() ?? new Date().toISOString(),

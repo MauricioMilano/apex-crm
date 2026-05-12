@@ -2,7 +2,9 @@
 
 import { z } from "zod"
 import bcrypt from "bcryptjs"
+import crypto from "crypto"
 import { prisma } from "@/lib/db"
+import { sendEmail } from "@/lib/email/send"
 
 const registerSchema = z.object({
   firstName: z.string().min(1),
@@ -71,6 +73,21 @@ export async function registerUser(data: {
     })
 
     const { passwordHash: _ph, magicLinkToken, magicLinkExpires, ...safeUser } = user
+
+    // Send welcome email (fire-and-forget, OK to fail if SMTP not configured yet)
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3001"
+    void sendEmail({
+      templateName: "welcome-admin",
+      to: user.email,
+      variables: {
+        adminName: `${user.firstName} ${user.lastName}`,
+        email: user.email,
+        orgName: org.name,
+        loginUrl: `${appUrl}/login`,
+        setupUrl: `${appUrl}/settings`,
+      },
+    })
+
     return { success: true as const, data: safeUser }
   } catch (error) {
     return { success: false as const, error: String(error) }
@@ -96,6 +113,70 @@ export async function updateUserProfile(
     const user = await prisma.user.update({ where: { id }, data })
     const { passwordHash, magicLinkToken, magicLinkExpires, ...safeUser } = user
     return { success: true as const, data: safeUser }
+  } catch (error) {
+    return { success: false as const, error: String(error) }
+  }
+}
+
+export async function requestPasswordReset(email: string) {
+  try {
+    // Always return success to prevent email enumeration
+    const user = await prisma.user.findUnique({ where: { email } })
+    if (!user) {
+      return { success: true as const, message: "If the email exists, a reset link has been sent." }
+    }
+
+    const token = crypto.randomBytes(32).toString("hex")
+    const tokenHash = await bcrypt.hash(token, 12)
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { resetToken: tokenHash, resetTokenExpires: expiresAt },
+    })
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3001"
+    const resetUrl = `${appUrl}/reset-password?token=${token}&email=${encodeURIComponent(email)}`
+
+    void sendEmail({
+      templateName: "password-reset",
+      to: email,
+      variables: {
+        userName: `${user.firstName} ${user.lastName}`,
+        resetUrl,
+        orgName: "Apex Business Solutions",
+      },
+    })
+
+    return { success: true as const, message: "If the email exists, a reset link has been sent." }
+  } catch (error) {
+    return { success: false as const, error: String(error) }
+  }
+}
+
+export async function resetPassword(email: string, token: string, newPassword: string) {
+  try {
+    const user = await prisma.user.findUnique({ where: { email } })
+    if (!user || !user.resetToken || !user.resetTokenExpires) {
+      return { success: false as const, error: "Invalid or expired reset token" }
+    }
+
+    if (user.resetTokenExpires < new Date()) {
+      return { success: false as const, error: "Reset token has expired" }
+    }
+
+    const valid = await bcrypt.compare(token, user.resetToken)
+    if (!valid) {
+      return { success: false as const, error: "Invalid reset token" }
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 12)
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash, resetToken: null, resetTokenExpires: null },
+    })
+
+    return { success: true as const, message: "Password has been reset successfully" }
   } catch (error) {
     return { success: false as const, error: String(error) }
   }

@@ -2,6 +2,8 @@
 
 import { z } from "zod"
 import { prisma } from "@/lib/db"
+import { sendEmail } from "@/lib/email/send"
+import { scheduleEmail } from "@/lib/email/scheduler"
 
 const ORG_ID = process.env.DEFAULT_ORG_ID ?? "org_default"
 
@@ -29,7 +31,7 @@ async function renewPeriodIfNeeded(subscription: {
     return false
   }
   if (subscription.currentPeriodEnd <= new Date()) {
-    await prisma.clientSubscription.update({
+    const updated = await prisma.clientSubscription.update({
       where: { id: subscription.id },
       data: {
         currentPeriodStart: subscription.currentPeriodEnd,
@@ -38,7 +40,30 @@ async function renewPeriodIfNeeded(subscription: {
         ),
         appointmentsUsed: 0,
       },
+      include: {
+        client: { select: { firstName: true, lastName: true, email: true } },
+        plan: { select: { name: true } },
+      },
     })
+
+    // Schedule renewal notification
+    if (updated.client?.email) {
+      void scheduleEmail({
+        templateName: "subscription-renewed",
+        to: updated.client.email,
+        variables: {
+          clientName: `${updated.client.firstName} ${updated.client.lastName}`,
+          planName: updated.plan?.name ?? "Subscription",
+          newPeriodStart: updated.currentPeriodStart.toLocaleDateString(),
+          newPeriodEnd: updated.currentPeriodEnd.toLocaleDateString(),
+          orgName: "Apex Business Solutions",
+        },
+        scheduledFor: new Date(),
+        referenceType: "subscription",
+        referenceId: subscription.id,
+      })
+    }
+
     return true
   }
   return false
@@ -114,6 +139,22 @@ export async function assignPlan(data: z.infer<typeof assignPlanSchema>) {
       include: { plan: true },
     })
 
+    // Send activation email
+    if (client.email) {
+      void sendEmail({
+        templateName: "subscription-activated",
+        to: client.email,
+        variables: {
+          clientName: `${client.firstName} ${client.lastName}`,
+          planName: plan.name,
+          price: Number(plan.price).toFixed(2),
+          billingPeriod: plan.billingPeriod.replace("ly", ""),
+          startDate: now.toLocaleDateString(),
+          orgName: "Apex Business Solutions",
+        },
+      })
+    }
+
     return {
       success: true as const,
       data: {
@@ -142,8 +183,22 @@ export async function cancelSubscription(id: string) {
     const updated = await prisma.clientSubscription.update({
       where: { id },
       data: { status: "cancelled", endDate: new Date() },
-      include: { plan: true },
+      include: { plan: true, client: { select: { firstName: true, lastName: true, email: true } } },
     })
+
+    // Send cancellation email
+    if (updated.client?.email) {
+      void sendEmail({
+        templateName: "subscription-cancelled",
+        to: updated.client.email,
+        variables: {
+          clientName: `${updated.client.firstName} ${updated.client.lastName}`,
+          planName: updated.plan?.name ?? "Subscription",
+          endDate: new Date().toLocaleDateString(),
+          orgName: "Apex Business Solutions",
+        },
+      })
+    }
 
     return {
       success: true as const,

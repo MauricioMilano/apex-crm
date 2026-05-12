@@ -28,6 +28,7 @@ model Organization {
   webhooks            Webhook[]
   organizationSettings OrganizationSetting?
   emailTemplates      EmailTemplate[]
+  emailSchedules      EmailSchedule[]
 
   @@map("organizations")
 }
@@ -71,6 +72,8 @@ model User {
   phone            String?
   avatar           String?
   isActive         Boolean          @default(true) @map("is_active")
+  resetToken       String?          @map("reset_token")
+  resetTokenExpires DateTime?       @map("reset_token_expires")
   createdAt        DateTime         @default(now()) @map("created_at")
   updatedAt        DateTime         @updatedAt @map("updated_at")
   appointments     Appointment[]    @relation("EmployeeAppointments")
@@ -392,9 +395,10 @@ model OrganizationSetting {
   smtpUser        String?  @map("smtp_user")
   smtpPass        String?  @map("smtp_pass")
   smtpFrom        String?  @map("smtp_from")
-  smtpSecure      Boolean  @default(false) @map("smtp_secure")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  smtpSecure              Boolean  @default(false) @map("smtp_secure")
+  emailVerificationEnabled Boolean @default(false) @map("email_verification_enabled")
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedAt               DateTime @updatedAt @map("updated_at")
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
@@ -416,6 +420,23 @@ model EmailTemplate {
 
   @@unique([organizationId, name])
   @@map("email_templates")
+}
+
+model EmailSchedule {
+  id              String   @id @default(cuid())
+  organizationId  String   @map("organization_id")
+  templateName    String   @map("template_name")
+  to              String
+  variables       Json     @default("{}")
+  scheduledFor    DateTime @map("scheduled_for")
+  sentAt          DateTime? @map("sent_at")
+  referenceType   String?  @map("reference_type")
+  referenceId     String?  @map("reference_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("email_schedules")
 }
 
 enum BillingPeriod {

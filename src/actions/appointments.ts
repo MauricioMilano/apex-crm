@@ -5,6 +5,7 @@ import { AppointmentStatus, Prisma } from "@prisma/client"
 import { prisma } from "@/lib/db"
 import { generateAvailableSlotTimes, normalizeWorkingHours } from "@/lib/working-hours"
 import { sendEmail } from "@/lib/email/send"
+import { scheduleEmail, cancelScheduledEmails } from "@/lib/email/scheduler"
 import { format } from "date-fns"
 import type { WorkingHours } from "@/types"
 
@@ -166,6 +167,68 @@ export async function createAppointment(data: CreateAppointmentInput) {
           orgName: "Apex Business Solutions",
         },
       })
+
+      // Schedule reminder for 24h before appointment
+      const reminderTime = new Date(startTime.getTime() - 24 * 60 * 60 * 1000)
+      if (reminderTime > new Date()) {
+        void scheduleEmail({
+          templateName: "appointment-reminder",
+          to: appointment.client.email,
+          variables: {
+            clientName: `${appointment.client.firstName} ${appointment.client.lastName}`,
+            serviceName: appointment.service?.name ?? "Appointment",
+            date: format(startTime, "MMMM d, yyyy"),
+            time: format(startTime, "h:mm a"),
+            employeeName: appointment.employee
+              ? `${appointment.employee.firstName} ${appointment.employee.lastName}`
+              : "Our team",
+            locationName: appointment.location?.name ?? "our office",
+            orgName: "Apex Business Solutions",
+          },
+          scheduledFor: reminderTime,
+          referenceType: "appointment",
+          referenceId: appointment.id,
+        })
+      }
+    }
+
+    // Check subscription limit warning
+    if (clientSubscriptionId) {
+      const sub = await prisma.clientSubscription.findUnique({
+        where: { id: clientSubscriptionId },
+        include: { plan: true, client: true },
+      })
+      if (sub && sub.client.email && sub.plan.maxApptsPerPeriod) {
+        const limit = sub.plan.maxApptsPerPeriod
+        const used = sub.appointmentsUsed + 1 // already incremented above
+        const usagePercent = (used / limit) * 100
+
+        if (usagePercent >= 80) {
+          // Check if warning already sent this period (avoid duplicates)
+          const existingWarning = await prisma.emailSchedule.findFirst({
+            where: {
+              templateName: "subscription-limit-warning",
+              referenceType: "subscription",
+              referenceId: sub.id,
+              sentAt: null,
+            },
+          })
+          if (!existingWarning) {
+            void sendEmail({
+              templateName: "subscription-limit-warning",
+              to: sub.client.email,
+              variables: {
+                clientName: `${sub.client.firstName} ${sub.client.lastName}`,
+                planName: sub.plan.name,
+                used: String(used),
+                max: String(limit),
+                remaining: String(limit - used),
+                orgName: "Apex Business Solutions",
+              },
+            })
+          }
+        }
+      }
     }
 
     return { success: true as const, data: appointment }
@@ -179,6 +242,12 @@ export async function updateAppointment(
   data: Partial<CreateAppointmentInput>
 ) {
   try {
+    // Fetch current appointment to detect changes
+    const current = await prisma.appointment.findUnique({
+      where: { id },
+      select: { startTime: true },
+    })
+
     const appointment = await prisma.appointment.update({
       where: { id },
       data: {
@@ -188,6 +257,34 @@ export async function updateAppointment(
       },
       include: { client: true, lead: true, employee: true, service: true },
     })
+
+    // Detect reschedule (startTime changed)
+    if (data.startTime && current && current.startTime.toISOString() !== new Date(data.startTime).toISOString()) {
+      const recipientEmail = appointment.client?.email ?? appointment.lead?.email
+      if (recipientEmail) {
+        const oldStart = current.startTime
+        const newStart = new Date(data.startTime)
+        void sendEmail({
+          templateName: "appointment-rescheduled",
+          to: recipientEmail,
+          variables: {
+            clientName: appointment.client
+              ? `${appointment.client.firstName} ${appointment.client.lastName}`
+              : "Valued client",
+            serviceName: appointment.service?.name ?? "Appointment",
+            oldDate: format(oldStart, "MMMM d, yyyy"),
+            oldTime: format(oldStart, "h:mm a"),
+            newDate: format(newStart, "MMMM d, yyyy"),
+            newTime: format(newStart, "h:mm a"),
+            employeeName: appointment.employee
+              ? `${appointment.employee.firstName} ${appointment.employee.lastName}`
+              : "Our team",
+            orgName: "Apex Business Solutions",
+          },
+        })
+      }
+    }
+
     return { success: true as const, data: appointment }
   } catch (error) {
     return { success: false as const, error: String(error) }
@@ -206,7 +303,68 @@ export async function updateAppointmentStatus(
         status,
         ...(cancelReason !== undefined ? { cancelReason } : {}),
       },
+      include: { client: true, lead: true, employee: true, service: true, location: true },
     })
+
+    // ── Send status-based emails ────────────────────────────────────────
+    if (status === "cancelled") {
+      const recipientEmail = appointment.client?.email ?? appointment.lead?.email
+      if (recipientEmail) {
+        const startTime = new Date(appointment.startTime)
+        void sendEmail({
+          templateName: "appointment-cancelled",
+          to: [recipientEmail, appointment.employee.email].filter(Boolean) as string[],
+          variables: {
+            clientName: appointment.client
+              ? `${appointment.client.firstName} ${appointment.client.lastName}`
+              : appointment.lead
+                ? `${appointment.lead.firstName} ${appointment.lead.lastName}`
+                : "Valued client",
+            serviceName: appointment.service?.name ?? "Appointment",
+            date: format(startTime, "MMMM d, yyyy"),
+            time: format(startTime, "h:mm a"),
+            reason: cancelReason ?? "Not specified",
+            orgName: "Apex Business Solutions",
+          },
+        })
+      }
+      // Cancel any pending reminder schedules
+      void cancelScheduledEmails("appointment", id)
+    }
+
+    if (status === "completed" && appointment.client?.email) {
+      const startTime = new Date(appointment.startTime)
+      void sendEmail({
+        templateName: "appointment-completed",
+        to: appointment.client.email,
+        variables: {
+          clientName: `${appointment.client.firstName} ${appointment.client.lastName}`,
+          serviceName: appointment.service?.name ?? "Appointment",
+          date: format(startTime, "MMMM d, yyyy"),
+          employeeName: appointment.employee
+            ? `${appointment.employee.firstName} ${appointment.employee.lastName}`
+            : "Our team",
+          orgName: "Apex Business Solutions",
+          feedbackUrl: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3001"}/portal/feedback/${id}`,
+        },
+      })
+    }
+
+    if (status === "no_show" && appointment.client?.email) {
+      const startTime = new Date(appointment.startTime)
+      void sendEmail({
+        templateName: "appointment-no-show",
+        to: appointment.client.email,
+        variables: {
+          clientName: `${appointment.client.firstName} ${appointment.client.lastName}`,
+          serviceName: appointment.service?.name ?? "Appointment",
+          date: format(startTime, "MMMM d, yyyy"),
+          time: format(startTime, "h:mm a"),
+          orgName: "Apex Business Solutions",
+        },
+      })
+    }
+
     return { success: true as const, data: appointment }
   } catch (error) {
     return { success: false as const, error: String(error) }

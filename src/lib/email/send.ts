@@ -9,8 +9,10 @@ const ORG_ID = process.env.DEFAULT_ORG_ID ?? "org_default"
 export interface SendEmailOptions {
   /** Template name (e.g. "appointment-confirmed") */
   templateName: string
-  /** Recipient email address */
-  to: string
+  /** Recipient email address(es) */
+  to: string | string[]
+  /** Optional CC recipients */
+  cc?: string[]
   /** Variables to inject into the template */
   variables: Record<string, string>
 }
@@ -81,10 +83,18 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
       smtpSecure: settings.smtpSecure,
     })
 
+    // 5. Prepare recipients with deduplication
+    const toList = Array.isArray(options.to) ? options.to : [options.to]
+    const ccList = options.cc ?? []
+    const allRecipients = new Set([...toList, ...ccList])
+    const uniqueTo = [...new Set(toList)]
+    const uniqueCc = [...new Set(ccList.filter((addr) => !toList.includes(addr)))]
+
     // 5. Send
     const info = await transporter.sendMail({
       from: settings.smtpFrom,
-      to: options.to,
+      to: uniqueTo.join(", "),
+      cc: uniqueCc.length > 0 ? uniqueCc.join(", ") : undefined,
       subject: renderedSubject,
       html: renderedBody,
     })
