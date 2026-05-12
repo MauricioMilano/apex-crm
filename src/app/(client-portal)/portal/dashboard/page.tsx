@@ -3,9 +3,10 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { format, parseISO, isPast, isFuture } from 'date-fns';
+import { parseISO, isPast, isFuture } from 'date-fns';
 import { useAuth } from '@/contexts/auth-context';
 import { useCRM } from '@/contexts/crm-context';
+import { useOrgFormat } from '@/hooks/use-org-format';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -35,6 +36,7 @@ export default function ClientPortalDashboardPage() {
   const { clients, appointments, services, users } = useCRM();
   const router = useRouter();
   const [subscriptions, setSubscriptions] = useState<{ id: string; plan: { name: string; maxApptsPerPeriod?: number; price: number } | undefined; appointmentsUsed: number; status: string }[]>([]);
+  const { formatDate, formatTime } = useOrgFormat();
 
   const client = useMemo(
     () => clients.find((c) => c.email?.toLowerCase() === currentUser?.email?.toLowerCase()),
@@ -157,7 +159,6 @@ export default function ClientPortalDashboardPage() {
                   {upcoming.map((appt) => {
                     const svc = services.find((s) => s.id === appt.serviceId);
                     const emp = users.find((u) => u.id === appt.employeeId);
-                    const start = parseISO(appt.startTime);
                     return (
                       <div
                         key={appt.id}
@@ -183,11 +184,11 @@ export default function ClientPortalDashboardPage() {
                           <div className="text-xs text-gray-500 mt-0.5 flex flex-wrap items-center gap-3">
                             <span className="flex items-center gap-1">
                               <CalendarDays className="h-3 w-3" />
-                              {format(start, 'MMM d, yyyy')}
+                              {formatDate(appt.startTime)}
                             </span>
                             <span className="flex items-center gap-1">
                               <Clock className="h-3 w-3" />
-                              {format(start, 'h:mm a')}
+                              {formatTime(appt.startTime)}
                             </span>
                             {emp && (
                               <span className="flex items-center gap-1">
@@ -262,7 +263,7 @@ export default function ClientPortalDashboardPage() {
                             </span>
                           </span>
                           <div className="text-xs text-gray-400">
-                            {format(parseISO(appt.startTime), 'MMM d, yyyy')}
+                            {formatDate(appt.startTime)}
                           </div>
                         </div>
                       </div>

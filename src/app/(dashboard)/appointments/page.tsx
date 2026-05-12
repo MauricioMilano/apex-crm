@@ -40,7 +40,6 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import {
-  format,
   parseISO,
   isSameDay,
   startOfWeek,
@@ -48,6 +47,7 @@ import {
   isWithinInterval,
   differenceInMinutes,
 } from 'date-fns';
+import { useOrgFormat } from '@/hooks/use-org-format';
 import { cn } from '@/lib/utils';
 import {
   Plus,
@@ -83,6 +83,7 @@ export default function AppointmentsPage() {
   const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
+  const { formatDate, formatTime } = useOrgFormat();
   const today = new Date();
   const weekStart = startOfWeek(today, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(today, { weekStartsOn: 1 });
@@ -315,8 +316,8 @@ export default function AppointmentsPage() {
                     className="border-gray-700 hover:bg-gray-800/50"
                   >
                     <TableCell className="text-gray-300">
-                      <p>{format(start, 'MMM d, yyyy')}</p>
-                      <p className="text-xs text-gray-500">{format(start, 'h:mm a')}</p>
+                      <p>{formatDate(start)}</p>
+                      <p className="text-xs text-gray-500">{formatTime(start)}</p>
                     </TableCell>
                     <TableCell className="text-gray-300">
                       {client

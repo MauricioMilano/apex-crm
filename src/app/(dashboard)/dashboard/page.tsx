@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { format, isFuture, isToday } from 'date-fns';
 import { useCRM } from '@/contexts/crm-context';
+import { useOrgFormat } from '@/hooks/use-org-format';
 import { StatsCard } from '@/components/dashboard/stats-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -53,6 +54,7 @@ export default function DashboardPage() {
     services,
     leadStatuses,
   } = useCRM();
+  const { formatCurrency } = useOrgFormat();
 
   // ── Stats ────────────────────────────────────────────────────────────────
 
@@ -212,7 +214,7 @@ export default function DashboardPage() {
         />
         <StatsCard
           title="Monthly Revenue"
-          value={`$${monthlyRevenue.toLocaleString()}`}
+          value={formatCurrency(monthlyRevenue)}
           icon={DollarSign}
           trend={revenueTrend}
           description="completed appointments"
@@ -290,7 +292,7 @@ export default function DashboardPage() {
                         </TableCell>
                         <TableCell className="py-3 text-right text-sm text-gray-300">
                           {lead.value != null
-                            ? `$${lead.value.toLocaleString()}`
+                            ? formatCurrency(lead.value)
                             : '—'}
                         </TableCell>
                       </TableRow>

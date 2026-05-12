@@ -21,6 +21,7 @@ import {
   Building2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useOrgFormat } from '@/hooks/use-org-format';
 
 const SOURCE_COLORS: Record<string, string> = {
   form: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
@@ -48,6 +49,7 @@ export function LeadCard({
   onClick,
   onDragStart,
 }: LeadCardProps) {
+  const { formatCurrency } = useOrgFormat();
   const assignedUser = users.find((u) => u.id === lead.assignedTo);
   const initials = assignedUser
     ? `${assignedUser.firstName?.[0] ?? ''}${assignedUser.lastName?.[0] ?? ''}`.toUpperCase() || '?'
@@ -178,7 +180,7 @@ export function LeadCard({
       {/* Value */}
       {lead.value != null && (
         <p className="mt-1.5 text-xs font-medium text-emerald-400">
-          ${lead.value.toLocaleString()}
+          {formatCurrency(lead.value)}
         </p>
       )}
     </div>

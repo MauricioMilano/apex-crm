@@ -34,6 +34,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { useOrgFormat } from '@/hooks/use-org-format';
 import { toast } from 'sonner';
 
 const ALL_PERMISSIONS = [
@@ -68,6 +69,7 @@ const emptyForm = (): CreateForm => ({
 
 export default function ApiKeysPage() {
   const { apiKeys, addApiKey, deleteApiKey } = useCRM();
+  const { formatDate } = useOrgFormat();
   const [createOpen, setCreateOpen] = useState(false);
   const [form, setForm] = useState<CreateForm>(emptyForm());
 
@@ -210,11 +212,11 @@ export default function ApiKeysPage() {
                   </div>
                 </TableCell>
                 <TableCell className="text-gray-400 text-sm">
-                  {new Date(k.createdAt).toLocaleDateString()}
+                  {formatDate(k.createdAt)}
                 </TableCell>
                 <TableCell className="text-gray-400 text-sm">
                   {k.lastUsed
-                    ? new Date(k.lastUsed).toLocaleDateString()
+                    ? formatDate(k.lastUsed)
                     : <span className="text-gray-600">Never</span>}
                 </TableCell>
                 <TableCell>

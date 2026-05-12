@@ -2,10 +2,11 @@
 
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { format, parseISO, isPast, isFuture, differenceInHours } from 'date-fns';
+import { parseISO, isPast, isFuture, differenceInHours } from 'date-fns';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/auth-context';
 import { useCRM } from '@/contexts/crm-context';
+import { useOrgFormat } from '@/hooks/use-org-format';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -34,6 +35,7 @@ export default function ClientPortalAppointmentsPage() {
   const { currentUser } = useAuth();
   const { clients, appointments, services, users, updateAppointment } = useCRM();
   const router = useRouter();
+  const { formatDate, formatTime } = useOrgFormat();
 
   const client = useMemo(
     () =>
@@ -89,8 +91,6 @@ export default function ClientPortalAppointmentsPage() {
   }) {
     const svc = services.find((s) => s.id === appt.serviceId);
     const emp = users.find((u) => u.id === appt.employeeId);
-    const start = parseISO(appt.startTime);
-    const end = parseISO(appt.endTime);
     const cfg = STATUS_CONFIG[appt.status];
 
     return (
@@ -107,11 +107,11 @@ export default function ClientPortalAppointmentsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-y-1 gap-x-4 text-sm text-gray-600">
                 <span className="flex items-center gap-1.5">
                   <CalendarDays className="h-3.5 w-3.5 text-gray-400 shrink-0" />
-                  {format(start, 'EEE, MMM d, yyyy')}
+                  {formatDate(appt.startTime)}
                 </span>
                 <span className="flex items-center gap-1.5">
                   <Clock className="h-3.5 w-3.5 text-gray-400 shrink-0" />
-                  {format(start, 'h:mm a')} – {format(end, 'h:mm a')}
+                  {formatTime(appt.startTime)} – {formatTime(appt.endTime)}
                 </span>
                 {emp && (
                   <span className="flex items-center gap-1.5">

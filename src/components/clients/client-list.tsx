@@ -28,7 +28,7 @@ import {
   Trash2,
   Eye,
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { useOrgFormat } from '@/hooks/use-org-format';
 
 type SortKey = 'name' | 'email' | 'phone' | 'createdAt';
 type SortDir = 'asc' | 'desc';
@@ -70,6 +70,7 @@ export function ClientList({
   const [sortKey, setSortKey] = useState<SortKey>('createdAt');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
   const [page, setPage] = useState(1);
+  const { formatDate } = useOrgFormat();
 
   const PAGE_SIZE = view === 'grid' ? 12 : 20;
 
@@ -320,7 +321,7 @@ export function ClientList({
                         </div>
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
-                        {format(new Date(c.createdAt), 'MMM d, yyyy')}
+                        {formatDate(c.createdAt)}
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-1">

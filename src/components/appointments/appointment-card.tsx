@@ -1,11 +1,12 @@
 'use client';
 
 import { useCRM } from '@/contexts/crm-context';
+import { useOrgFormat } from '@/hooks/use-org-format';
 import type { Appointment, AppointmentStatus } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { format, parseISO, differenceInMinutes } from 'date-fns';
+import { parseISO, differenceInMinutes } from 'date-fns';
 import { Calendar, Clock, User, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -33,6 +34,7 @@ export function AppointmentCard({
   onReschedule,
 }: AppointmentCardProps) {
   const { clients, leads, users, services } = useCRM();
+  const { formatDate, formatTime } = useOrgFormat();
 
   const client = clients.find(c => c.id === appointment.clientId);
   const lead = leads.find(l => l.id === appointment.leadId);
@@ -75,11 +77,11 @@ export function AppointmentCard({
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
               <span className="flex items-center gap-1">
                 <Calendar className="h-3 w-3" />
-                {format(startDate, 'MMM d, yyyy')}
+                {formatDate(startDate)}
               </span>
               <span className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
-                {format(startDate, 'h:mm a')} · {duration}m
+                {formatTime(startDate)} · {duration}m
               </span>
               <span className="flex items-center gap-1">
                 <User className="h-3 w-3" />

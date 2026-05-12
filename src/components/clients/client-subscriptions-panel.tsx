@@ -24,7 +24,7 @@ import {
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { CreditCard, XCircle, Plus } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
+import { useOrgFormat } from '@/hooks/use-org-format';
 import type { SubscriptionPlan, ClientSubscription } from '@/types';
 
 interface SubWithPlan extends ClientSubscription {
@@ -44,6 +44,7 @@ export function ClientSubscriptionsPanel({ clientId }: { clientId: string }) {
   const [assigning, setAssigning] = useState(false);
   const [cancelId, setCancelId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const { formatDate } = useOrgFormat();
 
   const fetchData = useCallback(async () => {
     try {
@@ -172,8 +173,8 @@ export function ClientSubscriptionsPanel({ clientId }: { clientId: string }) {
 
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-gray-400 mb-3">
                       <span>
-                        Period: {format(parseISO(sub.currentPeriodStart), 'MMM d')} –{' '}
-                        {format(parseISO(sub.currentPeriodEnd), 'MMM d, yyyy')}
+                        Period: {formatDate(sub.currentPeriodStart)} –{' '}
+                        {formatDate(sub.currentPeriodEnd)}
                       </span>
                       <span>
                         Price: ${sub.plan ? Number(sub.plan.price).toFixed(2) : '-'}

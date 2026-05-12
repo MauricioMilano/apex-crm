@@ -21,13 +21,13 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import {
-  format,
   parseISO,
   differenceInMinutes,
   addMinutes,
 } from 'date-fns';
 import { cn } from '@/lib/utils';
 import StatusSelect from '@/components/appointments/status-select';
+import { useOrgFormat } from '@/hooks/use-org-format';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { allowedStatusesForRole } from '@/lib/permissions';
 import {
@@ -112,6 +112,8 @@ export default function AppointmentDetailPage() {
   useEffect(() => {
     setNotes(appt?.notes ?? '');
   }, [appt?.notes]);
+
+  const { formatDate, formatTime } = useOrgFormat();
 
   if (!appt) {
     return (
@@ -222,7 +224,7 @@ export default function AppointmentDetailPage() {
               <Calendar className="h-4 w-4 text-gray-400 mt-0.5 shrink-0" />
               <div>
                 <p className="text-gray-400 text-xs">Date</p>
-                <p className="text-white">{format(start, 'MMMM d, yyyy')}</p>
+                <p className="text-white">{formatDate(start)}</p>
               </div>
             </div>
             <div className="flex items-start gap-2 text-sm">
@@ -230,7 +232,7 @@ export default function AppointmentDetailPage() {
               <div>
                 <p className="text-gray-400 text-xs">Time</p>
                 <p className="text-white">
-                  {format(start, 'h:mm a')} – {format(end, 'h:mm a')}
+                  {formatTime(start)} – {formatTime(end)}
                 </p>
               </div>
             </div>
@@ -246,7 +248,7 @@ export default function AppointmentDetailPage() {
               <div>
                 <p className="text-gray-400 text-xs">Created</p>
                 <p className="text-white">
-                  {format(parseISO(appt.createdAt), 'MMM d, yyyy')}
+                  {formatDate(appt.createdAt)}
                 </p>
               </div>
             </div>
@@ -411,7 +413,7 @@ export default function AppointmentDetailPage() {
                       <div className="flex-1">
                         <p className="text-sm text-gray-400 mb-3">
                           Time slots for{' '}
-                          <span className="text-white">{format(newDate, 'MMMM d')}</span>
+                          <span className="text-white">{formatDate(newDate)}</span>
                         </p>
                         <div className="grid grid-cols-3 gap-2">
                           {TIME_SLOTS.map(slot => (

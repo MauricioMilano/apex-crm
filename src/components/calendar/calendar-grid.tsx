@@ -20,7 +20,6 @@ import {
 } from '@/components/ui/dialog';
 import { BookingFlow } from '@/components/appointments/booking-flow';
 import {
-  format,
   startOfWeek,
   endOfWeek,
   eachDayOfInterval,
@@ -31,6 +30,7 @@ import {
   differenceInMinutes,
   isToday,
 } from 'date-fns';
+import { useOrgFormat } from '@/hooks/use-org-format';
 import { ChevronLeft, ChevronRight, Clock, User, CheckCircle, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -60,6 +60,7 @@ export function CalendarGrid({ onAppointmentClick }: CalendarGridProps) {
   const [currentWeekStart, setCurrentWeekStart] = useState(() =>
     startOfWeek(new Date(), { weekStartsOn: 1 }),
   );
+  const { formatDate, formatTime } = useOrgFormat();
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>('all');
   const [bookingOpen, setBookingOpen] = useState(false);
   const [bookingDate, setBookingDate] = useState<Date | undefined>(undefined);
@@ -136,8 +137,8 @@ export function CalendarGrid({ onAppointmentClick }: CalendarGridProps) {
             <ChevronRight className="h-4 w-4" />
           </Button>
           <span className="text-white font-medium ml-1 text-sm">
-            {format(currentWeekStart, 'MMM d')} –{' '}
-            {format(endOfWeek(currentWeekStart, { weekStartsOn: 1 }), 'MMM d, yyyy')}
+            {formatDate(currentWeekStart)} –{' '}
+            {formatDate(endOfWeek(currentWeekStart, { weekStartsOn: 1 }))}
           </span>
         </div>
 
@@ -171,14 +172,14 @@ export function CalendarGrid({ onAppointmentClick }: CalendarGridProps) {
                 isToday(day) && 'bg-blue-500/10',
               )}
             >
-              <p className="text-xs text-gray-500">{format(day, 'EEE')}</p>
+              <p className="text-xs text-gray-500">{formatDate(day)}</p>
               <p
                 className={cn(
                   'text-sm font-semibold',
                   isToday(day) ? 'text-blue-400' : 'text-gray-300',
                 )}
               >
-                {format(day, 'd')}
+                {formatDate(day)}
               </p>
             </div>
           ))}
@@ -197,7 +198,7 @@ export function CalendarGrid({ onAppointmentClick }: CalendarGridProps) {
                   style={{ height: `${HOUR_HEIGHT}px` }}
                   className="text-right pr-2 text-xs text-gray-600 flex items-start pt-1"
                 >
-                  {format(d, 'h a')}
+                  {formatTime(d)}
                 </div>
               );
             })}
@@ -259,7 +260,7 @@ export function CalendarGrid({ onAppointmentClick }: CalendarGridProps) {
                               : 'Appointment'}
                           </p>
                           {service && <p className="opacity-70 truncate">{service.name}</p>}
-                          <p className="opacity-60">{format(startDt, 'h:mm a')}</p>
+                          <p className="opacity-60">{formatTime(startDt)}</p>
                         </button>
                       </PopoverTrigger>
                       <PopoverContent
@@ -314,13 +315,12 @@ function AppointmentPopover({
   onStatusChange: (status: AppointmentStatus) => void;
 }) {
   const { clients, leads, services, users } = useCRM();
+  const { formatTime } = useOrgFormat();
 
   const client = clients.find(c => c.id === appointment.clientId);
   const lead = leads.find(l => l.id === appointment.leadId);
   const service = services.find(s => s.id === appointment.serviceId);
   const employee = users.find(u => u.id === appointment.employeeId);
-  const start = parseISO(appointment.startTime);
-  const end = parseISO(appointment.endTime);
 
   const STATUS_LABEL: Record<AppointmentStatus, string> = {
     pending: 'Pending',
@@ -349,7 +349,7 @@ function AppointmentPopover({
       <div className="text-sm text-gray-400 space-y-1">
         <p className="flex items-center gap-1.5">
           <Clock className="h-3.5 w-3.5" />
-          {format(start, 'h:mm a')} – {format(end, 'h:mm a')}
+          {formatTime(appointment.startTime)} – {formatTime(appointment.endTime)}
         </p>
         <p className="flex items-center gap-1.5">
           <User className="h-3.5 w-3.5" />

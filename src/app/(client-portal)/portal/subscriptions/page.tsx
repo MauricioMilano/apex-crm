@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { format, parseISO } from 'date-fns';
+
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/auth-context';
 import { useCRM } from '@/contexts/crm-context';
+import { useOrgFormat } from '@/hooks/use-org-format';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -57,6 +58,7 @@ export default function ClientPortalSubscriptionsPage() {
   const [loading, setLoading] = useState(true);
   const [cancelId, setCancelId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const { formatDate } = useOrgFormat();
 
   const client = useMemo(
     () => clients.find((c) => c.email?.toLowerCase() === currentUser?.email?.toLowerCase()),
@@ -152,12 +154,12 @@ export default function ClientPortalSubscriptionsPage() {
                         </span>
                         <span className="flex items-center gap-1.5">
                           <CalendarDays className="h-3.5 w-3.5 text-gray-400" />
-                          {format(parseISO(sub.currentPeriodStart), 'MMM d')} –{' '}
-                          {format(parseISO(sub.currentPeriodEnd), 'MMM d, yyyy')}
+                          {formatDate(sub.currentPeriodStart)} –{' '}
+                          {formatDate(sub.currentPeriodEnd)}
                         </span>
                         {sub.endDate && (
                           <span className="flex items-center gap-1.5 text-red-500">
-                            Ended {format(parseISO(sub.endDate), 'MMM d, yyyy')}
+                            Ended {formatDate(sub.endDate)}
                           </span>
                         )}
                       </div>

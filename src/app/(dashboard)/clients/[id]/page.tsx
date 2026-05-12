@@ -48,7 +48,7 @@ import {
   FileSpreadsheet,
   CreditCard,
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { useOrgFormat } from '@/hooks/use-org-format';
 import { cn } from '@/lib/utils';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -91,6 +91,7 @@ export default function ClientDetailPage() {
   const router = useRouter();
   const { clients, appointments, services, updateClient, deleteClient } =
     useCRM();
+  const { formatDate, formatDateTime } = useOrgFormat();
 
   const client = useMemo(
     () => clients.find((c) => c.id === params.id),
@@ -293,7 +294,7 @@ export default function ClientDetailPage() {
                   <Calendar className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
                   <div>
                     <p className="text-muted-foreground text-xs">Client Since</p>
-                    <p>{format(new Date(client.createdAt), 'MMMM d, yyyy')}</p>
+                    <p>{formatDate(client.createdAt)}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
@@ -418,10 +419,7 @@ export default function ClientDetailPage() {
                               {service?.name ?? 'Service'}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {format(
-                                new Date(appt.startTime),
-                                'MMM d, yyyy · h:mm a',
-                              )}
+                              {formatDateTime(appt.startTime)}
                             </p>
                           </div>
                         </div>
@@ -464,7 +462,7 @@ export default function ClientDetailPage() {
                       <p className="text-sm font-medium">{file.name}</p>
                       <p className="text-xs text-muted-foreground">
                         {file.size ? `${file.size} · ` : ''}
-                        Uploaded {format(new Date(file.createdAt), 'MMM d, yyyy')}
+                        Uploaded {formatDate(file.createdAt)}
                       </p>
                     </div>
                   </div>
@@ -507,7 +505,7 @@ export default function ClientDetailPage() {
                   <CardContent className="p-4">
                     <p className="text-sm whitespace-pre-wrap">{note.text}</p>
                     <p className="text-xs text-muted-foreground mt-2">
-                      {format(new Date(note.date), 'MMM d, yyyy · h:mm a')}
+                      {formatDateTime(note.date)}
                     </p>
                   </CardContent>
                 </Card>

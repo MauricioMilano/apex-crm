@@ -9,6 +9,46 @@ import { sendEmail } from "@/lib/email/send"
 
 const ORG_ID = process.env.DEFAULT_ORG_ID ?? "org_default"
 
+// ── Allowed values for regional settings ──────────────────────────────────
+
+const ALLOWED_TIMEZONES = [
+  "America/New_York", "America/Chicago", "America/Denver", "America/Los_Angeles",
+  "America/Phoenix", "America/Anchorage", "Pacific/Honolulu",
+  "Europe/London", "Europe/Paris", "Europe/Berlin", "Europe/Madrid", "Europe/Rome",
+  "Asia/Tokyo", "Asia/Shanghai", "Asia/Kolkata", "Asia/Dubai",
+  "Australia/Sydney", "Australia/Melbourne", "Pacific/Auckland",
+] as const
+
+const ALLOWED_DATE_FORMATS = [
+  "MM/DD/YYYY", "DD/MM/YYYY", "YYYY-MM-DD", "MMM D, YYYY",
+] as const
+
+const ALLOWED_CURRENCIES = [
+  "USD", "EUR", "GBP", "CAD", "AUD", "JPY", "CHF", "BRL", "MXN",
+] as const
+
+const ALLOWED_TIME_FORMATS = ["12h", "24h"] as const
+
+const organizationSettingsSchema = z.object({
+  currency: z.enum(ALLOWED_CURRENCIES).optional(),
+  timezone: z.enum(ALLOWED_TIMEZONES).optional(),
+  dateFormat: z.enum(ALLOWED_DATE_FORMATS).optional(),
+  timeFormat: z.enum(ALLOWED_TIME_FORMATS).optional(),
+  locale: z.string().min(2).optional().nullable(),
+})
+
+type OrganizationSettingsInput = z.infer<typeof organizationSettingsSchema>
+
+// ── Default settings ───────────────────────────────────────────────────────
+
+const DEFAULT_SETTINGS = {
+  currency: "USD",
+  timezone: "America/New_York",
+  dateFormat: "MM/DD/YYYY",
+  timeFormat: "12h",
+  locale: "en-US",
+} as const
+
 export async function getOrganization(id: string) {
   try {
     const org = await prisma.organization.findUnique({ where: { id } })
@@ -26,6 +66,49 @@ export async function updateOrganization(
   try {
     const org = await prisma.organization.update({ where: { id }, data })
     return { success: true as const, data: org }
+  } catch (error) {
+    return { success: false as const, error: String(error) }
+  }
+}
+
+// ── Organization Settings ─────────────────────────────────────────────────
+
+export async function getOrganizationSettings(organizationId: string) {
+  try {
+    let settings = await prisma.organizationSetting.findUnique({
+      where: { organizationId },
+    })
+    if (!settings) {
+      settings = await prisma.organizationSetting.create({
+        data: { organizationId, ...DEFAULT_SETTINGS },
+      })
+    }
+    const { smtpPass: _smtpPass, ...safe } = settings
+    void _smtpPass
+    return { success: true as const, data: safe }
+  } catch (error) {
+    return { success: false as const, error: String(error) }
+  }
+}
+
+export async function updateOrganizationSettings(
+  organizationId: string,
+  data: OrganizationSettingsInput
+) {
+  try {
+    const parsed = organizationSettingsSchema.safeParse(data)
+    if (!parsed.success) {
+      return { success: false as const, error: parsed.error.message }
+    }
+    // Ensure a record exists before updating
+    await getOrganizationSettings(organizationId)
+    const updated = await prisma.organizationSetting.update({
+      where: { organizationId },
+      data: parsed.data,
+    })
+    const { smtpPass: _smtpPass, ...safe } = updated
+    void _smtpPass
+    return { success: true as const, data: safe }
   } catch (error) {
     return { success: false as const, error: String(error) }
   }

@@ -36,6 +36,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { useOrgFormat } from '@/hooks/use-org-format';
 import { toast } from 'sonner';
 
 const ALL_EVENTS = [
@@ -80,6 +81,7 @@ const emptyForm = (): WebhookForm => ({
 
 export default function WebhooksPage() {
   const { webhooks, addWebhook, updateWebhook, deleteWebhook } = useCRM();
+  const { formatDate } = useOrgFormat();
   const currentUser = useCurrentUser();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Webhook | null>(null);
@@ -230,7 +232,7 @@ export default function WebhooksPage() {
                 </TableCell>
                 <TableCell className="text-gray-400 text-sm">
                   {wh.lastTriggered
-                    ? new Date(wh.lastTriggered).toLocaleDateString()
+                    ? formatDate(wh.lastTriggered)
                     : <span className="text-gray-600">Never</span>}
                 </TableCell>
                 <TableCell>

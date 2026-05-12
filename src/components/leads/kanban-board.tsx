@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Lead, LeadStatus } from '@/types';
 import { useCRM } from '@/contexts/crm-context';
+import { useOrgFormat } from '@/hooks/use-org-format';
 import { StatusColumn } from './status-column';
 import { LeadForm } from './lead-form';
 import { Button } from '@/components/ui/button';
@@ -83,6 +84,7 @@ export function KanbanBoard({ onNewLead }: KanbanBoardProps) {
   const router = useRouter();
   const { leads, leadStatuses, users, addLead, updateLead, deleteLead } =
     useCRM();
+  const { formatCurrency } = useOrgFormat();
 
   // View state
   const [viewMode, setViewMode] = useState<ViewMode>('kanban');
@@ -477,7 +479,7 @@ export function KanbanBoard({ onNewLead }: KanbanBoardProps) {
                     </TableCell>
                     <TableCell className="text-emerald-400 font-medium text-sm">
                       {lead.value != null
-                        ? `$${lead.value.toLocaleString()}`
+                        ? formatCurrency(lead.value)
                         : '—'}
                     </TableCell>
                     <TableCell>

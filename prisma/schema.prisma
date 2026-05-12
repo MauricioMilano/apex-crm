@@ -44,6 +44,7 @@ model Location {
   phone          String?
   email          String?
   timezone       String        @default("America/Chicago")
+  currency       String?       @map("currency")
   isActive       Boolean       @default(true) @map("is_active")
   isDefault      Boolean       @default(false) @map("is_default")
   createdAt      DateTime      @default(now()) @map("created_at")
@@ -397,6 +398,14 @@ model OrganizationSetting {
   smtpFrom        String?  @map("smtp_from")
   smtpSecure              Boolean  @default(false) @map("smtp_secure")
   emailVerificationEnabled Boolean @default(false) @map("email_verification_enabled")
+
+  // ── Regional settings ──────────────────────────────────────────────────
+  currency      String  @default("USD") @map("currency")
+  timezone      String  @default("America/New_York") @map("timezone")
+  dateFormat    String  @default("MM/DD/YYYY") @map("date_format")
+  timeFormat    String  @default("12h") @map("time_format")
+  locale        String? @default("en-US") @map("locale")
+
   createdAt               DateTime @default(now()) @map("created_at")
   updatedAt               DateTime @updatedAt @map("updated_at")
 

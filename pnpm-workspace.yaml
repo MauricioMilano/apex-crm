@@ -5,6 +5,7 @@ allowBuilds:
   esbuild: true
   prisma: true
   sharp: true
+  unrs-resolver: true
 
 # Increased timeout for large packages on slow connections (ms, default 60000)
 fetchTimeout: 600000

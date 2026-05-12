@@ -1,5 +1,6 @@
 "use client"
 
+import { useOrgFormat } from "@/hooks/use-org-format"
 import { Pencil, FileText, Calendar, User, UserPlus, Package, Users, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -47,6 +48,7 @@ const categoryColors: Record<string, string> = {
 }
 
 export function TemplateList({ templates, onEdit }: TemplateListProps) {
+  const { formatDate } = useOrgFormat()
   // Group by category
   const grouped = templates.reduce<Record<string, TemplateListItem[]>>((acc, t) => {
     if (!acc[t.category]) acc[t.category] = []
@@ -102,7 +104,7 @@ export function TemplateList({ templates, onEdit }: TemplateListProps) {
                           {template.subject}
                         </p>
                         <p className="text-xs text-gray-600 mt-1">
-                          Updated {new Date(template.updatedAt).toLocaleDateString()}
+                          Updated {formatDate(template.updatedAt)}
                         </p>
                       </div>
                       <Button

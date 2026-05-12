@@ -39,6 +39,18 @@ async function main() {
     },
   })
 
+  // ── 2b. Organization Settings ─────────────────────────────────────────────
+  await prisma.organizationSetting.create({
+    data: {
+      organizationId: org.id,
+      currency: 'USD',
+      timezone: 'America/Chicago',
+      dateFormat: 'MM/DD/YYYY',
+      timeFormat: '12h',
+      locale: 'en-US',
+    },
+  })
+
   // ── 3. Locations ──────────────────────────────────────────────────────────
   const [locMain, locNorth] = await prisma.$transaction([
     prisma.location.create({

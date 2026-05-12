@@ -41,7 +41,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
-import { format } from 'date-fns';
+import { useOrgFormat } from '@/hooks/use-org-format';
 import {
   Plus,
   FileText,
@@ -56,6 +56,7 @@ import {
 export default function FormsPage() {
   const router = useRouter();
   const { forms, addForm, deleteForm } = useCRM();
+  const { formatDate } = useOrgFormat();
   const currentUser = useCurrentUser();
   const [embedForm, setEmbedForm] = useState<Form | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Form | null>(null);
@@ -214,7 +215,7 @@ export default function FormsPage() {
               <CardFooter className="pt-3 border-t border-gray-800 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-gray-600">
-                    {format(new Date(form.createdAt), 'MMM d, yyyy')}
+                    {formatDate(form.createdAt)}
                   </span>
                   <Badge
                     variant={form.isPublished ? "default" : "secondary"}

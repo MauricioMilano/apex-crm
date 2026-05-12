@@ -21,6 +21,8 @@ export interface Location {
   zip: string;
   phone?: string;
   email?: string;
+  timezone?: string;
+  currency?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -387,6 +389,16 @@ export interface NavSection {
   items: NavItem[];
 }
 
+// ─── Organization Regional Settings ────────────────────────────────────────────
+
+export interface OrgSettings {
+  currency: string;
+  timezone: string;
+  dateFormat: string;
+  timeFormat: '12h' | '24h';
+  locale: string | null;
+}
+
 // ─── Email / SMTP ──────────────────────────────────────────────────────────────
 
 export interface OrganizationSetting {
@@ -401,6 +413,14 @@ export interface OrganizationSetting {
   smtpFrom: string | null;
   smtpSecure: boolean;
   emailVerificationEnabled: boolean;
+
+  // ── Regional settings ──────────────────────────────────────────────────
+  currency: string;
+  timezone: string;
+  dateFormat: string;
+  timeFormat: string;
+  locale: string | null;
+
   createdAt: string;
   updatedAt: string;
 }

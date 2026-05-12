@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Edit, Trash2, Mail, Phone, Eye } from 'lucide-react';
-import { format } from 'date-fns';
+import { useOrgFormat } from '@/hooks/use-org-format';
 import { useRouter } from 'next/navigation';
 
 const AVATAR_COLORS = [
@@ -34,6 +34,7 @@ interface ClientCardProps {
 
 export function ClientCard({ client, onEdit, onDelete }: ClientCardProps) {
   const router = useRouter();
+  const { formatDate } = useOrgFormat();
   const fullName = `${client.firstName} ${client.lastName}`;
   const initials = `${client.firstName?.[0] ?? ''}${client.lastName?.[0] ?? ''}`.toUpperCase() || '?';
   const avatarColor = getAvatarColor(fullName);
@@ -113,7 +114,7 @@ export function ClientCard({ client, onEdit, onDelete }: ClientCardProps) {
 
         <div className="flex items-center justify-between">
           <span className="text-[10px] text-muted-foreground">
-            Since {format(new Date(client.createdAt), 'MMM d, yyyy')}
+            Since {formatDate(client.createdAt)}
           </span>
           <Button
             variant="ghost"

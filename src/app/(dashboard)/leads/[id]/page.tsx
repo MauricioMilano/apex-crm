@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useCRM } from '@/contexts/crm-context';
+import { useOrgFormat } from '@/hooks/use-org-format';
 import { LeadForm } from '@/components/leads/lead-form';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -47,7 +48,6 @@ import {
   StickyNote,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
 
 const STATUS_COLOR_MAP: Record<string, string> = {
   blue: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
@@ -101,6 +101,7 @@ export default function LeadDetailPage() {
     deleteLead,
     addClient,
   } = useCRM();
+  const { formatCurrency, formatDate } = useOrgFormat();
 
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const lead = leads.find((l) => l.id === id);
@@ -309,7 +310,7 @@ export default function LeadDetailPage() {
                 label="Deal Value"
                 value={
                   <span className="text-emerald-400 font-medium">
-                    ${lead.value.toLocaleString()}
+                    {formatCurrency(lead.value)}
                   </span>
                 }
               />
@@ -347,12 +348,12 @@ export default function LeadDetailPage() {
             <DetailRow
               icon={Calendar}
               label="Created"
-              value={format(new Date(lead.createdAt), 'MMM d, yyyy')}
+              value={formatDate(lead.createdAt)}
             />
             <DetailRow
               icon={Calendar}
               label="Last Updated"
-              value={format(new Date(lead.updatedAt), 'MMM d, yyyy')}
+              value={formatDate(lead.updatedAt)}
             />
             {lead.tags.length > 0 && (
               <DetailRow

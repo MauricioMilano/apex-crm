@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useCRM } from '@/contexts/crm-context';
+import { useOrgFormat } from '@/hooks/use-org-format';
 import { KanbanBoard } from '@/components/leads/kanban-board';
 import { LeadForm } from '@/components/leads/lead-form';
 import { Button } from '@/components/ui/button';
@@ -29,6 +30,7 @@ const STATUS_DOT_COLORS: Record<string, string> = {
 
 export default function LeadsPage() {
   const { leads, leadStatuses, users, addLead } = useCRM();
+  const { formatCurrency } = useOrgFormat();
 
   const [newLeadOpen, setNewLeadOpen] = useState(false);
 
@@ -85,7 +87,7 @@ export default function LeadsPage() {
           <div>
             <p className="text-xs text-gray-500">Pipeline Value</p>
             <p className="text-lg font-bold text-emerald-400 leading-tight">
-              ${totalValue.toLocaleString()}
+              {formatCurrency(totalValue)}
             </p>
           </div>
         </div>

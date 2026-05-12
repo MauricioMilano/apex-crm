@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/auth-context";
+import { OrgSettingsProvider } from "@/contexts/org-settings-context";
 import { CRMProvider } from "@/contexts/crm-context";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -38,10 +39,12 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
+            <OrgSettingsProvider>
             <CRMProvider>
               {children}
               <Toaster />
             </CRMProvider>
+            </OrgSettingsProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

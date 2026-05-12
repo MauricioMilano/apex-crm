@@ -4,10 +4,11 @@ import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { format, parseISO } from 'date-fns';
+
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/auth-context';
 import { useCRM } from '@/contexts/crm-context';
+import { useOrgFormat } from '@/hooks/use-org-format';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -53,6 +54,7 @@ export default function ClientPortalProfilePage() {
   const [notifEmail, setNotifEmail] = useState(true);
   const [notifSms, setNotifSms] = useState(false);
   const [notifReminder, setNotifReminder] = useState(true);
+  const { formatDate } = useOrgFormat();
 
   const client = useMemo(
     () =>
@@ -117,7 +119,7 @@ export default function ClientPortalProfilePage() {
               <p className="text-sm text-gray-500 truncate">{currentUser?.email}</p>
               {client && (
                 <p className="text-xs text-gray-400 mt-0.5">
-                  Client since {format(parseISO(client.createdAt), 'MMMM d, yyyy')}
+                  Client since {formatDate(client.createdAt)}
                 </p>
               )}
             </div>

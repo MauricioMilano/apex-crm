@@ -17,6 +17,7 @@ import {
   endOfWeek,
   isToday,
 } from 'date-fns';
+import { useOrgFormat } from '@/hooks/use-org-format';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { AppointmentStatus } from '@/types';
@@ -37,6 +38,8 @@ export default function CalendarPage() {
 
   const [view, setView] = useState<View>('week');
   const [currentDate, setCurrentDate] = useState(new Date());
+
+  const { formatDate, formatTime } = useOrgFormat();
 
   function shiftDate(delta: number) {
     setCurrentDate(prev => {
@@ -169,7 +172,7 @@ export default function CalendarPage() {
                           : 'text-gray-400',
                       )}
                     >
-                      {format(day, 'd')}
+                      {formatDate(day)}
                     </div>
                     <div className="space-y-0.5">
                       {appts.slice(0, 3).map(a => {
@@ -185,7 +188,7 @@ export default function CalendarPage() {
                               router.push(`/appointments/${a.id}`)
                             }
                           >
-                            {format(parseISO(a.startTime), 'h:mma')}{' '}
+                                                        {formatTime(a.startTime)} {' '}
                             {client ? client.firstName : ''}
                           </button>
                         );
@@ -209,7 +212,7 @@ export default function CalendarPage() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-white">
-              {format(currentDate, 'EEEE, MMMM d, yyyy')}
+              {formatDate(currentDate)}
               {isToday(currentDate) && (
                 <span className="ml-2 text-sm text-blue-400 font-normal">Today</span>
               )}
@@ -267,8 +270,8 @@ export default function CalendarPage() {
                           : 'Unknown Client'}
                       </p>
                       <span className="text-sm opacity-80">
-                        {format(parseISO(a.startTime), 'h:mm a')} –{' '}
-                        {format(parseISO(a.endTime), 'h:mm a')}
+                        {formatTime(a.startTime)} –{' '}
+                        {formatTime(a.endTime)}
                       </span>
                     </div>
                     {service && (
