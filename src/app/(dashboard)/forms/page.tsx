@@ -72,7 +72,7 @@ export default function FormsPage() {
         body: JSON.stringify({ id: formId, isPublished: newPublished }),
       });
       toast.success(`Form ${newPublished ? 'published' : 'unpublished'}`);
-    } catch (error) {
+    } catch {
       toast.error('Failed to update form status');
     }
   };
@@ -230,7 +230,7 @@ export default function FormsPage() {
                 </div>
                 <Switch
                   checked={form.isPublished}
-                  onCheckedChange={(checked) => handleTogglePublish(form.id, form.isPublished)}
+                  onCheckedChange={() => handleTogglePublish(form.id, form.isPublished)}
                   className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-gray-700"
                 />
               </CardFooter>

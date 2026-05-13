@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useCRM } from '@/contexts/crm-context';
 import {
   getOrgDefaultWorkingHours,
@@ -37,8 +37,6 @@ import {
   Loader2,
   Save,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-
 const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
 type Day = typeof DAYS[number];
 

@@ -21,7 +21,7 @@ export default function FormBuilderPage({ params }: PageProps) {
   const form = forms.find((f) => f.id === id);
   const formName = form?.name ?? 'New Form';
 
-  const handleSave = (_saved: Form) => {
+  const handleSave = (_: Form) => {
     toast.success('Form saved successfully');
     router.push('/forms');
   };

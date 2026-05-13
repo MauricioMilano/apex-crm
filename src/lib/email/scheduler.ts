@@ -77,9 +77,9 @@ export async function processScheduledEmails(): Promise<ProcessResult> {
         result.failed++
       }
     }
-  } catch (error) {
+  } catch (err) {
     // Log but don't throw — cron should not crash
-    console.error("[email-scheduler] processScheduledEmails error:", error)
+    console.error("[email-scheduler] processScheduledEmails error:", err)
   }
 
   return result
@@ -99,7 +99,7 @@ export async function cancelScheduledEmails(referenceType: string, referenceId: 
       },
     })
     return { success: true, count: result.count }
-  } catch (error) {
+  } catch {
     return { success: false, count: 0 }
   }
 }
@@ -123,7 +123,7 @@ export async function cleanupExpiredSchedules(): Promise<{ deleted: number }> {
       },
     })
     return { deleted: result.count }
-  } catch (error) {
+  } catch {
     return { deleted: 0 }
   }
 }
@@ -216,8 +216,8 @@ export async function checkExpiringSubscriptions(): Promise<ProcessResult> {
       if (sendResult.success) result.succeeded++
       else result.failed++
     }
-  } catch (error) {
-    console.error("[email-scheduler] checkExpiringSubscriptions error:", error)
+  } catch (err) {
+    console.error("[email-scheduler] checkExpiringSubscriptions error:", err)
   }
 
   return result

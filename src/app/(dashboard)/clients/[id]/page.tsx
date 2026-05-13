@@ -43,7 +43,6 @@ import {
   StickyNote,
   Plus,
   Download,
-  File,
   Image,
   FileSpreadsheet,
   CreditCard,
@@ -158,13 +157,11 @@ export default function ClientDetailPage() {
   const avatarColor = getAvatarColor(fullName);
 
   function handleEditSubmit(data: Omit<Client, 'id' | 'createdAt' | 'updatedAt'>) {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     void updateClient(client!.id, data);
     setEditOpen(false);
   }
 
   function handleDelete() {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     void deleteClient(client!.id);
     router.push('/clients');
   }

@@ -23,7 +23,7 @@ export async function loginUser(email: string, password: string) {
     const valid = await bcrypt.compare(password, user.passwordHash)
     if (!valid) return { success: false as const, error: "Invalid credentials" }
 
-    const { passwordHash, magicLinkToken, magicLinkExpires, ...safeUser } = user
+    const { passwordHash: _, magicLinkToken: _2, magicLinkExpires: _3, ...safeUser } = user
     return { success: true as const, data: safeUser }
   } catch (error) {
     return { success: false as const, error: String(error) }
@@ -72,7 +72,7 @@ export async function registerUser(data: {
       },
     })
 
-    const { passwordHash: _ph, magicLinkToken, magicLinkExpires, ...safeUser } = user
+    const { passwordHash: _ph, magicLinkToken: _4, magicLinkExpires: _5, ...safeUser } = user
 
     // Send welcome email (fire-and-forget, OK to fail if SMTP not configured yet)
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3001"
@@ -98,7 +98,7 @@ export async function getUserById(id: string) {
   try {
     const user = await prisma.user.findUnique({ where: { id } })
     if (!user) return { success: false as const, error: "User not found" }
-    const { passwordHash, magicLinkToken, magicLinkExpires, ...safeUser } = user
+    const { passwordHash: _6, magicLinkToken: _7, magicLinkExpires: _8, ...safeUser } = user
     return { success: true as const, data: safeUser }
   } catch (error) {
     return { success: false as const, error: String(error) }
@@ -111,7 +111,7 @@ export async function updateUserProfile(
 ) {
   try {
     const user = await prisma.user.update({ where: { id }, data })
-    const { passwordHash, magicLinkToken, magicLinkExpires, ...safeUser } = user
+    const { passwordHash: _9, magicLinkToken: _10, magicLinkExpires: _11, ...safeUser } = user
     return { success: true as const, data: safeUser }
   } catch (error) {
     return { success: false as const, error: String(error) }

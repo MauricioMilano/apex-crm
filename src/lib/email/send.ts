@@ -49,7 +49,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
     }
 
     // 2. Load template (DB first, fallback to built-in)
-    let dbTemplate = await prisma.emailTemplate.findUnique({
+    const dbTemplate = await prisma.emailTemplate.findUnique({
       where: {
         organizationId_name: {
           organizationId: ORG_ID,
@@ -86,7 +86,6 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
     // 5. Prepare recipients with deduplication
     const toList = Array.isArray(options.to) ? options.to : [options.to]
     const ccList = options.cc ?? []
-    const allRecipients = new Set([...toList, ...ccList])
     const uniqueTo = [...new Set(toList)]
     const uniqueCc = [...new Set(ccList.filter((addr) => !toList.includes(addr)))]
 

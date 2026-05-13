@@ -105,22 +105,6 @@ export default function PaymentMethodsPage() {
     }
   }
 
-  async function toggleActive(method: PaymentMethod) {
-    try {
-      const res = await fetch(`/api/v1/payment-methods/${method.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isActive: !method.isActive }),
-      });
-      const json = await res.json();
-      if (!json.success) throw new Error(json.error);
-      toast.success(method.isActive ? 'Method deactivated' : 'Method activated');
-      void fetchMethods();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to toggle');
-    }
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">

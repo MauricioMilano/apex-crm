@@ -95,8 +95,8 @@ export function ClientList({
       result = result.filter((c) => c.tags.includes(tagFilter));
     }
     return result.slice().sort((a, b) => {
-      let va = '';
-      let vb = '';
+      let va: string;
+      let vb: string;
       if (sortKey === 'name') {
         va = `${a.firstName} ${a.lastName}`;
         vb = `${b.firstName} ${b.lastName}`;

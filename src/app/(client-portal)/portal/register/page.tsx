@@ -41,7 +41,6 @@ export default function ClientPortalRegisterPage() {
   const orgSlug = searchParams.get('org');
   const [orgName, setOrgName] = useState<string | null>(null);
   const [orgLoading, setOrgLoading] = useState(true);
-  const [orgError, setOrgError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<RegisterFormData>({
@@ -54,11 +53,10 @@ export default function ClientPortalRegisterPage() {
     async function lookup() {
       if (!orgSlug) {
         setOrgLoading(false);
-        setOrgError(true);
         return;
       }
       try {
-        const res = await fetch(`/api/v1/auth/client-register?org=${encodeURIComponent(orgSlug)}`);
+        await fetch(`/api/v1/auth/client-register?org=${encodeURIComponent(orgSlug)}`);
         // If the endpoint doesn't exist for GET, fallback silently
         setOrgName(orgSlug); // show the slug as org indicator
       } catch { /* ignore */ }

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import { SmtpConfigForm } from "@/components/email/smtp-config-form"
 import { TemplateList } from "@/components/email/template-list"
 import { getEmailTemplates } from "@/actions/email"
-import { useCRM } from "@/contexts/crm-context"
 import type { EmailTemplate } from "@/types"
 import { useEffect } from "react"
 

@@ -3,7 +3,7 @@
 import { z } from "zod"
 import { prisma } from "@/lib/db"
 import { normalizeWorkingHours, resolveWorkingHours, createDefaultWorkingHours } from "@/lib/working-hours"
-import type { WorkingHours, DaySchedule } from "@/types"
+import type { DaySchedule } from "@/types"
 
 const ORG_ID = process.env.DEFAULT_ORG_ID ?? "org_default"
 

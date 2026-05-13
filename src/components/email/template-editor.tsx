@@ -50,7 +50,7 @@ export function TemplateEditor({
   // Initial render
   useEffect(() => {
     renderPreview()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [renderPreview])
 
   async function handleSave() {
     if (!subject.trim()) {

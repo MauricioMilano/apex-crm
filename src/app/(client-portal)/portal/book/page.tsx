@@ -21,7 +21,7 @@ export default function ClientPortalBookPage() {
     [clients, currentUser],
   );
 
-  const handleComplete = (_appointment: Appointment) => {
+  const handleComplete = (_: Appointment) => {
     toast.success('Appointment booked successfully!');
     router.push('/portal/appointments');
   };

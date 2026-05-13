@@ -90,7 +90,7 @@ export async function validateApiKey(rawKey: string) {
           where: { id: candidate.id },
           data: { lastUsedAt: new Date() },
         })
-        const { keyHash: _kh, ...safeKey } = candidate
+        const { keyHash: _keyHash, ...safeKey } = candidate
         return { success: true as const, data: safeKey }
       }
     }

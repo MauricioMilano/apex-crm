@@ -9,7 +9,7 @@ import { useCRM } from '@/contexts/crm-context';
 import { useOrgFormat } from '@/hooks/use-org-format';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import {
   AlertDialog,
@@ -21,7 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { CreditCard, XCircle, CheckCircle, CalendarDays, DollarSign } from 'lucide-react';
+import { CreditCard, XCircle, CalendarDays, DollarSign } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const STATUS_STYLES: Record<string, string> = {

@@ -1,9 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Trash2, Copy, Eye, EyeOff, Check } from 'lucide-react';
+import { Plus, Trash2, Copy, Check } from 'lucide-react';
 import { useCRM } from '@/contexts/crm-context';
-import type { ApiKey } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

@@ -3,7 +3,7 @@
 import { z } from "zod"
 import { AppointmentStatus, Prisma } from "@prisma/client"
 import { prisma } from "@/lib/db"
-import { generateAvailableSlotTimes, normalizeWorkingHours, resolveWorkingHours } from "@/lib/working-hours"
+import { generateAvailableSlotTimes, resolveWorkingHours } from "@/lib/working-hours"
 import { sendEmail } from "@/lib/email/send"
 import { scheduleEmail, cancelScheduledEmails } from "@/lib/email/scheduler"
 import { format } from "date-fns"

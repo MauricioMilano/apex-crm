@@ -111,7 +111,7 @@ async function main() {
   // ── 4. Users with hashed passwords ───────────────────────────────────────
   const passwordHash = await bcrypt.hash('Password123!', 12)
 
-  const [adminUser, emp1, emp2, clientUser] = await prisma.$transaction([
+  const [_adminUser, emp1, emp2, _clientUser] = await prisma.$transaction([
     prisma.user.create({
       data: {
         organizationId: org.id,

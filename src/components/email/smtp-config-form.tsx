@@ -13,7 +13,6 @@ import {
   updateOrganizationSettings,
   testSmtpConnectionAction,
 } from "@/actions/email"
-import type { OrganizationSetting } from "@/types"
 
 interface SmtpConfigFormProps {
   onSettingsChange?: () => void

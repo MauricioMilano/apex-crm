@@ -96,7 +96,6 @@ export default function LeadDetailPage() {
     leads,
     leadStatuses,
     users,
-    clients,
     updateLead,
     deleteLead,
     addClient,

@@ -153,7 +153,7 @@ export default function WebhooksPage() {
     setDeleteId(null);
   }
 
-  function handleTest(wh: Webhook) {
+  function handleTest(_wh: Webhook) {
     toast.success('Test payload sent!');
   }
 

@@ -2,12 +2,11 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Lead, LeadStatus } from '@/types';
+import { Lead } from '@/types';
 import { useCRM } from '@/contexts/crm-context';
 import { useOrgFormat } from '@/hooks/use-org-format';
 import { StatusColumn } from './status-column';
 import { LeadForm } from './lead-form';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -80,7 +79,7 @@ interface KanbanBoardProps {
   onNewLead?: () => void;
 }
 
-export function KanbanBoard({ onNewLead }: KanbanBoardProps) {
+export function KanbanBoard({ onNewLead: _onNewLead }: KanbanBoardProps) {
   const router = useRouter();
   const { leads, leadStatuses, users, addLead, updateLead, deleteLead } =
     useCRM();
@@ -170,7 +169,7 @@ export function KanbanBoard({ onNewLead }: KanbanBoardProps) {
   }, [filteredLeads, sortKey, sortDir, leadStatuses]);
 
   // Drag handlers
-  const handleDragStart = (_e: React.DragEvent, _leadId: string) => {
+  const handleDragStart = (_e: React.DragEvent, __leadId: string) => {
     // dataTransfer is set in LeadCard
   };
 

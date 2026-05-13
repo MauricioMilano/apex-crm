@@ -93,7 +93,7 @@ export default function ClientPortalProfilePage() {
     setTimeout(() => setProfileSaved(false), 3000);
   };
 
-  const onChangePassword = (_data: PasswordFormData) => {
+  const onChangePassword = (_: PasswordFormData) => {
     toast.success('Password changed successfully');
     passwordForm.reset();
   };

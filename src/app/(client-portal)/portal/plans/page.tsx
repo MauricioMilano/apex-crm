@@ -7,7 +7,7 @@ import { useCRM } from '@/contexts/crm-context';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { CreditCard, CheckCircle, Clock, DollarSign, Loader2 } from 'lucide-react';
+import { CreditCard, CheckCircle, Clock, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface PlanWithServices {

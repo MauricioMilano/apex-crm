@@ -86,7 +86,7 @@ export async function registerClient(data: RegisterClientInput) {
       },
     })
 
-    const { passwordHash: _ph, magicLinkToken, magicLinkExpires, ...safeUser } = user
+    const { passwordHash: _ph, magicLinkToken: _2, magicLinkExpires: _3, ...safeUser } = user
     return { success: true as const, data: safeUser }
   } catch (error) {
     return { success: false as const, error: String(error) }
