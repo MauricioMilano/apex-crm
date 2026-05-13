@@ -3,7 +3,7 @@
 import { z } from "zod"
 import { AppointmentStatus, Prisma } from "@prisma/client"
 import { prisma } from "@/lib/db"
-import { generateAvailableSlotTimes, normalizeWorkingHours } from "@/lib/working-hours"
+import { generateAvailableSlotTimes, normalizeWorkingHours, resolveWorkingHours } from "@/lib/working-hours"
 import { sendEmail } from "@/lib/email/send"
 import { scheduleEmail, cancelScheduledEmails } from "@/lib/email/scheduler"
 import { format } from "date-fns"
@@ -439,7 +439,7 @@ export async function getAvailableSlots(
   date: string
 ) {
   try {
-    const [employeeProfile, service] = await Promise.all([
+    const [employeeProfile, service, orgSettings] = await Promise.all([
       prisma.employeeProfile.findUnique({
         where: { userId: employeeId },
         include: {
@@ -452,19 +452,27 @@ export async function getAvailableSlots(
         },
       }),
       prisma.service.findUnique({ where: { id: serviceId } }),
+      prisma.organizationSetting.findUnique({
+        where: { organizationId: ORG_ID },
+        select: { defaultWorkingHours: true },
+      }),
     ])
 
-    if (!employeeProfile || !service) {
-      return { success: false as const, error: "Employee or service not found" }
+    if (!service) {
+      return { success: false as const, error: "Service not found" }
     }
+
+    const resolvedHours = resolveWorkingHours(
+      employeeProfile?.workingHours,
+      orgSettings?.defaultWorkingHours,
+    )
 
     const dayName = new Date(`${date}T12:00:00Z`).toLocaleDateString("en-US", {
       weekday: "long",
       timeZone: "UTC",
     }).toLowerCase() as keyof WorkingHours
 
-    const workingHours = normalizeWorkingHours(employeeProfile.workingHours)
-    const daySchedule = workingHours[dayName]
+    const daySchedule = resolvedHours[dayName]
 
     const existingAppointments = await prisma.appointment.findMany({
       where: {
@@ -477,17 +485,210 @@ export async function getAvailableSlots(
       },
     })
 
-    const slotDuration = service.duration + (employeeProfile.bufferMinutes ?? 0)
+    const slotDuration = service.duration + (employeeProfile?.bufferMinutes ?? 0)
     const slots = generateAvailableSlotTimes({
       daySchedule,
       date,
       slotDuration,
       existingAppointments,
-      blockedSlots: employeeProfile.blockedSlots,
+      blockedSlots: employeeProfile?.blockedSlots ?? [],
     })
 
     return { success: true as const, data: slots }
   } catch (error) {
     return { success: false as const, error: String(error) }
+  }
+}
+
+/**
+ * Available slot entry with employee attribution.
+ */
+export type AggregatedSlot = {
+  time: string
+  employees: Array<{ id: string; name: string }>
+}
+
+/**
+ * Result of aggregated availability query.
+ */
+export type AggregatedAvailability = {
+  dayCoverage: boolean
+  slots: AggregatedSlot[]
+}
+
+/**
+ * Get aggregated availability across all employees (or a specific one)
+ * for a given service and date. Returns which employees are available at each slot.
+ */
+export async function getAggregatedAvailability(
+  serviceId: string,
+  date: string,
+  employeeId?: string,
+) {
+  try {
+    const service = await prisma.service.findUnique({ where: { id: serviceId } })
+    if (!service) {
+      return { success: false as const, error: "Service not found" } as const
+    }
+
+    // Get eligible employees
+    const employeeWhere = employeeId
+      ? { userId: employeeId }
+      : { services: { some: { serviceId } }, user: { isActive: true } }
+
+    const employeeProfiles = await prisma.employeeProfile.findMany({
+      where: employeeWhere,
+      include: {
+        user: { select: { id: true, firstName: true, lastName: true } },
+        blockedSlots: {
+          where: {
+            startTime: { gte: new Date(`${date}T00:00:00Z`) },
+            endTime: { lte: new Date(`${date}T23:59:59Z`) },
+          },
+        },
+      },
+    })
+
+    if (employeeProfiles.length === 0) {
+      return {
+        success: true as const,
+        data: { dayCoverage: false, slots: [] } satisfies AggregatedAvailability,
+      } as const
+    }
+
+    // Get org default hours
+    const orgSettings = await prisma.organizationSetting.findUnique({
+      where: { organizationId: ORG_ID },
+      select: { defaultWorkingHours: true },
+    })
+
+    // Get existing appointments for all relevant employees on this date
+    const employeeIds = employeeProfiles.map((ep) => ep.userId)
+    const existingAppointments = await prisma.appointment.findMany({
+      where: {
+        employeeId: { in: employeeIds },
+        status: { notIn: [AppointmentStatus.cancelled, AppointmentStatus.no_show] },
+        startTime: { gte: new Date(`${date}T00:00:00Z`) },
+        endTime: { lte: new Date(`${date}T23:59:59Z`) },
+      },
+    })
+
+    const dayName = new Date(`${date}T12:00:00Z`).toLocaleDateString("en-US", {
+      weekday: "long",
+      timeZone: "UTC",
+    }).toLowerCase() as keyof WorkingHours
+
+    const slotDuration = service.duration
+
+    // Build slot → employees map
+    const slotEmployees = new Map<string, Array<{ id: string; name: string }>>()
+    let anyWorking = false
+
+    for (const profile of employeeProfiles) {
+      const resolvedHours = resolveWorkingHours(
+        profile.workingHours,
+        orgSettings?.defaultWorkingHours,
+      )
+      const daySchedule = resolvedHours[dayName]
+
+      const employeeAppts = existingAppointments.filter(
+        (a) => a.employeeId === profile.user.id,
+      )
+
+      const slots = generateAvailableSlotTimes({
+        daySchedule,
+        date,
+        slotDuration,
+        existingAppointments: employeeAppts,
+        blockedSlots: profile.blockedSlots,
+      })
+
+      if (slots.length > 0) anyWorking = true
+
+      const employeeInfo = {
+        id: profile.user.id,
+        name: `${profile.user.firstName} ${profile.user.lastName}`,
+      }
+
+      for (const time of slots) {
+        const existing = slotEmployees.get(time) ?? []
+        existing.push(employeeInfo)
+        slotEmployees.set(time, existing)
+      }
+    }
+
+    // Sort slots by time
+    const sortedSlots = Array.from(slotEmployees.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([time, employees]) => ({ time, employees }))
+
+    return {
+      success: true as const,
+      data: {
+        dayCoverage: anyWorking && sortedSlots.length > 0,
+        slots: sortedSlots,
+      } satisfies AggregatedAvailability,
+    } as const
+  } catch (error) {
+    return { success: false as const, error: String(error) } as const
+  }
+}
+
+/**
+ * Auto-allocate the best employee for a given service, date, and time.
+ * Uses least-busy heuristic: picks the employee with the fewest appointments
+ * on that day among those available at the requested time.
+ */
+export async function autoAllocateEmployee(
+  serviceId: string,
+  date: string,
+  time: string,
+) {
+  try {
+    const availability = await getAggregatedAvailability(serviceId, date)
+    if (!availability.success) {
+      return { success: false as const, error: availability.error } as const
+    }
+
+    const slot = availability.data.slots.find((s) => s.time === time)
+    if (!slot || slot.employees.length === 0) {
+      return {
+        success: false as const,
+        error: "No employees available at the requested time",
+      } as const
+    }
+
+    if (slot.employees.length === 1) {
+      return { success: true as const, data: { employeeId: slot.employees[0].id } } as const
+    }
+
+    // Least-busy: count appointments per employee on this date
+    const employeeIds = slot.employees.map((e) => e.id)
+    const appointmentCounts = await prisma.appointment.groupBy({
+      by: ["employeeId"],
+      where: {
+        employeeId: { in: employeeIds },
+        status: { notIn: [AppointmentStatus.cancelled, AppointmentStatus.no_show] },
+        startTime: { gte: new Date(`${date}T00:00:00Z`) },
+        endTime: { lte: new Date(`${date}T23:59:59Z`) },
+      },
+      _count: { id: true },
+    })
+
+    const countMap = new Map(appointmentCounts.map((c) => [c.employeeId, c._count.id]))
+    let bestEmployee = slot.employees[0]
+    let leastBusy = countMap.get(bestEmployee.id) ?? 0
+
+    for (let i = 1; i < slot.employees.length; i++) {
+      const empCount = countMap.get(slot.employees[i].id) ?? 0
+      if (empCount < leastBusy) {
+        leastBusy = empCount
+        bestEmployee = slot.employees[i]
+      }
+    }
+
+    return { success: true as const, data: { employeeId: bestEmployee.id } } as const
+  } catch (error) {
+    return { success: false as const, error: String(error) } as const
   }
 }

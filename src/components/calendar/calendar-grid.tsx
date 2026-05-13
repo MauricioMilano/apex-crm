@@ -1,8 +1,11 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useCRM } from '@/contexts/crm-context';
-import type { Appointment, AppointmentStatus } from '@/types';
+import type { Appointment, AppointmentStatus, WorkingHours } from '@/types';
+import { getOrgDefaultWorkingHours } from '@/actions/working-hours';
+import { getEmployeeWorkingHours } from '@/actions/working-hours';
+import type { DaySchedule } from '@/types';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -31,13 +34,13 @@ import {
   isToday,
 } from 'date-fns';
 import { useOrgFormat } from '@/hooks/use-org-format';
+import { useOrgSettings } from '@/hooks/use-org-settings';
 import { ChevronLeft, ChevronRight, Clock, User, CheckCircle, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const HOUR_HEIGHT = 64; // px per hour
-const START_HOUR = 8;   // 8 am
-const END_HOUR = 20;    // 8 pm
-const TOTAL_HOURS = END_HOUR - START_HOUR;
+const DEFAULT_START_HOUR = 8;
+const DEFAULT_END_HOUR = 20;
 
 const STATUS_COLORS: Record<
   AppointmentStatus,
@@ -61,10 +64,72 @@ export function CalendarGrid({ onAppointmentClick }: CalendarGridProps) {
     startOfWeek(new Date(), { weekStartsOn: 1 }),
   );
   const { formatDate, formatTime } = useOrgFormat();
+  const { settings: orgSettings } = useOrgSettings();
+  const orgTimezone = orgSettings.timezone;
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>('all');
   const [bookingOpen, setBookingOpen] = useState(false);
   const [bookingDate, setBookingDate] = useState<Date | undefined>(undefined);
   const [bookingTime, setBookingTime] = useState<string | undefined>(undefined);
+
+  // Working hours for the selected employee (or org default)
+  const [workingHours, setWorkingHours] = useState<WorkingHours | null>(null);
+  const [hoursLoading, setHoursLoading] = useState(true);
+
+  // Fetch working hours when selection changes
+  useEffect(() => {
+    setHoursLoading(true);
+    async function fetchHours() {
+      try {
+        if (selectedEmployeeId !== 'all') {
+          const result = await getEmployeeWorkingHours(selectedEmployeeId);
+          if (result.success) setWorkingHours(result.data);
+        } else {
+          const result = await getOrgDefaultWorkingHours();
+          if (result.success) setWorkingHours(result.data);
+        }
+      } catch {
+        setWorkingHours(null);
+      } finally {
+        setHoursLoading(false);
+      }
+    }
+    void fetchHours();
+  }, [selectedEmployeeId]);
+
+  // Compute hour range from working hours
+  const hourRange = useMemo(() => {
+    if (!workingHours) return { start: DEFAULT_START_HOUR, end: DEFAULT_END_HOUR };
+    const allSchedules = Object.values(workingHours) as DaySchedule[];
+    let minStart = 24;
+    let maxEnd = 0;
+    for (const s of allSchedules) {
+      if (s.isWorking) {
+        const [sh, sm] = s.startTime.split(':').map(Number);
+        const [eh, em] = s.endTime.split(':').map(Number);
+        const startMins = sh * 60 + sm;
+        const endMins = eh * 60 + em;
+        if (startMins < minStart * 60) minStart = sh;
+        if (endMins > maxEnd * 60) maxEnd = eh + (em > 0 ? 1 : 0);
+      }
+    }
+    // Round to sensible display range
+    const start = Math.max(DEFAULT_START_HOUR, Math.floor(minStart));
+    const end = Math.min(DEFAULT_END_HOUR, Math.ceil(maxEnd));
+    return { start, end };
+  }, [workingHours]);
+
+  const totalHours = hourRange.end - hourRange.start;
+
+  function getDaySchedule(day: Date): DaySchedule | null {
+    if (!workingHours) return null;
+    // Use Intl.DateTimeFormat with the org's timezone so the day-of-week
+    // matches what formatDate() displays in the column headers.
+    const dayName = new Intl.DateTimeFormat('en-US', {
+      weekday: 'long',
+      timeZone: orgTimezone,
+    }).format(day).toLowerCase() as keyof WorkingHours;
+    return workingHours[dayName] as DaySchedule;
+  }
 
   const employees = users.filter(u => (u.role === 'employee' || u.role === 'admin') && u.isActive);
 
@@ -89,15 +154,16 @@ export function CalendarGrid({ onAppointmentClick }: CalendarGridProps) {
     const end = parseISO(appt.endTime);
     const startMinutes = start.getHours() * 60 + start.getMinutes();
     const duration = differenceInMinutes(end, start);
-    const topOffset = ((startMinutes - START_HOUR * 60) / 60) * HOUR_HEIGHT;
+    const topOffset = ((startMinutes - hourRange.start * 60) / 60) * HOUR_HEIGHT;
     const height = Math.max((duration / 60) * HOUR_HEIGHT, 20);
-    // Clamp within visible range
     const clampedTop = Math.max(0, topOffset);
-    const maxHeight = TOTAL_HOURS * HOUR_HEIGHT - clampedTop;
+    const maxHeight = totalHours * HOUR_HEIGHT - clampedTop;
     return { top: `${clampedTop}px`, height: `${Math.min(height, maxHeight)}px` };
   }
 
   function handleSlotClick(day: Date, hour: number) {
+    const schedule = getDaySchedule(day);
+    if (!schedule?.isWorking) return;
     const d = new Date(day);
     d.setHours(hour, 0, 0, 0);
     setBookingDate(d);
@@ -105,7 +171,7 @@ export function CalendarGrid({ onAppointmentClick }: CalendarGridProps) {
     setBookingOpen(true);
   }
 
-  const hours = Array.from({ length: TOTAL_HOURS }, (_, i) => START_HOUR + i);
+  const hours = Array.from({ length: totalHours }, (_, i) => hourRange.start + i);
 
   return (
     <div className="flex flex-col h-full">
@@ -164,25 +230,30 @@ export function CalendarGrid({ onAppointmentClick }: CalendarGridProps) {
         {/* Day-header row */}
         <div className="flex sticky top-0 z-20 bg-gray-950 border-b border-gray-800">
           <div className="w-14 shrink-0" />
-          {weekDays.map(day => (
-            <div
-              key={day.toISOString()}
-              className={cn(
-                'flex-1 py-2 text-center border-l border-gray-800',
-                isToday(day) && 'bg-blue-500/10',
-              )}
-            >
-              <p className="text-xs text-gray-500">{formatDate(day)}</p>
-              <p
+          {weekDays.map(day => {
+            const schedule = getDaySchedule(day);
+            const isClosed = schedule && !schedule.isWorking;
+            return (
+              <div
+                key={day.toISOString()}
                 className={cn(
-                  'text-sm font-semibold',
-                  isToday(day) ? 'text-blue-400' : 'text-gray-300',
+                  'flex-1 py-2 text-center border-l border-gray-800',
+                  isToday(day) && 'bg-blue-500/10',
+                  isClosed && 'opacity-50',
                 )}
               >
-                {formatDate(day)}
-              </p>
-            </div>
-          ))}
+                <p className="text-xs text-gray-500">{formatDate(day)}</p>
+                <p
+                  className={cn(
+                    'text-sm font-semibold',
+                    isToday(day) ? 'text-blue-400' : 'text-gray-300',
+                  )}
+                >
+                  {isClosed ? 'Closed' : formatDate(day)}
+                </p>
+              </div>
+            );
+          })}
         </div>
 
         {/* Time grid body */}
@@ -207,6 +278,8 @@ export function CalendarGrid({ onAppointmentClick }: CalendarGridProps) {
           {/* Day columns */}
           {weekDays.map(day => {
             const dayAppts = getAppointmentsForDay(day);
+            const schedule = getDaySchedule(day);
+            const isClosed = schedule && !schedule.isWorking;
             return (
               <div
                 key={day.toISOString()}
@@ -214,71 +287,85 @@ export function CalendarGrid({ onAppointmentClick }: CalendarGridProps) {
                   'flex-1 border-l border-gray-800 relative',
                   isToday(day) && 'bg-blue-500/5',
                 )}
-                style={{ height: `${TOTAL_HOURS * HOUR_HEIGHT}px` }}
+                style={{ height: `${totalHours * HOUR_HEIGHT}px` }}
               >
-                {/* Hour-slot click zones */}
-                {hours.map(hour => (
-                  <div
-                    key={hour}
-                    className="absolute w-full border-t border-gray-800/40 cursor-pointer hover:bg-gray-800/30 transition-colors"
-                    style={{
-                      top: `${(hour - START_HOUR) * HOUR_HEIGHT}px`,
-                      height: `${HOUR_HEIGHT}px`,
-                    }}
-                    onClick={() => handleSlotClick(day, hour)}
-                  />
-                ))}
+                {hoursLoading && (
+                  <div className="absolute inset-0 z-20 flex items-center justify-center bg-gray-950/50">
+                    <span className="text-xs text-gray-500">Loading...</span>
+                  </div>
+                )}
 
-                {/* Appointment blocks */}
-                {dayAppts.map(appt => {
-                  const style = getAppointmentStyle(appt);
-                  const colors = STATUS_COLORS[appt.status];
-                  const client = clients.find(c => c.id === appt.clientId);
-                  const lead = leads.find(l => l.id === appt.leadId);
-                  const service = services.find(s => s.id === appt.serviceId);
-                  const startDt = parseISO(appt.startTime);
+                {isClosed ? (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center">
+                    <span className="text-sm text-gray-600 font-medium">Closed</span>
+                  </div>
+                ) : (
+                  <>
+                    {/* Hour-slot click zones */}
+                    {hours.map(hour => (
+                      <div
+                        key={hour}
+                        className="absolute w-full border-t border-gray-800/40 cursor-pointer hover:bg-gray-800/30 transition-colors"
+                        style={{
+                          top: `${(hour - hourRange.start) * HOUR_HEIGHT}px`,
+                          height: `${HOUR_HEIGHT}px`,
+                        }}
+                        onClick={() => handleSlotClick(day, hour)}
+                      />
+                    ))}
 
-                  return (
-                    <Popover key={appt.id}>
-                      <PopoverTrigger asChild>
-                        <button
-                          className={cn(
-                            'absolute left-1 right-1 rounded border text-left px-2 py-1 overflow-hidden z-10',
-                            'hover:brightness-125 transition-all text-[11px] leading-tight',
-                            colors.bg,
-                            colors.border,
-                            colors.text,
-                          )}
-                          style={style}
-                          onClick={e => e.stopPropagation()}
-                        >
-                          <p className="font-semibold truncate">
-                            {client 
-                              ? `${client.firstName} ${client.lastName}` 
-                              : lead 
-                              ? `${lead.firstName} ${lead.lastName} (Lead)` 
-                              : 'Appointment'}
-                          </p>
-                          {service && <p className="opacity-70 truncate">{service.name}</p>}
-                          <p className="opacity-60">{formatTime(startDt)}</p>
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent
-                        className="w-72 bg-gray-900 border-gray-700 p-4"
-                        side="right"
-                        align="start"
-                      >
-                        <AppointmentPopover
-                          appointment={appt}
-                          onViewDetail={() => onAppointmentClick?.(appt.id)}
-                          onStatusChange={status =>
-                            void updateAppointment(appt.id, { status })
-                          }
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  );
-                })}
+                    {/* Appointment blocks */}
+                    {dayAppts.map(appt => {
+                      const style = getAppointmentStyle(appt);
+                      const colors = STATUS_COLORS[appt.status];
+                      const client = clients.find(c => c.id === appt.clientId);
+                      const lead = leads.find(l => l.id === appt.leadId);
+                      const service = services.find(s => s.id === appt.serviceId);
+                      const startDt = parseISO(appt.startTime);
+
+                      return (
+                        <Popover key={appt.id}>
+                          <PopoverTrigger asChild>
+                            <button
+                              className={cn(
+                                'absolute left-1 right-1 rounded border text-left px-2 py-1 overflow-hidden z-10',
+                                'hover:brightness-125 transition-all text-[11px] leading-tight',
+                                colors.bg,
+                                colors.border,
+                                colors.text,
+                              )}
+                              style={style}
+                              onClick={e => e.stopPropagation()}
+                            >
+                              <p className="font-semibold truncate">
+                                {client 
+                                  ? `${client.firstName} ${client.lastName}` 
+                                  : lead 
+                                  ? `${lead.firstName} ${lead.lastName} (Lead)` 
+                                  : 'Appointment'}
+                              </p>
+                              {service && <p className="opacity-70 truncate">{service.name}</p>}
+                              <p className="opacity-60">{formatTime(startDt)}</p>
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent
+                            className="w-72 bg-gray-900 border-gray-700 p-4"
+                            side="right"
+                            align="start"
+                          >
+                            <AppointmentPopover
+                              appointment={appt}
+                              onViewDetail={() => onAppointmentClick?.(appt.id)}
+                              onStatusChange={status =>
+                                void updateAppointment(appt.id, { status })
+                              }
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      );
+                    })}
+                  </>
+                )}
               </div>
             );
           })}

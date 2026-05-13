@@ -1,6 +1,6 @@
 import { Prisma, PrismaClient, AppointmentStatus } from '@prisma/client'
 import bcrypt from 'bcryptjs'
-import { createSeedWorkingHours } from '@/lib/working-hours'
+import { createSeedWorkingHours, createDefaultWorkingHours } from '@/lib/working-hours'
 
 const prisma = new PrismaClient()
 
@@ -51,6 +51,7 @@ async function main() {
       timeFormat: '12h',
       locale: 'en-US',
       defaultInterestRate: 2.0,
+      defaultWorkingHours: createDefaultWorkingHours() as unknown as Prisma.InputJsonValue,
     },
   })
 
@@ -714,6 +715,7 @@ async function main() {
 
   console.log('Seeding complete!')
   console.log(`  Organization: ${org.name}`)
+  console.log(`  Org default hours: Mon-Fri 09:00-17:00, Sat-Sun closed`)
   console.log(`  Locations: 2`)
   console.log(`  Users: 4 (1 admin, 2 employees, 1 client)`)
   console.log(`  Lead statuses: ${leadStatuses.length}`)

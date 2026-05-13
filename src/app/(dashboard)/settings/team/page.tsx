@@ -5,20 +5,16 @@ import {
   Plus,
   Pencil,
   Trash2,
-  ChevronDown,
-  ChevronUp,
 } from 'lucide-react';
 import { useCRM } from '@/contexts/crm-context';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { inviteTeamMember } from '@/actions/settings';
-import type { User, UserRole, WorkingHours, DaySchedule } from '@/types';
-import { createDefaultWorkingHours, normalizeWorkingHours } from '@/lib/working-hours';
+import type { User, UserRole } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
   Table,
   TableBody,
@@ -51,49 +47,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
 import { toast } from 'sonner';
-
-const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
-type Day = typeof DAYS[number];
-
-const DAY_LABELS: Record<Day, string> = {
-  monday: 'Monday',
-  tuesday: 'Tuesday',
-  wednesday: 'Wednesday',
-  thursday: 'Thursday',
-  friday: 'Friday',
-  saturday: 'Saturday',
-  sunday: 'Sunday',
-};
-
-const defaultWorkingHours = (): WorkingHours => ({
-  ...createDefaultWorkingHours(),
-});
-
-const HOURS_KEY = (userId: string) => `crm_working_hours_${userId}`;
-
-function loadHours(userId: string): WorkingHours {
-  try {
-    const raw = localStorage.getItem(HOURS_KEY(userId));
-    if (raw) return normalizeWorkingHours(JSON.parse(raw));
-  } catch {
-    return normalizeWorkingHours(undefined);
-  }
-  return defaultWorkingHours();
-}
-
-function saveHours(userId: string, hours: WorkingHours) {
-  try {
-    localStorage.setItem(HOURS_KEY(userId), JSON.stringify(normalizeWorkingHours(hours)));
-  } catch {
-    // ignore
-  }
-}
 
 type InviteForm = {
   email: string;
@@ -117,26 +71,6 @@ export default function TeamPage() {
   const [editingRole, setEditingRole] = useState<string | null>(null);
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
-
-  // Working hours expansion
-  const [expandedHours, setExpandedHours] = useState<string | null>(null);
-  const [workingHours, setWorkingHours] = useState<WorkingHours>(defaultWorkingHours());
-
-  function openHours(userId: string) {
-    if (expandedHours === userId) {
-      setExpandedHours(null);
-    } else {
-      setWorkingHours(loadHours(userId));
-      setExpandedHours(userId);
-    }
-  }
-
-  function updateDaySchedule(userId: string, day: Day, changes: Partial<DaySchedule>) {
-    const next = { ...workingHours, [day]: { ...workingHours[day], ...changes } };
-    setWorkingHours(next);
-    saveHours(userId, next);
-    toast.success('Hours updated');
-  }
 
   async function handleInvite() {
     if (!invite.email.trim()) {
@@ -264,21 +198,6 @@ export default function TeamPage() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
-                      {user.role === 'employee' && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-8 px-2 text-gray-400 hover:text-gray-100 text-xs"
-                          onClick={() => openHours(user.id)}
-                        >
-                          Hours
-                          {expandedHours === user.id ? (
-                            <ChevronUp className="h-3 w-3 ml-1" />
-                          ) : (
-                            <ChevronDown className="h-3 w-3 ml-1" />
-                          )}
-                        </Button>
-                      )}
                       <Button
                         size="icon"
                         variant="ghost"
@@ -290,66 +209,6 @@ export default function TeamPage() {
                     </div>
                   </TableCell>
                 </TableRow>
-
-                {/* Working hours expansion */}
-                {expandedHours === user.id && (
-                  <TableRow key={`${user.id}-hours`} className="border-gray-800 bg-gray-900/50">
-                    <TableCell colSpan={5} className="p-4">
-                      <p className="text-sm font-medium text-gray-300 mb-3">
-                        Working Hours for {user.firstName}
-                      </p>
-                      <div className="space-y-2">
-                        {DAYS.map((day) => {
-                          const schedule = workingHours[day];
-                          return (
-                            <div key={day} className="flex items-center gap-4">
-                              <div className="flex items-center gap-2 w-36">
-                                <Checkbox
-                                  id={`${user.id}-${day}`}
-                                  checked={schedule.isWorking}
-                                  onCheckedChange={(v) =>
-                                    updateDaySchedule(user.id, day, { isWorking: !!v })
-                                  }
-                                  className="border-gray-600 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
-                                />
-                                <Label
-                                  htmlFor={`${user.id}-${day}`}
-                                  className="text-gray-300 text-sm cursor-pointer"
-                                >
-                                  {DAY_LABELS[day]}
-                                </Label>
-                              </div>
-                              {schedule.isWorking && (
-                                <div className="flex items-center gap-2">
-                                  <Input
-                                    type="time"
-                                    value={schedule.startTime}
-                                    onChange={(e) =>
-                                      updateDaySchedule(user.id, day, { startTime: e.target.value })
-                                    }
-                                    className="bg-gray-800 border-gray-700 text-gray-100 h-7 w-28 text-sm"
-                                  />
-                                  <span className="text-gray-500 text-sm">to</span>
-                                  <Input
-                                    type="time"
-                                    value={schedule.endTime}
-                                    onChange={(e) =>
-                                      updateDaySchedule(user.id, day, { endTime: e.target.value })
-                                    }
-                                    className="bg-gray-800 border-gray-700 text-gray-100 h-7 w-28 text-sm"
-                                  />
-                                </div>
-                              )}
-                              {!schedule.isWorking && (
-                                <span className="text-gray-600 text-sm">Day off</span>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )}
               </>
             ))}
           </TableBody>

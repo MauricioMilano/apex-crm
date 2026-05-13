@@ -81,8 +81,14 @@ export function normalizeDaySchedule(value: unknown): DaySchedule {
   }
 }
 
-export function normalizeWorkingHours(value: unknown): WorkingHours {
+export function normalizeWorkingHours(value: unknown, orgDefault?: unknown): WorkingHours {
   if (!isPlainObject(value)) {
+    // Fall back to org default if provided, otherwise closed
+    if (orgDefault !== undefined) {
+      const orgHours = normalizeWorkingHours(orgDefault)
+      const hasWorkingDays = Object.values(orgHours).some((d) => d.isWorking)
+      if (hasWorkingDays) return orgHours
+    }
     return createClosedWorkingHours()
   }
 
@@ -95,6 +101,26 @@ export function normalizeWorkingHours(value: unknown): WorkingHours {
     saturday: normalizeDaySchedule(value.saturday),
     sunday: normalizeDaySchedule(value.sunday),
   }
+}
+
+/**
+ * Resolve effective working hours using the fallback chain:
+ * employee custom hours → org default hours → all closed
+ * Only falls back if employee has NO working days configured (all closed).
+ */
+export function resolveWorkingHours(
+  employeeHours: unknown,
+  orgDefaultHours: unknown,
+): WorkingHours {
+  const employee = normalizeWorkingHours(employeeHours)
+  const hasEmployeeCustom = Object.values(employee).some((d) => d.isWorking)
+  if (hasEmployeeCustom) return employee
+
+  const org = normalizeWorkingHours(orgDefaultHours)
+  const hasOrgDefault = Object.values(org).some((d) => d.isWorking)
+  if (hasOrgDefault) return org
+
+  return createClosedWorkingHours()
 }
 
 export function generateAvailableSlotTimes({

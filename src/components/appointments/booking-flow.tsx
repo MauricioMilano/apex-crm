@@ -4,13 +4,15 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import { useCRM } from "@/contexts/crm-context";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import type { Appointment } from "@/types";
+import { getAggregatedAvailability, autoAllocateEmployee } from "@/actions/appointments";
+import type { AggregatedSlot } from "@/actions/appointments";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
-import { format, parseISO, isSameDay, addMinutes } from "date-fns";
+import { format, addMinutes } from "date-fns";
 import {
   CheckCircle,
   Clock,
@@ -21,6 +23,7 @@ import {
   Search,
   X,
   CreditCard,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -50,13 +53,6 @@ interface ServiceWithCoverage {
 
 type Step = 1 | 2 | 3 | 4 | 5;
 
-const TIME_SLOTS = Array.from({ length: 17 }, (_, i) => {
-  const totalMinutes = 9 * 60 + i * 30;
-  const h = Math.floor(totalMinutes / 60);
-  const m = totalMinutes % 60;
-  return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
-}); // "09:00" … "17:00"
-
 function formatSlotLabel(slot: string): string {
   const [h, m] = slot.split(":").map(Number);
   const ampm = h >= 12 ? "PM" : "AM";
@@ -79,7 +75,7 @@ export function BookingFlow({
   onComplete,
   onCancel,
 }: BookingFlowProps) {
-  const { services, users, clients, leads, appointments, addAppointment } =
+  const { services, users, clients, leads, addAppointment } =
     useCRM();
   const currentUser = useCurrentUser();
 
@@ -106,6 +102,53 @@ export function BookingFlow({
   const [servicesWithCoverage, setServicesWithCoverage] = useState<ServiceWithCoverage[]>([]);
   const [selectedSubscriptionId, setSelectedSubscriptionId] = useState<string | null>(null);
   const [planCoverageLoaded, setPlanCoverageLoaded] = useState(false);
+
+  // Availability state
+  const [availableSlots, setAvailableSlots] = useState<AggregatedSlot[]>([]);
+  const [slotsLoading, setSlotsLoading] = useState(false);
+  const [dayCoverage, setDayCoverage] = useState(true);
+
+  // Fetch available slots when date/service/employee changes
+  useEffect(() => {
+    if (!selectedDate || !selectedServiceId) {
+      setAvailableSlots([]);
+      setDayCoverage(true);
+      return;
+    }
+
+    let cancelled = false;
+    setSlotsLoading(true);
+    setSelectedTime(null);
+
+    async function fetchSlots() {
+      try {
+        const dateStr = format(selectedDate!, "yyyy-MM-dd");
+        const result = await getAggregatedAvailability(
+          selectedServiceId!,
+          dateStr,
+          selectedEmployeeId ?? undefined,
+        );
+        if (cancelled) return;
+        if (result.success) {
+          setAvailableSlots(result.data.slots);
+          setDayCoverage(result.data.dayCoverage);
+        } else {
+          setAvailableSlots([]);
+          setDayCoverage(false);
+        }
+      } catch {
+        if (!cancelled) {
+          setAvailableSlots([]);
+          setDayCoverage(false);
+        }
+      } finally {
+        if (!cancelled) setSlotsLoading(false);
+      }
+    }
+
+    void fetchSlots();
+    return () => { cancelled = true; };
+  }, [selectedDate, selectedServiceId, selectedEmployeeId]);
 
   // Payment step state (for prepayment)
   const [paymentMethods, setPaymentMethods] = useState<Array<{ id: string; name: string; code: string; requiresDocs: boolean; isActive: boolean }>>([]);
@@ -199,26 +242,6 @@ export function BookingFlow({
   const selectedServiceData = selectedService as ServiceWithCoverage | undefined;
   const needsPrepayment = selectedServiceData?.requiresPrepayment === true && !selectedServiceData?.planCoverage?.isCovered;
 
-  const takenSlots = useMemo(() => {
-    if (!selectedDate) return new Set<string>();
-    const slots = new Set<string>();
-    appointments
-      .filter((a) => {
-        const sameDay = isSameDay(parseISO(a.startTime), selectedDate);
-        const sameEmp = selectedEmployeeId
-          ? a.employeeId === selectedEmployeeId
-          : false;
-        return sameDay && sameEmp && a.status !== "cancelled";
-      })
-      .forEach((a) => {
-        const d = parseISO(a.startTime);
-        slots.add(
-          `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`,
-        );
-      });
-    return slots;
-  }, [appointments, selectedDate, selectedEmployeeId]);
-
   function goNext() {
     if (needsPrepayment && step === 3) {
       setStep(4); // Go to Payment step
@@ -239,7 +262,7 @@ export function BookingFlow({
 
   function canAdvance(): boolean {
     if (step === 1) return !!selectedServiceId;
-    if (step === 3) return !!selectedDate && !!selectedTime;
+    if (step === 3) return !!selectedDate && !!selectedTime && dayCoverage;
     if (step === 4 && needsPrepayment) return !!selectedMethodId;
     if (step === 4 || (step === 5 && needsPrepayment)) {
       // Must select a subscription plan if service is covered by multiple plans
@@ -260,8 +283,17 @@ export function BookingFlow({
     )
       return;
 
-    const effectiveEmployeeId =
-      selectedEmployeeId ?? employees[0]?.id ?? "user_2";
+    // Auto-allocate if no employee was selected
+    let effectiveEmployeeId = selectedEmployeeId;
+    if (!effectiveEmployeeId) {
+      const dateStr = format(selectedDate, "yyyy-MM-dd");
+      const allocation = await autoAllocateEmployee(selectedServiceId, dateStr, selectedTime);
+      if (!allocation.success || !allocation.data) {
+        return;
+      }
+      effectiveEmployeeId = allocation.data.employeeId;
+    }
+
     const svc = displayServices.find((s) => s.id === selectedServiceId)!;
 
     const [h, m] = selectedTime.split(":").map(Number);
@@ -524,28 +556,53 @@ export function BookingFlow({
                     {format(selectedDate, "EEEE, MMMM d")}
                   </span>
                 </p>
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                  {TIME_SLOTS.map((slot) => {
-                    const taken = takenSlots.has(slot);
-                    return (
-                      <button
-                        key={slot}
-                        disabled={taken}
-                        onClick={() => setSelectedTime(slot)}
-                        className={cn(
-                          "py-2 px-3 rounded-lg text-sm font-medium transition-all",
-                          taken
-                            ? "bg-gray-800 text-gray-600 cursor-not-allowed line-through"
-                            : selectedTime === slot
+
+                {slotsLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-6 w-6 text-blue-400 animate-spin" />
+                  </div>
+                ) : !dayCoverage ? (
+                  <div className="text-center py-12 text-gray-500 text-sm">
+                    No employees available on this day. Pick another date.
+                  </div>
+                ) : availableSlots.length === 0 ? (
+                  <div className="text-center py-12 text-gray-500 text-sm">
+                    No available slots for this date.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    {availableSlots.map((slot) => {
+                      const isSelected = selectedTime === slot.time;
+                      const employeeCount = slot.employees.length;
+                      return (
+                        <button
+                          key={slot.time}
+                          onClick={() => setSelectedTime(slot.time)}
+                          className={cn(
+                            "py-2 px-3 rounded-lg text-sm font-medium transition-all relative",
+                            isSelected
                               ? "bg-blue-500 text-white"
                               : "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700",
-                        )}
-                      >
-                        {formatSlotLabel(slot)}
-                      </button>
-                    );
-                  })}
-                </div>
+                          )}
+                          title={
+                            employeeCount > 1
+                              ? `${employeeCount} employees available`
+                              : employeeCount === 1
+                                ? `${slot.employees[0].name} available`
+                                : undefined
+                          }
+                        >
+                          {formatSlotLabel(slot.time)}
+                          {!selectedEmployeeId && employeeCount > 0 && (
+                            <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-blue-500 text-[9px] font-bold text-white flex items-center justify-center">
+                              {employeeCount}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )}
 

@@ -5,6 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useCRM } from '@/contexts/crm-context';
 import type { Appointment, AppointmentStatus, Payment } from '@/types';
+import { getAggregatedAvailability } from '@/actions/appointments';
+import type { AggregatedSlot } from '@/actions/appointments';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,6 +27,7 @@ import {
   parseISO,
   differenceInMinutes,
   addMinutes,
+  format,
 } from 'date-fns';
 import { cn } from '@/lib/utils';
 import StatusSelect from '@/components/appointments/status-select';
@@ -43,6 +46,7 @@ import {
   FileText,
   DollarSign,
   Plus,
+  Loader2,
 } from 'lucide-react';
 
 const STATUS_CONFIG: Record<AppointmentStatus, { label: string; className: string }> = {
@@ -52,13 +56,6 @@ const STATUS_CONFIG: Record<AppointmentStatus, { label: string; className: strin
   cancelled: { label: 'Cancelled', className: 'bg-red-500/20 text-red-400 border-red-500/30' },
   no_show: { label: 'No Show', className: 'bg-gray-500/20 text-gray-400 border-gray-500/30' },
 };
-
-const TIME_SLOTS = Array.from({ length: 17 }, (_, i) => {
-  const total = 9 * 60 + i * 30;
-  const h = Math.floor(total / 60);
-  const m = total % 60;
-  return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-});
 
 function formatSlotLabel(slot: string): string {
   const [h, m] = slot.split(':').map(Number);
@@ -110,6 +107,53 @@ export default function AppointmentDetailPage() {
   const [rescheduleOpen, setRescheduleOpen] = useState(false);
   const [newDate, setNewDate] = useState<Date | undefined>(undefined);
   const [newTime, setNewTime] = useState<string | null>(null);
+
+  // Reschedule availability state
+  const [rescheduleSlots, setRescheduleSlots] = useState<AggregatedSlot[]>([]);
+  const [rescheduleSlotsLoading, setRescheduleSlotsLoading] = useState(false);
+  const [rescheduleDayCoverage, setRescheduleDayCoverage] = useState(true);
+
+  // Fetch available slots for reschedule when date changes
+  useEffect(() => {
+    if (!newDate || !appt) {
+      setRescheduleSlots([]);
+      setRescheduleDayCoverage(true);
+      return;
+    }
+
+    let cancelled = false;
+    setRescheduleSlotsLoading(true);
+    setNewTime(null);
+
+    async function fetchSlots() {
+      try {
+        const dateStr = format(newDate!, 'yyyy-MM-dd');
+        const result = await getAggregatedAvailability(
+          appt!.serviceId,
+          dateStr,
+          appt!.employeeId,
+        );
+        if (cancelled) return;
+        if (result.success) {
+          setRescheduleSlots(result.data.slots);
+          setRescheduleDayCoverage(result.data.dayCoverage);
+        } else {
+          setRescheduleSlots([]);
+          setRescheduleDayCoverage(false);
+        }
+      } catch {
+        if (!cancelled) {
+          setRescheduleSlots([]);
+          setRescheduleDayCoverage(false);
+        }
+      } finally {
+        if (!cancelled) setRescheduleSlotsLoading(false);
+      }
+    }
+
+    void fetchSlots();
+    return () => { cancelled = true; };
+  }, [newDate, appt?.serviceId, appt?.employeeId]);
 
   // Payment state
   const { triggerPaymentModal } = useCRM();
@@ -532,22 +576,36 @@ export default function AppointmentDetailPage() {
                           Time slots for{' '}
                           <span className="text-white">{formatDate(newDate)}</span>
                         </p>
-                        <div className="grid grid-cols-3 gap-2">
-                          {TIME_SLOTS.map(slot => (
-                            <button
-                              key={slot}
-                              onClick={() => setNewTime(slot)}
-                              className={cn(
-                                'py-2 px-2 rounded-lg text-sm font-medium transition-all',
-                                newTime === slot
-                                  ? 'bg-blue-500 text-white'
-                                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700',
-                              )}
-                            >
-                              {formatSlotLabel(slot)}
-                            </button>
-                          ))}
-                        </div>
+                        {rescheduleSlotsLoading ? (
+                          <div className="flex items-center justify-center py-12">
+                            <Loader2 className="h-6 w-6 text-blue-400 animate-spin" />
+                          </div>
+                        ) : !rescheduleDayCoverage ? (
+                          <div className="text-center py-12 text-gray-500 text-sm">
+                            No available slots on this day. Pick another date.
+                          </div>
+                        ) : rescheduleSlots.length === 0 ? (
+                          <div className="text-center py-12 text-gray-500 text-sm">
+                            No available slots for this date.
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-3 gap-2">
+                            {rescheduleSlots.map(slot => (
+                              <button
+                                key={slot.time}
+                                onClick={() => setNewTime(slot.time)}
+                                className={cn(
+                                  'py-2 px-2 rounded-lg text-sm font-medium transition-all',
+                                  newTime === slot.time
+                                    ? 'bg-blue-500 text-white'
+                                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700',
+                                )}
+                              >
+                                {formatSlotLabel(slot.time)}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

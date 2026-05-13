@@ -413,6 +413,9 @@ model OrganizationSetting {
   timeFormat    String  @default("12h") @map("time_format")
   locale        String? @default("en-US") @map("locale")
 
+  // ── Business hours ─────────────────────────────────────────────────────
+  defaultWorkingHours Json @default("{}") @map("default_working_hours")
+
   createdAt               DateTime @default(now()) @map("created_at")
   updatedAt               DateTime @updatedAt @map("updated_at")
 
