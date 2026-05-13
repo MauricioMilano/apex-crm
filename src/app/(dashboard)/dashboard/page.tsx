@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Users2,
@@ -9,13 +9,15 @@ import {
   DollarSign,
   Plus,
   Clock,
+  TrendingUp,
+  TrendingDown,
 } from 'lucide-react';
 import { format, isFuture, isToday } from 'date-fns';
 import { useCRM } from '@/contexts/crm-context';
 import { useOrgFormat } from '@/hooks/use-org-format';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatsCard } from '@/components/dashboard/stats-card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import {
@@ -26,6 +28,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { cn } from '@/lib/utils';
+import type { Payment, PaymentMethod } from '@/types';
 
 const STATUS_COLOR_MAP: Record<string, string> = {
   blue: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
@@ -56,6 +60,36 @@ export default function DashboardPage() {
   } = useCRM();
   const { formatCurrency } = useOrgFormat();
 
+  // ── Payments fetch ───────────────────────────────────────────────────────
+
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
+
+  useEffect(() => {
+    async function fetchPayments() {
+      try {
+        const [payRes, methodsRes] = await Promise.all([
+          fetch('/api/v1/payments'),
+          fetch('/api/v1/payment-methods'),
+        ]);
+        const payJson = await payRes.json();
+        if (payJson.success && Array.isArray(payJson.data)) {
+          setPayments(payJson.data);
+        } else if (Array.isArray(payJson)) {
+          setPayments(payJson);
+        }
+        const methodsJson = await methodsRes.json();
+        const methodsData = (methodsJson?.data ?? methodsJson) as PaymentMethod[];
+        if (Array.isArray(methodsData)) {
+          setPaymentMethods(methodsData);
+        }
+      } catch {
+        // best-effort
+      }
+    }
+    void fetchPayments();
+  }, []);
+
   // ── Stats ────────────────────────────────────────────────────────────────
 
   const totalLeads = leads.length;
@@ -70,28 +104,22 @@ export default function DashboardPage() {
   const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const prevMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
 
-  const monthlyRevenue = appointments
+  const monthlyRevenue = payments
     .filter(
-      (a) =>
-        a.status === 'completed' &&
-        new Date(a.startTime) >= currentMonthStart,
+      (p) =>
+        p.status === 'completed' &&
+        new Date(p.paidAt) >= currentMonthStart,
     )
-    .reduce((sum, a) => {
-      const svc = services.find((s) => s.id === a.serviceId);
-      return sum + (svc?.price ?? 0);
-    }, 0);
+    .reduce((sum, p) => sum + p.amount, 0);
 
-  const prevMonthRevenue = appointments
+  const prevMonthRevenue = payments
     .filter(
-      (a) =>
-        a.status === 'completed' &&
-        new Date(a.startTime) >= prevMonthStart &&
-        new Date(a.startTime) <= prevMonthEnd,
+      (p) =>
+        p.status === 'completed' &&
+        new Date(p.paidAt) >= prevMonthStart &&
+        new Date(p.paidAt) <= prevMonthEnd,
     )
-    .reduce((sum, a) => {
-      const svc = services.find((s) => s.id === a.serviceId);
-      return sum + (svc?.price ?? 0);
-    }, 0);
+    .reduce((sum, p) => sum + p.amount, 0);
 
   const currMonthLeads = leads.filter((l) => new Date(l.createdAt) >= currentMonthStart).length;
   const prevMonthLeads = leads.filter(
@@ -212,14 +240,75 @@ export default function DashboardPage() {
           description="scheduled today"
           iconColor="bg-purple-500/20 text-purple-400"
         />
-        <StatsCard
-          title="Monthly Revenue"
-          value={formatCurrency(monthlyRevenue)}
-          icon={DollarSign}
-          trend={revenueTrend}
-          description="completed appointments"
-          iconColor="bg-yellow-500/20 text-yellow-400"
-        />
+        <Card className="bg-gray-900 border-gray-800">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-gray-400">
+              Monthly Revenue
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-yellow-500/20 text-yellow-400">
+              <DollarSign className="h-4 w-4" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">
+              {formatCurrency(monthlyRevenue)}
+            </div>
+            <div className="flex items-center gap-1 mt-1">
+              <span
+                className={cn(
+                  'flex items-center text-xs font-medium',
+                  revenueTrend >= 0 ? 'text-emerald-400' : 'text-red-400',
+                )}
+              >
+                {revenueTrend >= 0 ? (
+                  <TrendingUp className="h-3 w-3 mr-0.5" />
+                ) : (
+                  <TrendingDown className="h-3 w-3 mr-0.5" />
+                )}
+                {revenueTrend >= 0 ? '+' : ''}
+                {revenueTrend.toFixed(1)}%
+              </span>
+              <p className="text-xs text-gray-500">recorded payments</p>
+            </div>
+            {/* Revenue breakdown by method */}
+            {(() => {
+              const completedPayments = payments.filter(
+                (p) => p.status === 'completed' && new Date(p.paidAt) >= currentMonthStart,
+              );
+              const methodTotals = new Map<string, number>();
+              for (const p of completedPayments) {
+                const methodId = p.paymentMethodId ?? '__unknown__';
+                methodTotals.set(methodId, (methodTotals.get(methodId) ?? 0) + p.amount);
+              }
+              if (methodTotals.size === 0) return null;
+              const maxAmount = Math.max(...methodTotals.values(), 1);
+              return (
+                <div className="mt-3 space-y-1.5">
+                  {Array.from(methodTotals.entries()).map(([methodId, amt]) => {
+                    const method = paymentMethods.find((m) => m.id === methodId);
+                    const pct = (amt / maxAmount) * 100;
+                    return (
+                      <div key={methodId} className="flex items-center gap-2 text-xs">
+                        <span className="text-gray-400 w-16 truncate" title={method?.name ?? methodId}>
+                          {method?.name ?? (methodId === '__unknown__' ? 'Other' : methodId)}
+                        </span>
+                        <div className="flex-1 h-2 rounded-full bg-gray-800 overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-blue-500"
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                        <span className="text-gray-300 w-16 text-right font-medium">
+                          {formatCurrency(amt)}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Middle row */}

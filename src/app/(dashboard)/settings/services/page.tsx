@@ -43,6 +43,8 @@ type ServiceForm = {
   description: string;
   duration: number;
   price: number;
+  requiresPrepayment: boolean;
+  interestRate: string;
   isActive: boolean;
 };
 
@@ -56,6 +58,8 @@ const emptyForm = (): ServiceForm => ({
   description: '',
   duration: 60,
   price: 0,
+  requiresPrepayment: false,
+  interestRate: '',
   isActive: true,
 });
 
@@ -80,6 +84,8 @@ export default function ServicesPage() {
       description: svc.description ?? '',
       duration: svc.duration,
       price: Number(svc.price),
+      requiresPrepayment: svc.requiresPrepayment,
+      interestRate: svc.interestRate != null ? String(svc.interestRate) : '',
       isActive: svc.isActive,
     });
     setDialogOpen(true);
@@ -90,12 +96,15 @@ export default function ServicesPage() {
       toast.error('Service name is required');
       return;
     }
+    const interestValue = form.interestRate.trim() ? Number(form.interestRate.trim()) : undefined;
     if (editing) {
       updateService(editing.id, {
         name: form.name.trim(),
         description: form.description.trim() || undefined,
         duration: form.duration,
         price: form.price,
+        requiresPrepayment: form.requiresPrepayment,
+        interestRate: interestValue,
         isActive: form.isActive,
       });
       toast.success('Service updated');
@@ -106,6 +115,8 @@ export default function ServicesPage() {
         description: form.description.trim() || undefined,
         duration: form.duration,
         price: form.price,
+        requiresPrepayment: form.requiresPrepayment,
+        interestRate: interestValue,
         isActive: form.isActive,
       });
       toast.success('Service created');
@@ -261,6 +272,35 @@ export default function ServicesPage() {
                   className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500"
                 />
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-gray-300">Interest Rate (% per month)</Label>
+              <Input
+                type="number"
+                min={0}
+                step={0.1}
+                value={form.interestRate}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, interestRate: e.target.value }))
+                }
+                placeholder="Leave empty to use org default"
+                className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500"
+              />
+              <p className="text-xs text-gray-500">Used for installment calculations. Overrides organization default.</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Switch
+                id="requiresPrepayment"
+                checked={form.requiresPrepayment}
+                onCheckedChange={(v) => setForm((f) => ({ ...f, requiresPrepayment: v }))}
+                className="data-[state=checked]:bg-blue-600"
+              />
+              <Label htmlFor="requiresPrepayment" className="text-gray-300 cursor-pointer">
+                Requires Prepayment
+              </Label>
+            </div>
+            <div className="text-xs text-gray-500 -mt-2">
+              When enabled, the booking flow will ask for payment method and installments.
             </div>
             <div className="flex items-center gap-3">
               <Switch

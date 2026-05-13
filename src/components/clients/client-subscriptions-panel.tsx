@@ -23,9 +23,10 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
-import { CreditCard, XCircle, Plus } from 'lucide-react';
+import { CreditCard, XCircle, Plus, DollarSign, ChevronDown, ChevronUp } from 'lucide-react';
 import { useOrgFormat } from '@/hooks/use-org-format';
-import type { SubscriptionPlan, ClientSubscription } from '@/types';
+import { cn } from '@/lib/utils';
+import type { SubscriptionPlan, ClientSubscription, Payment } from '@/types';
 
 interface SubWithPlan extends ClientSubscription {
   plan?: SubscriptionPlan;
@@ -201,6 +202,9 @@ export function ClientSubscriptionsPanel({ clientId }: { clientId: string }) {
                         />
                       </div>
                     )}
+
+                    {/* Payment history */}
+                    <SubscriptionPaymentHistory subscriptionId={sub.id} />
                   </div>
 
                   {sub.status === 'active' && (
@@ -243,6 +247,88 @@ export function ClientSubscriptionsPanel({ clientId }: { clientId: string }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+    </div>
+  );
+}
+
+/** Small inline component showing payment history for a subscription */
+function SubscriptionPaymentHistory({ subscriptionId }: { subscriptionId: string }) {
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    setLoading(true);
+    async function fetchPayments() {
+      try {
+        const res = await fetch(
+          `/api/v1/payments?referenceType=subscription&referenceId=${subscriptionId}`,
+        );
+        const json = await res.json();
+        const data = (json?.data ?? json) as Payment[];
+        setPayments(Array.isArray(data) ? data : []);
+      } catch {
+        // best-effort
+      }
+      setLoading(false);
+    }
+    void fetchPayments();
+  }, [open, subscriptionId]);
+
+  return (
+    <div className="mt-3">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-200 transition-colors"
+      >
+        <DollarSign className="h-3 w-3" />
+        Payment History
+        {open ? (
+          <ChevronUp className="h-3 w-3 ml-1" />
+        ) : (
+          <ChevronDown className="h-3 w-3 ml-1" />
+        )}
+      </button>
+
+      {open && (
+        <div className="mt-2 space-y-1">
+          {loading ? (
+            <p className="text-xs text-gray-500">Loading...</p>
+          ) : payments.length === 0 ? (
+            <p className="text-xs text-gray-500">No payment records</p>
+          ) : (
+            payments.map((p) => (
+              <div
+                key={p.id}
+                className="flex items-center justify-between py-1 px-2 rounded bg-gray-800/50"
+              >
+                <div className="flex items-center gap-2">
+                  <span className={cn(
+                    'text-[10px] px-1 py-0.5 rounded font-medium',
+                    p.status === 'completed' && 'bg-green-500/20 text-green-400',
+                    p.status === 'refunded' && 'bg-red-500/20 text-red-400',
+                    p.status === 'adjusted' && 'bg-gray-500/20 text-gray-400',
+                  )}>
+                    {p.status}
+                  </span>
+                  {p.description && (
+                    <span className="text-[11px] text-gray-500 truncate max-w-[140px]">
+                      {p.description}
+                    </span>
+                  )}
+                </div>
+                <span className={cn(
+                  'text-xs font-medium',
+                  p.amount < 0 ? 'text-red-400' : 'text-gray-200',
+                )}>
+                  {p.amount < 0 ? '-' : ''}$${Math.abs(p.amount).toFixed(2)}
+                </span>
+              </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 }

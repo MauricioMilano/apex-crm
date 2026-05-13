@@ -43,10 +43,12 @@ interface ServiceWithCoverage {
   duration: number;
   price: number;
   isActive: boolean;
+  requiresPrepayment: boolean;
+  interestRate?: number;
   planCoverage: PlanCoverage;
 }
 
-type Step = 1 | 2 | 3 | 4;
+type Step = 1 | 2 | 3 | 4 | 5;
 
 const TIME_SLOTS = Array.from({ length: 17 }, (_, i) => {
   const totalMinutes = 9 * 60 + i * 30;
@@ -105,6 +107,28 @@ export function BookingFlow({
   const [selectedSubscriptionId, setSelectedSubscriptionId] = useState<string | null>(null);
   const [planCoverageLoaded, setPlanCoverageLoaded] = useState(false);
 
+  // Payment step state (for prepayment)
+  const [paymentMethods, setPaymentMethods] = useState<Array<{ id: string; name: string; code: string; requiresDocs: boolean; isActive: boolean }>>([]);
+  const [selectedMethodId, setSelectedMethodId] = useState<string>("");
+  const [selectedInstallments, setSelectedInstallments] = useState(1);
+
+  // Fetch available payment methods
+  useEffect(() => {
+    async function fetchMethods() {
+      try {
+        const res = await fetch("/api/v1/payment-methods");
+        const json = await res.json();
+        const data = (json?.data ?? json) as Array<{ id: string; name: string; code: string; requiresDocs: boolean; isActive: boolean }>;
+        if (Array.isArray(data)) {
+          setPaymentMethods(data.filter((m) => m.isActive));
+        }
+      } catch {
+        // best-effort
+      }
+    }
+    void fetchMethods();
+  }, []);
+
   // Fetch plan coverage for the client
   const fetchPlanCoverage = useCallback(async () => {
     if (!selectedClientId) {
@@ -129,6 +153,8 @@ export function BookingFlow({
     ? servicesWithCoverage
     : services.filter((s) => s.isActive).map((s) => ({
         ...s,
+        requiresPrepayment: (s as unknown as ServiceWithCoverage).requiresPrepayment ?? false,
+        interestRate: (s as unknown as ServiceWithCoverage).interestRate,
         planCoverage: { isCovered: false, plans: [] },
       }));
 
@@ -169,6 +195,10 @@ export function BookingFlow({
   const selectedClient = clients.find((c) => c.id === selectedClientId);
   const selectedLead = leads.find((l) => l.id === selectedLeadId);
 
+  // Determine if payment step is needed
+  const selectedServiceData = selectedService as ServiceWithCoverage | undefined;
+  const needsPrepayment = selectedServiceData?.requiresPrepayment === true && !selectedServiceData?.planCoverage?.isCovered;
+
   const takenSlots = useMemo(() => {
     if (!selectedDate) return new Set<string>();
     const slots = new Set<string>();
@@ -190,7 +220,13 @@ export function BookingFlow({
   }, [appointments, selectedDate, selectedEmployeeId]);
 
   function goNext() {
-    setStep((s) => (s + 1) as Step);
+    if (needsPrepayment && step === 3) {
+      setStep(4); // Go to Payment step
+    } else if (needsPrepayment && step === 4) {
+      setStep(5); // Go to Confirm step
+    } else {
+      setStep((s) => (s + 1) as Step);
+    }
   }
 
   function goBack() {
@@ -204,7 +240,8 @@ export function BookingFlow({
   function canAdvance(): boolean {
     if (step === 1) return !!selectedServiceId;
     if (step === 3) return !!selectedDate && !!selectedTime;
-    if (step === 4) {
+    if (step === 4 && needsPrepayment) return !!selectedMethodId;
+    if (step === 4 || (step === 5 && needsPrepayment)) {
       // Must select a subscription plan if service is covered by multiple plans
       const coverage = selectedService?.planCoverage;
       if (coverage?.isCovered && coverage.plans.length > 1 && !selectedSubscriptionId) {
@@ -256,15 +293,34 @@ export function BookingFlow({
       notes,
     });
 
+    // Create pending payment if prepayment is required
+    if (needsPrepayment && selectedMethodId) {
+      try {
+        await fetch("/api/v1/payments", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            amount: svc.price,
+            status: "pending",
+            referenceType: "appointment",
+            referenceId: appt.id,
+            paymentMethodId: selectedMethodId,
+            installments: selectedInstallments,
+            description: `Prepayment for ${svc.name}`,
+            paidAt: new Date().toISOString(),
+          }),
+        });
+      } catch {
+        // best-effort — non-blocking
+      }
+    }
+
     onComplete(appt);
   }
 
-  const stepLabels: string[] = [
-    "Service",
-    "Employee",
-    "Date & Time",
-    "Confirm",
-  ];
+  const stepLabels: string[] = needsPrepayment
+    ? ["Service", "Employee", "Date & Time", "Payment", "Confirm"]
+    : ["Service", "Employee", "Date & Time", "Confirm"];
 
   return (
     <div className="space-y-6">
@@ -502,8 +558,76 @@ export function BookingFlow({
         </div>
       )}
 
-      {/* ── Step 4: Confirm ── */}
-      {step === 4 && (
+      {/* ── Step 4: Payment (only if prepayment required) ── */}
+      {step === 4 && needsPrepayment && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-white">
+            Payment Method
+          </h3>
+          <p className="text-sm text-gray-400">
+            This service requires prepayment. Select how the client will pay.
+          </p>
+
+          <div className="space-y-4">
+            {/* Method selector */}
+            <div className="space-y-1">
+              <label className="text-sm text-gray-400 font-medium">Payment Method</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {paymentMethods.map((method) => (
+                  <button
+                    key={method.id}
+                    onClick={() => setSelectedMethodId(method.id)}
+                    className={cn(
+                      "text-left p-3 rounded-lg border transition-all",
+                      selectedMethodId === method.id
+                        ? "border-blue-500 bg-blue-500/10"
+                        : "border-gray-700 bg-gray-800 hover:border-gray-600",
+                    )}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium text-white">{method.name}</span>
+                      {selectedMethodId === method.id && (
+                        <CheckCircle className="h-4 w-4 text-blue-400" />
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-0.5 capitalize">{method.code}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Installments (only for credit / requiresDocs) */}
+            {(() => {
+              const method = paymentMethods.find((m) => m.id === selectedMethodId);
+              if (!method || (method.code !== "credit" && !method.requiresDocs)) return null;
+              return (
+                <div className="space-y-1">
+                  <label className="text-sm text-gray-400 font-medium">Installments</label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => (
+                      <button
+                        key={n}
+                        onClick={() => setSelectedInstallments(n)}
+                        className={cn(
+                          "py-2 rounded-lg text-sm font-medium transition-all",
+                          selectedInstallments === n
+                            ? "bg-blue-500 text-white"
+                            : "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700",
+                        )}
+                      >
+                        {n}x
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        </div>
+      )}
+
+      {/* ── Step 4/5: Confirm ── */}
+      {step === (needsPrepayment ? 5 : 4) && (
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-white">
             Confirm Appointment
@@ -758,7 +882,7 @@ export function BookingFlow({
           {step === 1 ? "Cancel" : "Back"}
         </Button>
 
-        {step < 4 ? (
+        {step < (needsPrepayment ? 5 : 4) ? (
           <Button
             onClick={goNext}
             disabled={!canAdvance()}

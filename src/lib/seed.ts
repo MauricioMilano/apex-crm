@@ -11,6 +11,8 @@ async function main() {
   await prisma.auditLog.deleteMany()
   await prisma.apiKey.deleteMany()
   await prisma.webhook.deleteMany()
+  await prisma.payment.deleteMany()
+  await prisma.paymentMethod.deleteMany()
   await prisma.blockedSlot.deleteMany()
   await prisma.appointment.deleteMany()
   await prisma.clientFile.deleteMany()
@@ -48,8 +50,28 @@ async function main() {
       dateFormat: 'MM/DD/YYYY',
       timeFormat: '12h',
       locale: 'en-US',
+      defaultInterestRate: 2.0,
     },
   })
+
+  // ── 2c. Default Payment Methods ──────────────────────────────────────────
+  await prisma.$transaction([
+    prisma.paymentMethod.create({
+      data: { organizationId: org.id, name: 'Debit', code: 'debit', isActive: true },
+    }),
+    prisma.paymentMethod.create({
+      data: { organizationId: org.id, name: 'Credit', code: 'credit', requiresDocs: true, isActive: true },
+    }),
+    prisma.paymentMethod.create({
+      data: { organizationId: org.id, name: 'Cash', code: 'cash', isActive: true },
+    }),
+    prisma.paymentMethod.create({
+      data: { organizationId: org.id, name: 'PIX', code: 'pix', isActive: true },
+    }),
+    prisma.paymentMethod.create({
+      data: { organizationId: org.id, name: 'Transfer', code: 'transfer', isActive: true },
+    }),
+  ])
 
   // ── 3. Locations ──────────────────────────────────────────────────────────
   const [locMain, locNorth] = await prisma.$transaction([
@@ -700,6 +722,7 @@ async function main() {
   console.log(`  Clients: ${clientsData.length}`)
   console.log(`  Appointments: ${appointmentsData.length}`)
   console.log(`  Forms: ${formData.length}`)
+  console.log(`  Payment methods: 5`)
   console.log(`  Webhooks: 2`)
 }
 

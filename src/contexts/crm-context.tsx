@@ -23,6 +23,11 @@ import type {
 
 // ─── Context type ─────────────────────────────────────────────────────────────
 
+interface PendingPaymentInfo {
+  appointmentId: string;
+  defaultAmount: number;
+}
+
 interface CRMContextValue {
   leads: Lead[];
   clients: Client[];
@@ -34,6 +39,12 @@ interface CRMContextValue {
   locations: Location[];
   webhooks: Webhook[];
   apiKeys: ApiKey[];
+
+  /** When set, the UI should open the Confirm Payment modal */
+  pendingPayment: PendingPaymentInfo | null;
+  clearPendingPayment: () => void;
+  /** Manually trigger the payment modal from any page */
+  triggerPaymentModal: (appointmentId: string, defaultAmount: number) => void;
 
   addLead: (lead: Omit<Lead, 'id' | 'createdAt' | 'updatedAt'>) => Promise<Lead>;
   updateLead: (id: string, updates: Partial<Lead>) => Promise<void>;
@@ -119,6 +130,12 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [pendingPayment, setPendingPayment] = useState<PendingPaymentInfo | null>(null);
+
+  const clearPendingPayment = useCallback(() => setPendingPayment(null), []);
+  const triggerPaymentModal = useCallback((appointmentId: string, defaultAmount: number) => {
+    setPendingPayment({ appointmentId, defaultAmount });
+  }, []);
   const [services, setServices] = useState<Service[]>([]);
   const [forms, setForms] = useState<Form[]>([]);
   const [leadStatuses, setLeadStatuses] = useState<LeadStatus[]>([]);
@@ -259,12 +276,23 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const updateAppointment = useCallback(async (id: string, updates: Partial<Appointment>): Promise<void> => {
-    const appt = await apiFetch<Appointment>(`/api/v1/appointments/${id}`, {
+    const res = await fetch(`/api/v1/appointments/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updates),
     });
-    setAppointments((prev) => prev.map((a) => (a.id === id ? appt : a)));
+    const json: Record<string, unknown> = await res.json();
+    const data = json?.data ?? json;
+    const appt = data as Appointment;
+
+    // Check for payment modal signal from completion
+    const openModal = (data as Record<string, unknown>).openPaymentModal;
+    const defaultAmount = (data as Record<string, unknown>).defaultPaymentAmount;
+    if (openModal && typeof defaultAmount === 'number') {
+      setPendingPayment({ appointmentId: id, defaultAmount });
+    }
+
+    setAppointments((prev) => prev.map((a) => (a.id === id ? { ...a, ...appt } : a)));
   }, []);
 
   const deleteAppointment = useCallback(async (id: string): Promise<void> => {
@@ -479,6 +507,7 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
     leads, clients, appointments, services, forms,
     leadStatuses, users, locations, webhooks, apiKeys,
     subscriptionPlans,
+    pendingPayment, clearPendingPayment, triggerPaymentModal,
     addLead, updateLead, deleteLead,
     addClient, updateClient, deleteClient,
     addAppointment, updateAppointment, deleteAppointment,

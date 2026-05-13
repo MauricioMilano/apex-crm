@@ -13,6 +13,7 @@ import {
   KeyRound,
   ListChecks,
   CreditCard,
+  Wallet,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -25,6 +26,7 @@ const navItems = [
   { label: 'Team', href: '/settings/team', icon: Users },
   { label: 'Locations', href: '/settings/locations', icon: MapPin },
   { label: 'Email', href: '/settings/email', icon: Mail },
+  { label: 'Payment Methods', href: '/settings/payment-methods', icon: Wallet },
   { label: 'Webhooks', href: '/settings/webhooks', icon: Webhook },
   { label: 'API Keys', href: '/settings/api', icon: KeyRound },
 ];

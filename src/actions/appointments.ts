@@ -239,13 +239,13 @@ export async function createAppointment(data: CreateAppointmentInput) {
 
 export async function updateAppointment(
   id: string,
-  data: Partial<CreateAppointmentInput>
+  data: Partial<CreateAppointmentInput & { status?: AppointmentStatus }>
 ) {
   try {
     // Fetch current appointment to detect changes
     const current = await prisma.appointment.findUnique({
       where: { id },
-      select: { startTime: true },
+      select: { startTime: true, status: true },
     })
 
     const appointment = await prisma.appointment.update({
@@ -255,7 +255,7 @@ export async function updateAppointment(
         startTime: data.startTime ? new Date(data.startTime) : undefined,
         endTime: data.endTime ? new Date(data.endTime) : undefined,
       },
-      include: { client: true, lead: true, employee: true, service: true },
+      include: { client: true, lead: true, employee: true, service: true, location: true },
     })
 
     // Detect reschedule (startTime changed)
@@ -285,7 +285,35 @@ export async function updateAppointment(
       }
     }
 
-    return { success: true as const, data: appointment }
+    // ── Determine if payment modal should open ────────────────────────
+    let openPaymentModal = false
+    let defaultPaymentAmount: number | undefined
+    if (
+      data.status === "completed" &&
+      !appointment.clientSubscriptionId &&
+      appointment.service
+    ) {
+      const existingPrepayment = await prisma.payment.findFirst({
+        where: {
+          referenceType: "appointment",
+          referenceId: appointment.id,
+          status: "pending",
+        },
+      })
+      if (!existingPrepayment) {
+        openPaymentModal = true
+        defaultPaymentAmount = Number(appointment.service.price)
+      }
+    }
+
+    return {
+      success: true as const,
+      data: {
+        ...appointment,
+        openPaymentModal,
+        defaultPaymentAmount,
+      },
+    }
   } catch (error) {
     return { success: false as const, error: String(error) }
   }
@@ -305,6 +333,24 @@ export async function updateAppointmentStatus(
       },
       include: { client: true, lead: true, employee: true, service: true, location: true },
     })
+
+    // ── Determine if payment modal should open ──────────────────────────
+    let openPaymentModal = false
+    let defaultPaymentAmount: number | undefined
+    if (status === "completed" && !appointment.clientSubscriptionId && appointment.service) {
+      // Check if there's already a prepayment (payment with status pending)
+      const existingPrepayment = await prisma.payment.findFirst({
+        where: {
+          referenceType: "appointment",
+          referenceId: appointment.id,
+          status: "pending",
+        },
+      })
+      if (!existingPrepayment) {
+        openPaymentModal = true
+        defaultPaymentAmount = Number(appointment.service.price)
+      }
+    }
 
     // ── Send status-based emails ────────────────────────────────────────
     if (status === "cancelled") {
@@ -365,7 +411,14 @@ export async function updateAppointmentStatus(
       })
     }
 
-    return { success: true as const, data: appointment }
+    return {
+      success: true as const,
+      data: {
+        ...appointment,
+        openPaymentModal,
+        defaultPaymentAmount,
+      },
+    }
   } catch (error) {
     return { success: false as const, error: String(error) }
   }

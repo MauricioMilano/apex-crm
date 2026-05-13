@@ -13,6 +13,8 @@ const createServiceSchema = z.object({
   duration: z.number().int().positive(),
   price: z.number().min(0),
   color: z.string().optional(),
+  requiresPrepayment: z.boolean().default(false),
+  interestRate: z.number().min(0).max(100).optional(),
   isActive: z.boolean().optional(),
 })
 

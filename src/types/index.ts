@@ -120,6 +120,8 @@ export interface Service {
   duration: number;
   price: number;
   color?: string;
+  requiresPrepayment: boolean;
+  interestRate?: number;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -202,6 +204,50 @@ export interface Appointment {
   cancelReason?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+// ─── Payment Method ───────────────────────────────────────────────────────────
+
+export interface PaymentMethod {
+  id: string;
+  organizationId: string;
+  name: string;
+  code: string;
+  requiresDocs: boolean;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ─── Payment ──────────────────────────────────────────────────────────────────
+
+export type PaymentStatus =
+  | 'pending'
+  | 'completed'
+  | 'refunded'
+  | 'failed'
+  | 'adjusted';
+
+export interface Payment {
+  id: string;
+  organizationId: string;
+  amount: number;
+  currency: string;
+  status: PaymentStatus;
+  referenceType: string;
+  referenceId: string;
+  adjustedPaymentId?: string;
+  paymentMethodId?: string;
+  installments: number;
+  cardLastFour?: string;
+  description?: string;
+  /** ISO date-time string */
+  paidAt: string;
+  createdAt: string;
+  updatedAt: string;
+
+  /** Joined from relations */
+  paymentMethod?: PaymentMethod;
 }
 
 // ─── Form ─────────────────────────────────────────────────────────────────────
@@ -397,6 +443,7 @@ export interface OrgSettings {
   dateFormat: string;
   timeFormat: '12h' | '24h';
   locale: string | null;
+  defaultInterestRate?: number;
 }
 
 // ─── Email / SMTP ──────────────────────────────────────────────────────────────
@@ -413,6 +460,9 @@ export interface OrganizationSetting {
   smtpFrom: string | null;
   smtpSecure: boolean;
   emailVerificationEnabled: boolean;
+
+  // ── Interest / Installment settings ─────────────────────────────────────
+  defaultInterestRate?: number;
 
   // ── Regional settings ──────────────────────────────────────────────────
   currency: string;

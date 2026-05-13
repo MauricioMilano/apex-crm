@@ -29,6 +29,8 @@ model Organization {
   organizationSettings OrganizationSetting?
   emailTemplates      EmailTemplate[]
   emailSchedules      EmailSchedule[]
+  paymentMethods      PaymentMethod[]
+  payments            Payment[]
 
   @@map("organizations")
 }
@@ -112,6 +114,8 @@ model Service {
   duration         Int
   price            Decimal           @db.Decimal(10, 2)
   color            String?
+  requiresPrepayment Boolean          @default(false) @map("requires_prepayment")
+  interestRate      Decimal?          @map("interest_rate") @db.Decimal(4, 2)
   isActive         Boolean           @default(true) @map("is_active")
   createdAt        DateTime          @default(now()) @map("created_at")
   updatedAt        DateTime          @updatedAt @map("updated_at")
@@ -399,6 +403,9 @@ model OrganizationSetting {
   smtpSecure              Boolean  @default(false) @map("smtp_secure")
   emailVerificationEnabled Boolean @default(false) @map("email_verification_enabled")
 
+  // ── Interest / Installment settings ────────────────────────────────────
+  defaultInterestRate Decimal? @map("default_interest_rate") @db.Decimal(4, 2)
+
   // ── Regional settings ──────────────────────────────────────────────────
   currency      String  @default("USD") @map("currency")
   timezone      String  @default("America/New_York") @map("timezone")
@@ -482,4 +489,55 @@ enum AppointmentStatus {
   no_show
 
   @@map("appointment_status")
+}
+
+model PaymentMethod {
+  id                String          @id @default(cuid())
+  organizationId    String          @map("organization_id")
+  name              String
+  code              String
+  requiresDocs      Boolean         @default(false) @map("requires_docs")
+  isActive          Boolean         @default(true) @map("is_active")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+  organization      Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  payments          Payment[]
+
+  @@unique([organizationId, code])
+  @@map("payment_methods")
+}
+
+enum PaymentStatus {
+  pending
+  completed
+  refunded
+  failed
+  adjusted
+
+  @@map("payment_status")
+}
+
+model Payment {
+  id                String         @id @default(cuid())
+  organizationId    String         @map("organization_id")
+  amount            Decimal        @db.Decimal(10, 2)
+  currency          String         @default("USD")
+  status            PaymentStatus
+  referenceType     String         @map("reference_type")
+  referenceId       String         @map("reference_id")
+  adjustedPaymentId String?        @map("adjusted_payment_id")
+  description       String?
+  paidAt            DateTime       @default(now()) @map("paid_at")
+  paymentMethodId   String?        @map("payment_method_id")
+  installments      Int            @default(1) @map("installments")
+  cardLastFour      String?        @map("card_last_four")
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+
+  organization      Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  paymentMethod     PaymentMethod? @relation(fields: [paymentMethodId], references: [id])
+  adjustedPayment   Payment?       @relation("PaymentAdjustment", fields: [adjustedPaymentId], references: [id])
+  adjustments       Payment[]      @relation("PaymentAdjustment")
+
+  @@map("payments")
 }

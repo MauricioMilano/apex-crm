@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
 import { Sidebar, useSidebarState } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
+import { PaymentModalWatcher } from '@/components/payments/payment-modal-watcher';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -63,6 +64,9 @@ export default function DashboardLayout({
           {children}
         </main>
       </div>
+
+      {/* Global payment modal — opens from any page */}
+      <PaymentModalWatcher />
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useCRM } from '@/contexts/crm-context';
-import type { Appointment, AppointmentStatus } from '@/types';
+import type { Appointment, AppointmentStatus, Payment } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,6 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Label } from '@/components/ui/label';
 import {
   parseISO,
   differenceInMinutes,
@@ -35,12 +36,13 @@ import {
   Clock,
   User,
   CheckCircle,
-  XCircle,
   AlertCircle,
   ChevronLeft,
   Trash2,
   Building2,
   FileText,
+  DollarSign,
+  Plus,
 } from 'lucide-react';
 
 const STATUS_CONFIG: Record<AppointmentStatus, { label: string; className: string }> = {
@@ -89,7 +91,7 @@ export default function AppointmentDetailPage() {
         const json = await res.json();
         const data = json?.data ?? json;
         if (!cancelled) setFetchedAppt(data as Appointment);
-      } catch (e) {
+      } catch {
         // ignore
       } finally {
         if (!cancelled) setFetchingAppt(false);
@@ -109,9 +111,54 @@ export default function AppointmentDetailPage() {
   const [newDate, setNewDate] = useState<Date | undefined>(undefined);
   const [newTime, setNewTime] = useState<string | null>(null);
 
+  // Payment state
+  const { triggerPaymentModal } = useCRM();
+  const [appointmentPayments, setAppointmentPayments] = useState<Payment[]>([]);
+
   useEffect(() => {
     setNotes(appt?.notes ?? '');
   }, [appt?.notes]);
+
+  // Fetch payments for this appointment
+  useEffect(() => {
+    const appointmentId = appt?.id;
+    if (!appointmentId) return;
+    async function fetchPayments() {
+      try {
+        const res = await fetch(`/api/v1/payments?referenceType=appointment&referenceId=${appointmentId}`);
+        const json = await res.json();
+        const data = (json?.data ?? json) as Payment[];
+        setAppointmentPayments(Array.isArray(data) ? data : []);
+      } catch {
+        // best-effort
+      }
+    }
+    void fetchPayments();
+  }, [appt?.id]);
+
+  // Fetch payments on mount + re-fetch when page becomes visible
+  // (handles global payment modal confirmation from any page)
+  useEffect(() => {
+    const currentId = appt?.id;
+    if (!currentId) return;
+    let cancelled = false;
+    async function refresh() {
+      const res = await fetch(`/api/v1/payments?referenceType=appointment&referenceId=${currentId}`);
+      const json = await res.json();
+      if (!cancelled) {
+        setAppointmentPayments(Array.isArray(json?.data ?? json) ? (json?.data ?? json) : []);
+      }
+    }
+    void refresh();
+    function onVisible() {
+      if (document.visibilityState === 'visible') void refresh();
+    }
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      cancelled = true;
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, [appt?.id]);
 
   const { formatDate, formatTime } = useOrgFormat();
 
@@ -374,6 +421,76 @@ export default function AppointmentDetailPage() {
                   This appointment is {statusCfg.label.toLowerCase()}. No further
                   status changes available.
                 </p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Payments */}
+          <Card className="bg-gray-900 border-gray-700">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-white text-base flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-yellow-400" />
+                Payments
+              </CardTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (!appt) return;
+                  triggerPaymentModal(appt.id, service?.price ?? 0);
+                }}
+                className="border-gray-700 text-gray-300 hover:text-white"
+              >
+                <Plus className="h-3.5 w-3.5 mr-1" />
+                Record
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {appointmentPayments.length === 0 ? (
+                <p className="text-sm text-gray-500 text-center py-4">
+                  No payments recorded
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {appointmentPayments.map((p) => {
+                    const methodName = (p as Payment & { paymentMethod?: { name: string } }).paymentMethod?.name;
+                    return (
+                      <div
+                        key={p.id}
+                        className="flex items-center justify-between p-2 rounded-lg bg-gray-800/50"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className={cn(
+                            'text-xs px-1.5 py-0.5 rounded font-medium',
+                            p.status === 'completed' && 'bg-green-500/20 text-green-400',
+                            p.status === 'pending' && 'bg-yellow-500/20 text-yellow-400',
+                            p.status === 'adjusted' && 'bg-gray-500/20 text-gray-400',
+                            p.status === 'refunded' && 'bg-red-500/20 text-red-400',
+                          )}>
+                            {p.status}
+                          </span>
+                          {methodName && (
+                            <span className="text-xs text-gray-500">{methodName}</span>
+                          )}
+                          {p.installments > 1 && (
+                            <span className="text-xs text-gray-600">{p.installments}x</span>
+                          )}
+                          {p.description && (
+                            <span className="text-xs text-gray-400 truncate max-w-[100px]">
+                              {p.description}
+                            </span>
+                          )}
+                        </div>
+                        <span className={cn(
+                          'text-sm font-medium',
+                          p.amount < 0 ? 'text-red-400' : 'text-gray-100',
+                        )}>
+                          {p.amount < 0 ? '-' : ''}${Math.abs(p.amount).toFixed(2)}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
               )}
             </CardContent>
           </Card>

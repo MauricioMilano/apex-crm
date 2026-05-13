@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
+  BarChart3,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/auth-context';
@@ -45,6 +46,7 @@ const navSections: NavSection[] = [
     title: 'Overview',
     items: [
       { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+      { label: 'Reports', href: '/reports', icon: BarChart3 },
     ],
   },
   {
