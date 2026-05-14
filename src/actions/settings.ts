@@ -279,3 +279,18 @@ export async function inviteTeamMember(data: {
     return { success: false as const, error: String(error) }
   }
 }
+
+export async function updateNotificationPreferences(
+  userId: string,
+  preferences: Record<string, boolean>
+) {
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { notificationPreferences: preferences },
+    })
+    return { success: true as const, data: preferences }
+  } catch (error) {
+    return { success: false as const, error: String(error) }
+  }
+}

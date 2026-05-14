@@ -107,12 +107,82 @@ export async function getUserById(id: string) {
 
 export async function updateUserProfile(
   id: string,
-  data: { firstName?: string; lastName?: string; phone?: string }
+  data: { firstName?: string; lastName?: string; phone?: string; email?: string }
 ) {
   try {
+    // If email is being changed, validate uniqueness
+    if (data.email) {
+      const existing = await prisma.user.findUnique({ where: { email: data.email } })
+      if (existing && existing.id !== id) {
+        return { success: false as const, error: "Email is already in use by another account" }
+      }
+    }
     const user = await prisma.user.update({ where: { id }, data })
     const { passwordHash: _9, magicLinkToken: _10, magicLinkExpires: _11, ...safeUser } = user
     return { success: true as const, data: safeUser }
+  } catch (error) {
+    return { success: false as const, error: String(error) }
+  }
+}
+
+export async function changePassword(
+  userId: string,
+  data: { currentPassword: string; newPassword: string }
+) {
+  try {
+    const user = await prisma.user.findUnique({ where: { id: userId } })
+    if (!user || !user.passwordHash) {
+      return { success: false as const, error: "User not found" }
+    }
+
+    const valid = await bcrypt.compare(data.currentPassword, user.passwordHash)
+    if (!valid) {
+      return { success: false as const, error: "Current password is incorrect" }
+    }
+
+    const passwordHash = await bcrypt.hash(data.newPassword, 12)
+    await prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash },
+    })
+
+    return { success: true as const, message: "Password changed successfully" }
+  } catch (error) {
+    return { success: false as const, error: String(error) }
+  }
+}
+
+export async function updateClientPortalProfile(
+  userId: string,
+  data: { firstName?: string; lastName?: string; email?: string; phone?: string },
+  clientId?: string
+) {
+  try {
+    // Update the User record first
+    const userResult = await updateUserProfile(userId, data)
+    if (!userResult.success) {
+      return userResult
+    }
+
+    // Also update the Client record if clientId is provided
+    if (clientId) {
+      try {
+        await prisma.client.update({
+          where: { id: clientId },
+          data: {
+            firstName: data.firstName,
+            lastName: data.lastName,
+            email: data.email,
+            phone: data.phone,
+          },
+        })
+      } catch {
+        // Graceful fallback: if Client record doesn't exist or fails, 
+        // the User update has already succeeded
+      }
+    }
+
+    return { success: true as const, data: userResult.data }
   } catch (error) {
     return { success: false as const, error: String(error) }
   }

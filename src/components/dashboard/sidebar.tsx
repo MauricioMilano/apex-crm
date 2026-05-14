@@ -1,26 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import {
-  Building2,
-  LayoutDashboard,
-  Users2,
-  UserCheck,
-  CalendarDays,
-  Clock,
-  FileText,
-  Settings,
-  ChevronLeft,
-  ChevronRight,
-  LogOut,
-  BarChart3,
-} from 'lucide-react';
+import { Building2, ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/auth-context';
+import { useFilteredNav } from '@/hooks/use-filtered-nav';
+import { SidebarNav } from '@/components/dashboard/sidebar-nav';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
   Tooltip,
   TooltipContent,
@@ -30,61 +17,14 @@ import {
 
 const SIDEBAR_STORAGE_KEY = 'crm_sidebar_collapsed';
 
-interface NavItem {
-  label: string;
-  href: string;
-  icon: React.ComponentType<{ className?: string }>;
-}
-
-interface NavSection {
-  title: string;
-  items: NavItem[];
-}
-
-const navSections: NavSection[] = [
-  {
-    title: 'Overview',
-    items: [
-      { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-      { label: 'Reports', href: '/reports', icon: BarChart3 },
-    ],
-  },
-  {
-    title: 'Sales',
-    items: [
-      { label: 'Leads', href: '/leads', icon: Users2 },
-      { label: 'Clients', href: '/clients', icon: UserCheck },
-    ],
-  },
-  {
-    title: 'Scheduling',
-    items: [
-      { label: 'Calendar', href: '/calendar', icon: CalendarDays },
-      { label: 'Appointments', href: '/appointments', icon: Clock },
-    ],
-  },
-  {
-    title: 'Marketing',
-    items: [
-      { label: 'Forms', href: '/forms', icon: FileText },
-    ],
-  },
-  {
-    title: 'Admin',
-    items: [
-      { label: 'Settings', href: '/settings', icon: Settings },
-    ],
-  },
-];
-
 interface SidebarProps {
   collapsed: boolean;
   onToggle: () => void;
 }
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
-  const pathname = usePathname();
   const { currentUser, logout } = useAuth();
+  const navSections = useFilteredNav(currentUser?.role, 'dashboard');
 
   const initials = currentUser
     ? `${currentUser.firstName?.[0] ?? ''}${currentUser.lastName?.[0] ?? ''}`.toUpperCase() || '?'
@@ -123,63 +63,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           </button>
         </div>
 
-        {/* Nav */}
-        <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-6">
-          {navSections.map((section) => (
-            <div key={section.title}>
-              {!collapsed && (
-                <p className="px-2 mb-1 text-xs font-semibold uppercase tracking-wider text-gray-600">
-                  {section.title}
-                </p>
-              )}
-              <ul className="space-y-0.5">
-                {section.items.map((item) => {
-                  const isActive =
-                    item.href === '/'
-                      ? pathname === '/'
-                      : pathname.startsWith(item.href);
-                  const IconComponent = item.icon;
-
-                  const linkContent = (
-                    <Link
-                      href={item.href}
-                      className={cn(
-                        'flex items-center gap-3 rounded-lg px-2 py-2 text-sm font-medium transition-colors',
-                        isActive
-                          ? 'bg-blue-600/20 text-blue-400'
-                          : 'text-gray-400 hover:text-gray-100 hover:bg-gray-800',
-                        collapsed && 'justify-center',
-                      )}
-                    >
-                      <IconComponent
-                        className={cn(
-                          'h-4 w-4 shrink-0',
-                          isActive ? 'text-blue-400' : '',
-                        )}
-                      />
-                      {!collapsed && <span>{item.label}</span>}
-                    </Link>
-                  );
-
-                  if (collapsed) {
-                    return (
-                      <li key={item.href}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
-                          <TooltipContent side="right">
-                            {item.label}
-                          </TooltipContent>
-                        </Tooltip>
-                      </li>
-                    );
-                  }
-
-                  return <li key={item.href}>{linkContent}</li>;
-                })}
-              </ul>
-            </div>
-          ))}
-        </nav>
+        {/* Nav — data-driven from NAV_CONFIG */}
+        <SidebarNav sections={navSections} collapsed={collapsed} />
 
         {/* User profile */}
         <div className="shrink-0 border-t border-gray-800 p-2">
@@ -190,6 +75,9 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             )}
           >
             <Avatar className="h-8 w-8 shrink-0">
+              {currentUser?.avatar && (
+                <AvatarImage src={currentUser.avatar} />
+              )}
               <AvatarFallback className="bg-blue-600 text-white text-xs font-semibold">
                 {initials}
               </AvatarFallback>

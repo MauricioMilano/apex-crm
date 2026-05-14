@@ -44,6 +44,7 @@ export interface User {
   role: UserRole;
   avatar?: string;
   phone?: string;
+  notificationPreferences?: Record<string, boolean>;
   isActive: boolean;
   resetToken?: string;
   resetTokenExpires?: string;

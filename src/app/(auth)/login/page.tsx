@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Loader2, ExternalLink } from 'lucide-react';
 
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
@@ -205,6 +205,26 @@ export default function LoginPage() {
           Don&apos;t have an account?{' '}
           <Link href="/register" className="text-primary font-medium hover:underline">
             Create one
+          </Link>
+        </p>
+
+        <div className="relative mt-6">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-card px-2 text-muted-foreground">Client Area</span>
+          </div>
+        </div>
+
+        <p className="mt-4 text-center text-sm text-muted-foreground">
+          Are you a client?{' '}
+          <Link
+            href="/portal/login"
+            className="text-primary font-medium hover:underline inline-flex items-center gap-1"
+          >
+            Access the client portal
+            <ExternalLink className="h-3 w-3" />
           </Link>
         </p>
       </CardContent>

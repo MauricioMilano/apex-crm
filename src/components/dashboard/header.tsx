@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Menu, Search, Bell, User, Settings, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
@@ -24,6 +24,7 @@ const ROUTE_TITLES: Record<string, string> = {
   '/appointments': 'Appointments',
   '/forms': 'Forms',
   '/settings': 'Settings',
+  '/settings/profile': 'Profile',
 };
 
 interface HeaderProps {
@@ -99,6 +100,9 @@ export function Header({ onMenuClick }: HeaderProps) {
             className="rounded-full hover:bg-gray-800"
           >
             <Avatar className="h-8 w-8">
+              {currentUser?.avatar && (
+                <AvatarImage src={currentUser.avatar} />
+              )}
               <AvatarFallback className="bg-blue-600 text-white text-xs font-semibold">
                 {initials}
               </AvatarFallback>
@@ -122,7 +126,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           <DropdownMenuSeparator className="bg-gray-800" />
           <DropdownMenuItem
             className="gap-2 cursor-pointer hover:bg-gray-800 focus:bg-gray-800"
-            onClick={() => router.push('/settings')}
+            onClick={() => router.push('/settings/profile')}
           >
             <User className="h-4 w-4" />
             Profile

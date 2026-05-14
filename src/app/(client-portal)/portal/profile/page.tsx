@@ -25,6 +25,9 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { User, Mail, Phone, Lock, Bell, Trash2, CheckCircle } from 'lucide-react';
+import { updateClientPortalProfile } from '@/actions/auth';
+import { changePassword } from '@/actions/auth';
+import { updateNotificationPreferences } from '@/actions/settings';
 
 const profileSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
@@ -49,11 +52,12 @@ type PasswordFormData = z.infer<typeof passwordSchema>;
 
 export default function ClientPortalProfilePage() {
   const { currentUser } = useAuth();
-  const { clients, updateClient } = useCRM();
+  const { clients } = useCRM();
   const [profileSaved, setProfileSaved] = useState(false);
-  const [notifEmail, setNotifEmail] = useState(true);
-  const [notifSms, setNotifSms] = useState(false);
-  const [notifReminder, setNotifReminder] = useState(true);
+  const prefs = currentUser?.notificationPreferences;
+  const [notifEmail, setNotifEmail] = useState(prefs?.email ?? true);
+  const [notifSms, setNotifSms] = useState(prefs?.sms ?? false);
+  const [notifReminder, setNotifReminder] = useState(prefs?.reminder ?? true);
   const { formatDate } = useOrgFormat();
 
   const client = useMemo(
@@ -79,21 +83,37 @@ export default function ClientPortalProfilePage() {
     defaultValues: { currentPassword: '', newPassword: '', confirmPassword: '' },
   });
 
-  const onSaveProfile = (data: ProfileFormData) => {
-    if (client) {
-      void updateClient(client.id, {
+  const onSaveProfile = async (data: ProfileFormData) => {
+    if (!currentUser) return;
+    const result = await updateClientPortalProfile(
+      currentUser.id,
+      {
         firstName: data.firstName,
-        lastName:  data.lastName,
-        email:     data.email,
-        phone:     data.phone,
-      });
+        lastName: data.lastName,
+        email: data.email,
+        phone: data.phone,
+      },
+      client?.id,
+    );
+    if (!result.success) {
+      toast.error(result.error);
+      return;
     }
     setProfileSaved(true);
     toast.success('Profile updated successfully');
     setTimeout(() => setProfileSaved(false), 3000);
   };
 
-  const onChangePassword = (_: PasswordFormData) => {
+  const onChangePassword = async (data: PasswordFormData) => {
+    if (!currentUser) return;
+    const result = await changePassword(currentUser.id, {
+      currentPassword: data.currentPassword,
+      newPassword: data.newPassword,
+    });
+    if (!result.success) {
+      toast.error(result.error);
+      return;
+    }
     toast.success('Password changed successfully');
     passwordForm.reset();
   };
@@ -355,7 +375,19 @@ export default function ClientPortalProfilePage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => toast.success('Preferences saved')}
+            onClick={async () => {
+              if (!currentUser) return;
+              const result = await updateNotificationPreferences(currentUser.id, {
+                email: notifEmail,
+                sms: notifSms,
+                reminder: notifReminder,
+              });
+              if (!result.success) {
+                toast.error(result.error);
+                return;
+              }
+              toast.success('Preferences saved');
+            }}
           >
             Save Preferences
           </Button>

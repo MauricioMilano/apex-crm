@@ -4,36 +4,26 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/auth-context';
+import { useFilteredNav } from '@/hooks/use-filtered-nav';
+import { ICON_MAP } from '@/lib/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Building2,
-  CalendarDays,
-  LayoutDashboard,
-  User,
   LogOut,
   Menu,
   X,
-  Plus,
   Loader2,
-  CreditCard,
-  ListChecks,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-const navLinks = [
-  { href: '/portal/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/portal/book', label: 'Book Appointment', icon: Plus },
-  { href: '/portal/appointments', label: 'My Appointments', icon: CalendarDays },
-  { href: '/portal/plans', label: 'Plans', icon: CreditCard },
-  { href: '/portal/subscriptions', label: 'My Subscriptions', icon: ListChecks },
-  { href: '/portal/profile', label: 'Profile', icon: User },
-];
 
 export default function ClientPortalLayout({ children }: { children: React.ReactNode }) {
   const { currentUser, isAuthenticated, isLoading, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const portalNav = useFilteredNav(currentUser?.role, 'portal');
+  const portalLinks = portalNav.flatMap((s) => s.items);
 
   const isLoginPage = pathname === '/portal/login';
 
@@ -80,23 +70,26 @@ export default function ClientPortalLayout({ children }: { children: React.React
                 </span>
               </Link>
 
-              {/* Desktop nav */}
+              {/* Desktop nav from NAV_CONFIG */}
               <nav className="hidden md:flex items-center gap-1">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={cn(
-                      'flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium transition-colors',
-                      pathname === link.href
-                        ? 'bg-blue-50 text-blue-700'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100',
-                    )}
-                  >
-                    <link.icon className="h-4 w-4" />
-                    {link.label}
-                  </Link>
-                ))}
+                {portalLinks.map((item) => {
+                  const IconComponent = item.icon ? ICON_MAP[item.icon] : null;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={cn(
+                        'flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                        pathname === item.href
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100',
+                      )}
+                    >
+                      {IconComponent && <IconComponent className="h-4 w-4" />}
+                      {item.title}
+                    </Link>
+                  );
+                })}
               </nav>
 
               {/* Right side */}
@@ -131,22 +124,25 @@ export default function ClientPortalLayout({ children }: { children: React.React
           {mobileMenuOpen && (
             <div className="md:hidden border-t border-gray-200 bg-white">
               <div className="px-4 py-3 space-y-1">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={cn(
-                      'flex items-center gap-2 px-3 py-2.5 rounded-md text-sm font-medium transition-colors',
-                      pathname === link.href
-                        ? 'bg-blue-50 text-blue-700'
-                        : 'text-gray-600 hover:bg-gray-100',
-                    )}
-                  >
-                    <link.icon className="h-4 w-4" />
-                    {link.label}
-                  </Link>
-                ))}
+                {portalLinks.map((item) => {
+                  const IconComponent = item.icon ? ICON_MAP[item.icon] : null;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={cn(
+                        'flex items-center gap-2 px-3 py-2.5 rounded-md text-sm font-medium transition-colors',
+                        pathname === item.href
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'text-gray-600 hover:bg-gray-100',
+                      )}
+                    >
+                      {IconComponent && <IconComponent className="h-4 w-4" />}
+                      {item.title}
+                    </Link>
+                  );
+                })}
                 <div className="pt-2 border-t border-gray-100 mt-2">
                   <p className="text-xs text-gray-400 px-3 pb-1">
                     Signed in as {currentUser?.email}

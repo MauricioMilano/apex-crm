@@ -2,34 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  Settings,
-  Clock,
-  Wrench,
-  Users,
-  MapPin,
-  Mail,
-  Webhook,
-  KeyRound,
-  ListChecks,
-  CreditCard,
-  Wallet,
-} from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-const navItems = [
-  { label: 'General', href: '/settings', icon: Settings },
-  { label: 'Business Hours', href: '/settings/hours', icon: Clock },
-  { label: 'Services', href: '/settings/services', icon: Wrench },
-  { label: 'Plans', href: '/settings/plans', icon: CreditCard },
-  { label: 'Lead Statuses', href: '/settings/lead-statuses', icon: ListChecks },
-  { label: 'Team', href: '/settings/team', icon: Users },
-  { label: 'Locations', href: '/settings/locations', icon: MapPin },
-  { label: 'Email', href: '/settings/email', icon: Mail },
-  { label: 'Payment Methods', href: '/settings/payment-methods', icon: Wallet },
-  { label: 'Webhooks', href: '/settings/webhooks', icon: Webhook },
-  { label: 'API Keys', href: '/settings/api', icon: KeyRound },
-];
+import { useAuth } from '@/contexts/auth-context';
+import { useFilteredNav } from '@/hooks/use-filtered-nav';
+import { ICON_MAP } from '@/lib/navigation';
 
 export default function SettingsLayout({
   children,
@@ -37,6 +13,9 @@ export default function SettingsLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const { currentUser } = useAuth();
+  const settingsNav = useFilteredNav(currentUser?.role, 'settings');
+  const items = settingsNav.flatMap((s) => s.items);
 
   return (
     <div className="flex gap-6 min-h-full">
@@ -47,7 +26,8 @@ export default function SettingsLayout({
             Settings
           </p>
           <nav className="flex flex-col gap-0.5">
-            {navItems.map(({ label, href, icon: Icon }) => {
+            {items.map(({ title, href, icon }) => {
+              const IconComponent = icon ? ICON_MAP[icon] : null;
               const isActive =
                 href === '/settings'
                   ? pathname === '/settings'
@@ -63,8 +43,8 @@ export default function SettingsLayout({
                       : 'text-gray-400 hover:text-gray-100 hover:bg-gray-800',
                   )}
                 >
-                  <Icon className="h-4 w-4 shrink-0" />
-                  {label}
+                  {IconComponent && <IconComponent className="h-4 w-4 shrink-0" />}
+                  {title}
                 </Link>
               );
             })}

@@ -33,9 +33,13 @@ services:
       NEXT_PUBLIC_APP_URL: "http://localhost:3001"
       DEFAULT_ORG_ID: "org_apex_business_solutions"
       NODE_ENV: "production"
+      UPLOAD_DIR: "/app/uploads/avatars"
+    volumes:
+      - uploads_data:/app/uploads
     depends_on:
       db:
         condition: service_healthy
 
 volumes:
   postgres_dev_data:
+  uploads_data:
