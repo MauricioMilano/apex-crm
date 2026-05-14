@@ -93,15 +93,4 @@ export async function registerClient(data: RegisterClientInput) {
   }
 }
 
-export async function lookupOrgBySlug(slug: string) {
-  try {
-    const org = await prisma.organization.findUnique({
-      where: { slug },
-      select: { id: true, name: true, slug: true },
-    })
-    if (!org) return { success: false as const, error: "Organization not found" }
-    return { success: true as const, data: org }
-  } catch (error) {
-    return { success: false as const, error: String(error) }
-  }
-}
+

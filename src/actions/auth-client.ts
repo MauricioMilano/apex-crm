@@ -2,11 +2,11 @@ import type { User } from '@/types'
 
 const API_PREFIX = '/api/v1/auth'
 
-export async function login(email: string, password: string) {
+export async function login(email: string, password: string, orgSlug?: string) {
   const res = await fetch(`${API_PREFIX}/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, orgSlug }),
   })
   if (!res.ok) return { success: false, error: await res.text() }
   const data = await res.json()

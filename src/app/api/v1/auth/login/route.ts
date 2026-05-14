@@ -6,9 +6,9 @@ import { loginUser } from "@/actions/auth"
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, password } = body as { email: string; password: string }
+    const { email, password, orgSlug } = body as { email: string; password: string; orgSlug?: string }
     if (!email || !password) return apiError("email and password are required")
-    const result = await loginUser(email, password)
+    const result = await loginUser(email, password, orgSlug)
     if (!result.success) return apiError(result.error, 401)
     const cookieStore = await cookies()
     cookieStore.set(SESSION_COOKIE, result.data.id, {

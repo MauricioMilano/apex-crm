@@ -2,6 +2,7 @@ import type { UserRole } from '@/types'
 import {
   LayoutDashboard,
   BarChart3,
+  Users,
   Users2,
   UserCheck,
   CalendarDays,
@@ -44,6 +45,7 @@ export interface NavSection {
 export const ICON_MAP: Record<string, LucideIcon> = {
   LayoutDashboard,
   BarChart3,
+  Users,
   Users2,
   UserCheck,
   CalendarDays,

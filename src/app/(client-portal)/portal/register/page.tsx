@@ -56,10 +56,16 @@ export default function ClientPortalRegisterPage() {
         return;
       }
       try {
-        await fetch(`/api/v1/auth/client-register?org=${encodeURIComponent(orgSlug)}`);
-        // If the endpoint doesn't exist for GET, fallback silently
-        setOrgName(orgSlug); // show the slug as org indicator
-      } catch { /* ignore */ }
+        const res = await fetch(`/api/v1/auth/orgs/lookup?slug=${encodeURIComponent(orgSlug)}`);
+        const json = await res.json();
+        if (json.success) {
+          setOrgName(json.data.name);
+        } else {
+          setOrgName(orgSlug);
+        }
+      } catch {
+        setOrgName(orgSlug);
+      }
       setOrgLoading(false);
     }
     void lookup();

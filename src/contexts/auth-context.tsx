@@ -17,6 +17,7 @@ interface RegisterData {
   password: string;
   firstName: string;
   lastName: string;
+  organizationName?: string;
   role?: UserRole;
 }
 
@@ -24,7 +25,7 @@ interface AuthContextValue {
   currentUser: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string, orgSlug?: string) => Promise<boolean>;
   logout: () => void;
   register: (data: RegisterData) => Promise<boolean>;
 }
@@ -70,9 +71,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = useCallback(
-    async (email: string, password: string): Promise<boolean> => {
+    async (email: string, password: string, orgSlug?: string): Promise<boolean> => {
       try {
-        const res = await loginAction(email, password);
+        const res = await loginAction(email, password, orgSlug);
         if (!res.success) return false;
         const user = extractUser(res.data);
         if (user) setCurrentUser(user);
@@ -97,7 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           lastName: data.lastName,
           email: data.email,
           password: data.password,
-          organizationName: 'Personal',
+          organizationName: data.organizationName ?? 'Personal',
         });
         if (!res.success) return false;
         const user = extractUser(res.data);

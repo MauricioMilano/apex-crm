@@ -14,5 +14,3 @@
 - Admin user: admin@apexbusiness.com
 - Employee 1: mike.chen@apexbusiness.com
 - Client: client@example.com
-
-- Password for all seeded users: Password123!

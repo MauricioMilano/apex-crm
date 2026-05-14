@@ -26,8 +26,10 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { OrgAutocomplete } from '@/components/org-autocomplete';
 
 const loginSchema = z.object({
+  orgSlug: z.string().min(1, 'Please select your organization'),
   email: z.string().email('Please enter a valid email'),
   password: z.string().min(1, 'Password is required'),
 });
@@ -41,18 +43,18 @@ export default function ClientPortalLoginPage() {
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '' },
+    defaultValues: { orgSlug: '', email: '', password: '' },
   });
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     try {
-      const success = await login(data.email, data.password);
+      const success = await login(data.email, data.password, data.orgSlug);
       if (success) {
         toast.success('Welcome back!');
         router.push('/portal/dashboard');
       } else {
-        toast.error('Invalid email or password');
+        toast.error('Invalid email or password for this organization');
       }
     } finally {
       setIsLoading(false);
@@ -79,6 +81,20 @@ export default function ClientPortalLoginPage() {
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="orgSlug"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Organization</FormLabel>
+                      <FormControl>
+                        <OrgAutocomplete value={field.value} onChange={field.onChange} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 <FormField
                   control={form.control}
                   name="email"
@@ -130,9 +146,6 @@ export default function ClientPortalLoginPage() {
               </form>
             </Form>
 
-            <p className="text-center text-xs text-muted-foreground mt-4">
-              Demo: client@example.com / Password123!
-            </p>
             <p className="text-center text-sm text-muted-foreground mt-4">
               <Link
                 href="/portal/register"

@@ -14,9 +14,11 @@ const registerSchema = z.object({
   organizationName: z.string().min(1),
 })
 
-export async function loginUser(email: string, password: string) {
+export async function loginUser(email: string, password: string, orgSlug?: string) {
   try {
-    const user = await prisma.user.findUnique({ where: { email } })
+    const user = orgSlug
+      ? await prisma.user.findFirst({ where: { email, organization: { slug: orgSlug } } })
+      : await prisma.user.findUnique({ where: { email } })
     if (!user || !user.passwordHash) {
       return { success: false as const, error: "Invalid credentials" }
     }

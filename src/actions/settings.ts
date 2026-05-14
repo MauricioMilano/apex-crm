@@ -5,7 +5,6 @@ import { randomBytes } from "crypto"
 import bcrypt from "bcryptjs"
 import { UserRole } from "@prisma/client"
 import { prisma } from "@/lib/db"
-import { sendEmail } from "@/lib/email/send"
 
 const ORG_ID = process.env.DEFAULT_ORG_ID ?? "org_default"
 
@@ -236,8 +235,13 @@ export async function inviteTeamMember(data: {
   try {
     const existing = await prisma.user.findUnique({ where: { email: data.email } })
     if (existing) return { success: false as const, error: "Email already registered" }
-    const tempPassword = randomBytes(16).toString("hex")
-    const passwordHash = await bcrypt.hash(tempPassword, 12)
+
+    const token = randomBytes(32).toString("hex")
+    const tokenHash = await bcrypt.hash(token, 12)
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+
+    const passwordHash = await bcrypt.hash(randomBytes(16).toString("hex"), 12)
+
     const user = await prisma.user.create({
       data: {
         organizationId: data.organizationId,
@@ -246,35 +250,47 @@ export async function inviteTeamMember(data: {
         lastName: data.lastName || "Member",
         role: data.role,
         passwordHash,
-        isActive: true,
+        isActive: false,
+        resetToken: tokenHash,
+        resetTokenExpires: expiresAt,
       },
       select: userSelectFields,
     })
 
-    // Send invitation email
-    const loginUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3001"}/login`
-    const emailResult = await sendEmail({
-      templateName: "team-invite",
-      to: data.email,
-      variables: {
-        invitedName: `${data.firstName} ${data.lastName}`.trim() || "New Member",
-        email: data.email,
-        tempPassword,
-        orgName: "Apex Business Solutions",
-        invitedBy: "Your admin",
-        loginUrl,
-      },
-    })
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3001"
+    const inviteUrl = `${appUrl}/register?invite=${token}&email=${encodeURIComponent(data.email)}`
 
     return {
       success: true as const,
       data: {
         ...user,
-        tempPassword,
-        emailSent: emailResult.success,
-        emailWarning: emailResult.success ? undefined : "User created but email not sent. SMTP may be disabled.",
+        isActive: false,
+        inviteUrl,
       },
     }
+  } catch (error) {
+    return { success: false as const, error: String(error) }
+  }
+}
+
+export async function regenerateInviteToken(userId: string) {
+  try {
+    const user = await prisma.user.findUnique({ where: { id: userId } })
+    if (!user) return { success: false as const, error: "User not found" }
+
+    const token = randomBytes(32).toString("hex")
+    const tokenHash = await bcrypt.hash(token, 12)
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { resetToken: tokenHash, resetTokenExpires: expiresAt, isActive: false },
+    })
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3001"
+    const inviteUrl = `${appUrl}/register?invite=${token}&email=${encodeURIComponent(user.email)}`
+
+    return { success: true as const, data: { inviteUrl } }
   } catch (error) {
     return { success: false as const, error: String(error) }
   }
