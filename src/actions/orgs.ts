@@ -15,6 +15,19 @@ export async function lookupOrgBySlug(slug: string) {
   }
 }
 
+export async function lookupOrgById(id: string) {
+  try {
+    const org = await prisma.organization.findUnique({
+      where: { id },
+      select: { id: true, name: true, slug: true },
+    })
+    if (!org) return { success: false as const, error: "Organization not found" }
+    return { success: true as const, data: org }
+  } catch (error) {
+    return { success: false as const, error: String(error) }
+  }
+}
+
 export async function searchOrgs(query: string, limit = 10) {
   try {
     const orgs = await prisma.organization.findMany({

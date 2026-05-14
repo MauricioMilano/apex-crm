@@ -27,11 +27,12 @@ export default function ClientPortalLayout({ children }: { children: React.React
   const portalNav = useFilteredNav(currentUser?.role, 'portal');
   const portalLinks = portalNav.flatMap((s) => s.items);
 
-  const isLoginPage = pathname === '/portal/login';
+  const PUBLIC_PORTAL_ROUTES = ['/portal/login', '/portal/register'];
+  const isPublicPage = PUBLIC_PORTAL_ROUTES.includes(pathname);
 
   useEffect(() => {
     if (isLoading) return;
-    if (isLoginPage) return;
+    if (isPublicPage) return;
 
     if (!isAuthenticated) {
       router.replace('/portal/login');
@@ -41,7 +42,7 @@ export default function ClientPortalLayout({ children }: { children: React.React
     if (currentUser?.role !== 'client') {
       router.replace('/portal/login');
     }
-  }, [isAuthenticated, isLoading, currentUser, router, isLoginPage]);
+  }, [isAuthenticated, isLoading, currentUser, router, isPublicPage]);
 
   if (isLoading) {
     return (
@@ -51,14 +52,14 @@ export default function ClientPortalLayout({ children }: { children: React.React
     );
   }
 
-  if (!isLoginPage && (!isAuthenticated || currentUser?.role !== 'client')) {
+  if (!isPublicPage && (!isAuthenticated || currentUser?.role !== 'client')) {
     return null;
   }
 
   return (
     <ThemeProvider context="portal">
       <div className="min-h-screen bg-background flex flex-col">
-        {!isLoginPage && (
+        {!isPublicPage && (
           <header className="bg-card border-b border-border sticky top-0 z-30 shadow-sm">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
               <div className="flex items-center justify-between h-16">
@@ -171,7 +172,7 @@ export default function ClientPortalLayout({ children }: { children: React.React
 
         <main className="flex-1">{children}</main>
 
-        {!isLoginPage && (
+        {!isPublicPage && (
           <footer className="bg-card border-t border-border py-4">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center text-sm text-muted-foreground">
               © {new Date().getFullYear()} ApexCRM. All rights reserved.

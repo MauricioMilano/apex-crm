@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { Mail, Lock, User, Building2, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
+import { Mail, Lock, User, Building2, Calendar, ArrowLeft, Loader2 } from 'lucide-react';
+import { OrgAutocomplete } from '@/components/org-autocomplete';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -27,10 +28,12 @@ import {
 } from '@/components/ui/form';
 
 const registerSchema = z.object({
+  orgSlug: z.string().min(1, 'Please select your organization'),
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
   email: z.string().email('Please enter a valid email'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
+  birthDate: z.string().optional(),
 });
 
 type RegisterFormData = z.infer<typeof registerSchema>;
@@ -38,55 +41,34 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 export default function ClientPortalRegisterPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const orgSlug = searchParams.get('org');
-  const [orgName, setOrgName] = useState<string | null>(null);
-  const [orgLoading, setOrgLoading] = useState(true);
+  const initialOrgSlug = searchParams.get('org') ?? '';
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { firstName: '', lastName: '', email: '', password: '' },
+    defaultValues: {
+      orgSlug: initialOrgSlug,
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      birthDate: '',
+    },
   });
 
-  // Lookup org by slug
-  useEffect(() => {
-    async function lookup() {
-      if (!orgSlug) {
-        setOrgLoading(false);
-        return;
-      }
-      try {
-        const res = await fetch(`/api/v1/auth/orgs/lookup?slug=${encodeURIComponent(orgSlug)}`);
-        const json = await res.json();
-        if (json.success) {
-          setOrgName(json.data.name);
-        } else {
-          setOrgName(orgSlug);
-        }
-      } catch {
-        setOrgName(orgSlug);
-      }
-      setOrgLoading(false);
-    }
-    void lookup();
-  }, [orgSlug]);
-
   const onSubmit = async (data: RegisterFormData) => {
-    if (!orgSlug) {
-      toast.error('Invalid registration link');
-      return;
-    }
     setIsLoading(true);
     try {
       const res = await fetch('/api/v1/auth/client-register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          orgSlug,
+          orgSlug: data.orgSlug,
           firstName: data.firstName,
           lastName: data.lastName,
           email: data.email,
           password: data.password,
+          birthDate: data.birthDate || undefined,
         }),
       });
       const json = await res.json();
@@ -98,42 +80,10 @@ export default function ClientPortalRegisterPage() {
       router.push('/portal/dashboard');
     } catch {
       toast.error('An unexpected error occurred');
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
-
-  if (orgLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 to-primary/10 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!orgSlug) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 to-primary/10 flex flex-col items-center justify-center p-4">
-        <Card className="shadow-xl border-0 max-w-md w-full">
-          <CardHeader className="text-center">
-            <AlertCircle className="h-10 w-10 text-destructive/80 mx-auto mb-2" />
-            <CardTitle className="text-xl">Invalid Link</CardTitle>
-            <CardDescription>
-              This registration link is missing organization information. Please use the link
-              provided by your service provider.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-center">
-            <Link href="/portal/login">
-              <Button variant="outline">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Go to Login
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 to-primary/10 flex flex-col items-center justify-center p-4">
@@ -145,18 +95,32 @@ export default function ClientPortalRegisterPage() {
           </div>
           <h1 className="text-2xl font-bold text-foreground">Create Account</h1>
           <p className="text-muted-foreground mt-1">
-            Join {orgName ?? orgSlug}
+            Join your organization to get started
           </p>
         </div>
 
         <Card className="shadow-xl border-0">
           <CardHeader className="pb-4 text-center">
             <CardTitle className="text-xl">Register</CardTitle>
-            <CardDescription>Fill in your details to get started</CardDescription>
+            <CardDescription>Fill in your details to create an account</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="orgSlug"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Organization</FormLabel>
+                      <FormControl>
+                        <OrgAutocomplete value={field.value} onChange={field.onChange} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 <div className="grid grid-cols-2 gap-3">
                   <FormField
                     control={form.control}
@@ -226,6 +190,23 @@ export default function ClientPortalRegisterPage() {
                             placeholder="Min. 8 characters"
                             className="pl-9"
                           />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="birthDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Birth Date (optional)</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                          <Input {...field} type="date" className="pl-9" />
                         </div>
                       </FormControl>
                       <FormMessage />

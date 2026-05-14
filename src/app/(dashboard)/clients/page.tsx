@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useCRM } from '@/contexts/crm-context';
+import { useAuth } from '@/contexts/auth-context';
 import { ClientList } from '@/components/clients/client-list';
 import { ClientForm } from '@/components/clients/client-form';
 import { Client } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -22,11 +24,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Users, UserCheck, UserPlus } from 'lucide-react';
+import { Users, UserCheck, UserPlus, Link2, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { isThisMonth } from 'date-fns';
 
 export default function ClientsPage() {
   const { clients, addClient, updateClient, deleteClient } = useCRM();
+  const { currentUser } = useAuth();
+  const [orgSlug, setOrgSlug] = useState<string | null>(null);
+  const [orgLoading, setOrgLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [deletingClient, setDeletingClient] = useState<Client | null>(null);
@@ -39,6 +45,33 @@ export default function ClientsPage() {
     ).length;
     return { total, active, newThisMonth };
   }, [clients]);
+
+  useEffect(() => {
+    async function fetchOrg() {
+      if (!currentUser?.organizationId) {
+        setOrgLoading(false);
+        return;
+      }
+      try {
+        const res = await fetch(
+          `/api/v1/auth/orgs/lookup?id=${encodeURIComponent(currentUser.organizationId)}`,
+        );
+        const json = await res.json();
+        if (json.success) setOrgSlug(json.data.slug);
+      } catch {
+        // ignore
+      }
+      setOrgLoading(false);
+    }
+    void fetchOrg();
+  }, [currentUser?.organizationId]);
+
+  function handleCopyInviteLink() {
+    if (!orgSlug) return;
+    const url = `${window.location.origin}/portal/register?org=${orgSlug}`;
+    void navigator.clipboard.writeText(url);
+    toast.success('Invite link copied to clipboard');
+  }
 
   function handleNew() {
     setEditingClient(null);
@@ -69,7 +102,23 @@ export default function ClientsPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Clients</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Clients</h1>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleCopyInviteLink}
+          disabled={orgLoading || !orgSlug}
+          className="gap-1.5"
+        >
+          {orgLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Link2 className="h-4 w-4" />
+          )}
+          Copy Invite Link
+        </Button>
+      </div>
 
       {/* Stats bar */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

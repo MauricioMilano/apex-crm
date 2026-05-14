@@ -13,6 +13,7 @@ const registerClientSchema = z.object({
   lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Valid email is required"),
   password: z.string().min(8, "Password must be at least 8 characters"),
+  birthDate: z.string().optional(),
 })
 
 type RegisterClientInput = z.infer<typeof registerClientSchema>
@@ -24,7 +25,7 @@ export async function registerClient(data: RegisterClientInput) {
       return { success: false as const, error: parsed.error.message }
     }
 
-    const { orgSlug, firstName, lastName, email, password } = parsed.data
+    const { orgSlug, firstName, lastName, email, password, birthDate } = parsed.data
 
     // Lookup organization by slug
     const org = await prisma.organization.findUnique({ where: { slug: orgSlug } })
@@ -41,6 +42,8 @@ export async function registerClient(data: RegisterClientInput) {
     const passwordHash = await bcrypt.hash(password, 12)
 
     // Create User + Client atomically
+    const birthDateValue = birthDate ? new Date(birthDate) : undefined
+
     const [user] = await prisma.$transaction([
       prisma.user.create({
         data: {
@@ -49,6 +52,7 @@ export async function registerClient(data: RegisterClientInput) {
           passwordHash,
           firstName,
           lastName,
+          birthDate: birthDateValue,
           role: "client",
         },
       }),
@@ -58,6 +62,7 @@ export async function registerClient(data: RegisterClientInput) {
           firstName,
           lastName,
           email,
+          birthDate: birthDateValue,
           isActive: true,
         },
       }),
