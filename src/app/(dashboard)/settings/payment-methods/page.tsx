@@ -108,51 +108,51 @@ export default function PaymentMethodsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-white">Payment Methods</h1>
+        <h1 className="text-xl font-bold text-foreground">Payment Methods</h1>
         <Button
           onClick={openAdd}
-          className="bg-blue-600 hover:bg-blue-700 text-white"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground"
         >
           <Plus className="h-4 w-4 mr-2" />
           Add Method
         </Button>
       </div>
 
-      <div className="rounded-lg border border-gray-800 overflow-hidden bg-gray-900">
+      <div className="rounded-lg border border-border overflow-hidden bg-card">
         <Table>
           <TableHeader>
-            <TableRow className="border-gray-800 hover:bg-transparent">
-              <TableHead className="text-gray-500 text-xs">Name</TableHead>
-              <TableHead className="text-gray-500 text-xs">Code</TableHead>
-              <TableHead className="text-gray-500 text-xs">Requires Docs</TableHead>
-              <TableHead className="text-gray-500 text-xs">Status</TableHead>
-              <TableHead className="text-gray-500 text-xs text-right">Actions</TableHead>
+            <TableRow className="border-border hover:bg-transparent">
+              <TableHead className="text-muted-foreground/80 text-xs">Name</TableHead>
+              <TableHead className="text-muted-foreground/80 text-xs">Code</TableHead>
+              <TableHead className="text-muted-foreground/80 text-xs">Requires Docs</TableHead>
+              <TableHead className="text-muted-foreground/80 text-xs">Status</TableHead>
+              <TableHead className="text-muted-foreground/80 text-xs text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-gray-500 py-10">
+                <TableCell colSpan={5} className="text-center text-muted-foreground/80 py-10">
                   Loading...
                 </TableCell>
               </TableRow>
             ) : methods.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-gray-500 py-10">
+                <TableCell colSpan={5} className="text-center text-muted-foreground/80 py-10">
                   No payment methods yet.
                 </TableCell>
               </TableRow>
             ) : (
               methods.map((method) => (
-                <TableRow key={method.id} className="border-gray-800 hover:bg-gray-800/50">
-                  <TableCell className="text-gray-100 font-medium">{method.name}</TableCell>
+                <TableRow key={method.id} className="border-border hover:bg-accent/50">
+                  <TableCell className="text-foreground font-medium">{method.name}</TableCell>
                   <TableCell>
-                    <code className="text-xs bg-gray-800 px-2 py-0.5 rounded text-gray-400">
+                    <code className="text-xs bg-muted px-2 py-0.5 rounded text-muted-foreground">
                       {method.code}
                     </code>
                   </TableCell>
                   <TableCell>
-                    <span className={method.requiresDocs ? 'text-blue-400' : 'text-gray-500'}>
+                    <span className={method.requiresDocs ? 'text-primary' : 'text-muted-foreground/80'}>
                       {method.requiresDocs ? 'Yes' : 'No'}
                     </span>
                   </TableCell>
@@ -162,7 +162,7 @@ export default function PaymentMethodsPage() {
                       className={
                         method.isActive
                           ? 'bg-green-500/20 text-green-400 border-green-500/30'
-                          : 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+                          : 'bg-gray-500/20 text-muted-foreground border-gray-500/30'
                       }
                     >
                       {method.isActive ? 'Active' : 'Inactive'}
@@ -173,7 +173,7 @@ export default function PaymentMethodsPage() {
                       <Button
                         size="icon"
                         variant="ghost"
-                        className="h-8 w-8 text-gray-400 hover:text-gray-100"
+                        className="h-8 w-8 text-muted-foreground hover:text-foreground"
                         onClick={() => openEdit(method)}
                       >
                         <Pencil className="h-3.5 w-3.5" />
@@ -181,7 +181,7 @@ export default function PaymentMethodsPage() {
                       <Button
                         size="icon"
                         variant="ghost"
-                        className="h-8 w-8 text-gray-400 hover:text-red-400"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive/80"
                         onClick={() => setDeleteId(method.id)}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -205,21 +205,21 @@ export default function PaymentMethodsPage() {
 
       {/* Delete confirmation */}
       <AlertDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
-        <AlertDialogContent className="bg-gray-900 border-gray-800 text-gray-100">
+        <AlertDialogContent className="bg-card border-border text-foreground">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Payment Method</AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-400">
+            <AlertDialogDescription className="text-muted-foreground">
               This will permanently delete this payment method. Existing payments using
               this method will not be affected.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700">
+            <AlertDialogCancel className="bg-muted border-border text-muted-foreground hover:bg-accent">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
             >
               Delete
             </AlertDialogAction>

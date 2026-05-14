@@ -29,16 +29,16 @@ export default function FormBuilderPage({ params }: PageProps) {
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] -m-6">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-1.5 px-6 py-3 border-b border-gray-800 text-sm text-gray-500 shrink-0">
+      <div className="flex items-center gap-1.5 px-6 py-3 border-b border-border text-sm text-muted-foreground shrink-0">
         <FileText className="h-4 w-4" />
         <Link
           href="/forms"
-          className="hover:text-gray-300 transition-colors"
+          className="hover:text-foreground/90 transition-colors"
         >
           Forms
         </Link>
         <ChevronRight className="h-3.5 w-3.5" />
-        <span className="text-gray-300 truncate max-w-xs">{formName}</span>
+        <span className="text-foreground/90 truncate max-w-xs">{formName}</span>
       </div>
 
       {/* Builder (takes remaining height) */}

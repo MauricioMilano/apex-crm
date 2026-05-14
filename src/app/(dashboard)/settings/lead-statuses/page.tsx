@@ -149,39 +149,39 @@ export default function LeadStatusesPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-100">Lead Statuses</h1>
-            <p className="text-gray-400 text-sm mt-1">
+            <h1 className="text-2xl font-bold text-foreground">Lead Statuses</h1>
+            <p className="text-muted-foreground text-sm mt-1">
               Manage the stages of your sales pipeline.
             </p>
           </div>
           <Button
             onClick={openAdd}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-primary hover:bg-primary/90"
           >
             <Plus className="h-4 w-4 mr-2" />
             Add Status
           </Button>
         </div>
 
-        <div className="rounded-lg border border-gray-800 overflow-hidden">
+        <div className="rounded-lg border border-border overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow className="border-gray-800 hover:bg-transparent">
-                <TableHead className="text-gray-400">Name</TableHead>
-                <TableHead className="text-gray-400">Color</TableHead>
-                <TableHead className="text-gray-400">Default</TableHead>
-                <TableHead className="text-gray-400">Lead Count</TableHead>
-                <TableHead className="text-gray-400">Order</TableHead>
-                <TableHead className="text-gray-400 w-16">Reorder</TableHead>
-                <TableHead className="text-gray-400 w-20">Actions</TableHead>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground">Name</TableHead>
+                <TableHead className="text-muted-foreground">Color</TableHead>
+                <TableHead className="text-muted-foreground">Default</TableHead>
+                <TableHead className="text-muted-foreground">Lead Count</TableHead>
+                <TableHead className="text-muted-foreground">Order</TableHead>
+                <TableHead className="text-muted-foreground w-16">Reorder</TableHead>
+                <TableHead className="text-muted-foreground w-20">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {sortedStatuses.length === 0 && (
-                <TableRow className="border-gray-800">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={7}
-                    className="text-center text-gray-500 py-10"
+                    className="text-center text-muted-foreground/80 py-10"
                   >
                     No lead statuses yet. Add one to get started.
                   </TableCell>
@@ -201,10 +201,10 @@ export default function LeadStatusesPage() {
                 return (
                   <TableRow
                     key={status.id}
-                    className="border-gray-800 hover:bg-gray-800/50"
+                    className="border-border hover:bg-accent/50"
                   >
                     <TableCell>
-                      <p className="text-gray-100 font-medium">{status.name}</p>
+                      <p className="text-foreground font-medium">{status.name}</p>
                     </TableCell>
                     <TableCell>
                       <span
@@ -217,14 +217,14 @@ export default function LeadStatusesPage() {
                         <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
                       )}
                     </TableCell>
-                    <TableCell className="text-gray-300">{leadCount}</TableCell>
-                    <TableCell className="text-gray-300">{status.order}</TableCell>
-                    <TableCell className="text-gray-300">
+                    <TableCell className="text-muted-foreground">{leadCount}</TableCell>
+                    <TableCell className="text-muted-foreground">{status.order}</TableCell>
+                    <TableCell className="text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Button
                           size="icon"
                           variant="ghost"
-                          className="h-7 w-7 text-gray-400 hover:text-gray-100"
+                          className="h-7 w-7 text-muted-foreground hover:text-foreground"
                           disabled={index === 0}
                           onClick={async () => {
                             const result = await reorderLeadStatus({ statusId: status.id, direction: 'up' });
@@ -238,7 +238,7 @@ export default function LeadStatusesPage() {
                         <Button
                           size="icon"
                           variant="ghost"
-                          className="h-7 w-7 text-gray-400 hover:text-gray-100"
+                          className="h-7 w-7 text-muted-foreground hover:text-foreground"
                           disabled={index === sortedStatuses.length - 1}
                           onClick={async () => {
                             const result = await reorderLeadStatus({ statusId: status.id, direction: 'down' });
@@ -256,7 +256,7 @@ export default function LeadStatusesPage() {
                         <Button
                           size="icon"
                           variant="ghost"
-                          className="h-8 w-8 text-gray-400 hover:text-gray-100"
+                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
                           onClick={() => openEdit(status)}
                         >
                           <Pencil className="h-3.5 w-3.5" />
@@ -266,7 +266,7 @@ export default function LeadStatusesPage() {
                             <Button
                               size="icon"
                               variant="ghost"
-                              className="h-8 w-8 text-gray-400 hover:text-red-400"
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive/80"
                               disabled={isDisabled}
                               onClick={() => setDeleteId(status.id)}
                             >
@@ -288,7 +288,7 @@ export default function LeadStatusesPage() {
 
         {/* Add/Edit Dialog */}
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="bg-gray-900 border-gray-800 text-gray-100 max-w-md">
+          <DialogContent className="bg-card border-border text-foreground max-w-md">
             <DialogHeader>
               <DialogTitle>
                 {editing ? 'Edit Status' : 'Add Status'}
@@ -296,18 +296,18 @@ export default function LeadStatusesPage() {
             </DialogHeader>
             <div className="space-y-4 py-2">
               <div className="space-y-2">
-                <Label className="text-gray-300">Name *</Label>
+                <Label className="text-muted-foreground">Name *</Label>
                 <Input
                   value={form.name}
                   onChange={(e) =>
                     setForm((f) => ({ ...f, name: e.target.value }))
                   }
-                  className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500"
+                  className="bg-muted border-border text-foreground focus:border-primary"
                   placeholder="e.g. New Lead"
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-gray-300">Color</Label>
+                <Label className="text-muted-foreground">Color</Label>
                 <div className="flex flex-wrap gap-2">
                   {COLORS.map((color) => (
                     <button
@@ -330,9 +330,9 @@ export default function LeadStatusesPage() {
                   id="isDefault"
                   checked={form.isDefault}
                   onCheckedChange={(v) => setForm((f) => ({ ...f, isDefault: v }))}
-                  className="data-[state=checked]:bg-blue-600"
+                  className="data-[state=checked]:bg-primary"
                 />
-                <Label htmlFor="isDefault" className="text-gray-300 cursor-pointer">
+                <Label htmlFor="isDefault" className="text-muted-foreground cursor-pointer">
                   Set as default
                 </Label>
               </div>
@@ -341,13 +341,13 @@ export default function LeadStatusesPage() {
               <Button
                 variant="ghost"
                 onClick={() => setDialogOpen(false)}
-                className="text-gray-400"
+                className="text-muted-foreground"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleSave}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-primary hover:bg-primary/90"
               >
                 {editing ? 'Save Changes' : 'Create Status'}
               </Button>
@@ -357,20 +357,20 @@ export default function LeadStatusesPage() {
 
         {/* Delete confirmation */}
         <AlertDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
-          <AlertDialogContent className="bg-gray-900 border-gray-800 text-gray-100">
+          <AlertDialogContent className="bg-card border-border text-foreground">
             <AlertDialogHeader>
               <AlertDialogTitle>Delete Status</AlertDialogTitle>
-              <AlertDialogDescription className="text-gray-400">
+              <AlertDialogDescription className="text-muted-foreground">
                 This will permanently delete the lead status. This action cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel className="bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700">
+              <AlertDialogCancel className="bg-muted border-border text-muted-foreground hover:bg-accent">
                 Cancel
               </AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleDelete}
-                className="bg-red-600 hover:bg-red-700 text-white"
+                className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
               >
                 Delete
               </AlertDialogAction>

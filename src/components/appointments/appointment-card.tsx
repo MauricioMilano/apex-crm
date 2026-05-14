@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 
 const statusConfig: Record<AppointmentStatus, { label: string; className: string }> = {
   pending: { label: 'Pending', className: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
-  confirmed: { label: 'Confirmed', className: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
+  confirmed: { label: 'Confirmed', className: 'bg-primary/20 text-primary border-primary/30' },
   completed: { label: 'Completed', className: 'bg-green-500/20 text-green-400 border-green-500/30' },
   cancelled: { label: 'Cancelled', className: 'bg-red-500/20 text-red-400 border-red-500/30' },
   no_show: { label: 'No Show', className: 'bg-gray-500/20 text-gray-400 border-gray-500/30' },
@@ -52,12 +52,12 @@ export function AppointmentCard({
   const canCancel = appointment.status === 'pending' || appointment.status === 'confirmed';
 
   return (
-    <Card className="bg-gray-900 border-gray-700 hover:border-gray-600 transition-colors">
+    <Card className="bg-card border-border hover:border-border transition-colors">
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <span className="font-medium text-white truncate">
+              <span className="font-medium text-foreground truncate">
                 {client ? `${client.firstName} ${client.lastName}` : lead ? `${lead.firstName} ${lead.lastName}` : 'Unknown Entity'}
               </span>
               {lead && !client && (
@@ -70,11 +70,11 @@ export function AppointmentCard({
               </Badge>
             </div>
 
-            <p className="text-sm text-gray-400 mb-2">
+            <p className="text-sm text-muted-foreground mb-2">
               {service?.name ?? 'Unknown Service'}
             </p>
 
-            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground/80">
               <span className="flex items-center gap-1">
                 <Calendar className="h-3 w-3" />
                 {formatDate(startDate)}
@@ -95,7 +95,7 @@ export function AppointmentCard({
               <Button
                 size="sm"
                 variant="outline"
-                className="h-7 text-xs border-blue-500/50 text-blue-400 hover:bg-blue-500/20"
+                className="h-7 text-xs border-primary/50 text-primary hover:bg-primary/20"
                 onClick={() => onConfirm(appointment.id)}
               >
                 <CheckCircle className="h-3 w-3 mr-1" /> Confirm
@@ -125,7 +125,7 @@ export function AppointmentCard({
               <Button
                 size="sm"
                 variant="ghost"
-                className="h-7 text-xs text-gray-400 hover:text-gray-300"
+                className="h-7 text-xs text-muted-foreground hover:text-muted-foreground"
                 onClick={() => onReschedule(appointment.id)}
               >
                 <AlertCircle className="h-3 w-3 mr-1" /> Reschedule

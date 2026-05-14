@@ -84,7 +84,7 @@ export default function ClientPortalPlansPage() {
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-        <p className="text-gray-400 text-center py-12">Loading plans...</p>
+        <p className="text-muted-foreground text-center py-12">Loading plans...</p>
       </div>
     );
   }
@@ -92,8 +92,8 @@ export default function ClientPortalPlansPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Available Plans</h1>
-        <p className="text-gray-500 mt-1">
+        <h1 className="text-2xl font-bold text-foreground">Available Plans</h1>
+        <p className="text-muted-foreground mt-1">
           Choose a subscription plan that works for you.
         </p>
       </div>
@@ -101,9 +101,9 @@ export default function ClientPortalPlansPage() {
       {plans.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <CreditCard className="h-10 w-10 mx-auto mb-3 text-gray-300" />
-            <p className="font-medium text-gray-500">No plans available yet</p>
-            <p className="text-sm text-gray-400 mt-1">
+            <CreditCard className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+            <p className="font-medium text-muted-foreground">No plans available yet</p>
+            <p className="text-sm text-muted-foreground mt-1">
               Check back later for available subscription plans.
             </p>
           </CardContent>
@@ -117,7 +117,7 @@ export default function ClientPortalPlansPage() {
                 key={plan.id}
                 className={cn(
                   'flex flex-col transition-shadow hover:shadow-md',
-                  isSubscribed && 'border-blue-200 bg-blue-50/30',
+                  isSubscribed && 'border-primary/30 bg-primary/5',
                 )}
               >
                 <CardHeader>
@@ -128,17 +128,17 @@ export default function ClientPortalPlansPage() {
                 </CardHeader>
                 <CardContent className="flex-1 flex flex-col">
                   <div className="mb-4">
-                    <span className="text-3xl font-bold text-gray-900">
+                    <span className="text-3xl font-bold text-foreground">
                       ${Number(plan.price).toFixed(2)}
                     </span>
-                    <span className="text-gray-500 text-sm ml-1 capitalize">
+                    <span className="text-muted-foreground text-sm ml-1 capitalize">
                       /{plan.billingPeriod}
                     </span>
                   </div>
 
-                  <div className="space-y-2 text-sm text-gray-600 mb-6 flex-1">
+                  <div className="space-y-2 text-sm text-muted-foreground mb-6 flex-1">
                     <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-gray-400" />
+                      <Clock className="h-4 w-4 text-muted-foreground" />
                       {plan.maxApptsPerPeriod
                         ? `${plan.maxApptsPerPeriod} appointments per period`
                         : 'Unlimited appointments'}
@@ -147,10 +147,10 @@ export default function ClientPortalPlansPage() {
                       <div className="flex items-start gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
                         <div>
-                          <span className="font-medium text-gray-700">Included services:</span>
+                          <span className="font-medium text-foreground/80">Included services:</span>
                           <ul className="mt-1 space-y-0.5">
                             {plan.services.map((s) => (
-                              <li key={s.serviceId} className="text-gray-500">
+                              <li key={s.serviceId} className="text-muted-foreground">
                                 {s.serviceName}
                                 {s.maxPerPeriod && ` (max ${s.maxPerPeriod}/period)`}
                               </li>

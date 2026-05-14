@@ -20,14 +20,14 @@ export function StatsCard({
   icon: Icon,
   trend,
   description,
-  iconColor = 'bg-blue-500/20 text-blue-400',
+  iconColor = 'bg-primary/20 text-primary',
 }: StatsCardProps) {
   const trendPositive = trend !== undefined && trend >= 0;
 
   return (
-    <Card className="bg-gray-900 border-gray-800">
+    <Card className="bg-card border-border">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium text-gray-400">
+        <CardTitle className="text-sm font-medium text-muted-foreground">
           {title}
         </CardTitle>
         <div className={cn('p-2 rounded-lg', iconColor)}>
@@ -35,7 +35,7 @@ export function StatsCard({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold text-white">{value}</div>
+        <div className="text-2xl font-bold text-foreground">{value}</div>
         <div className="flex items-center gap-1 mt-1">
           {trend !== undefined && (
             <span
@@ -54,7 +54,7 @@ export function StatsCard({
             </span>
           )}
           {description && (
-            <p className="text-xs text-gray-500">{description}</p>
+            <p className="text-xs text-muted-foreground/80">{description}</p>
           )}
         </div>
       </CardContent>

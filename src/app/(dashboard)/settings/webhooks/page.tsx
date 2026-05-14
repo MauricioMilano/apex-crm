@@ -171,53 +171,53 @@ export default function WebhooksPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-100">Webhooks</h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-foreground">Webhooks</h1>
+          <p className="text-muted-foreground text-sm mt-1">
             Send real-time event notifications to external endpoints.
           </p>
         </div>
-        <Button onClick={openAdd} className="bg-blue-600 hover:bg-blue-700">
+        <Button onClick={openAdd} className="bg-primary hover:bg-primary/90">
           <Plus className="h-4 w-4 mr-2" />
           Add Webhook
         </Button>
       </div>
 
-      <div className="rounded-lg border border-gray-800 overflow-hidden">
+      <div className="rounded-lg border border-border overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="border-gray-800 hover:bg-transparent">
-              <TableHead className="text-gray-400">Endpoint</TableHead>
-              <TableHead className="text-gray-400">Events</TableHead>
-              <TableHead className="text-gray-400">Status</TableHead>
-              <TableHead className="text-gray-400">Last Triggered</TableHead>
-              <TableHead className="text-gray-400 w-28">Actions</TableHead>
+            <TableRow className="border-border hover:bg-transparent">
+              <TableHead className="text-muted-foreground">Endpoint</TableHead>
+              <TableHead className="text-muted-foreground">Events</TableHead>
+              <TableHead className="text-muted-foreground">Status</TableHead>
+              <TableHead className="text-muted-foreground">Last Triggered</TableHead>
+              <TableHead className="text-muted-foreground w-28">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {webhooks.length === 0 && (
-              <TableRow className="border-gray-800">
-                <TableCell colSpan={5} className="text-center text-gray-500 py-10">
+              <TableRow className="border-border">
+                <TableCell colSpan={5} className="text-center text-muted-foreground/80 py-10">
                   No webhooks configured yet.
                 </TableCell>
               </TableRow>
             )}
             {webhooks.map((wh) => (
-              <TableRow key={wh.id} className="border-gray-800 hover:bg-gray-800/50">
+              <TableRow key={wh.id} className="border-border hover:bg-accent/50">
                 <TableCell>
                   <div>
-                    {wh.name && <p className="text-gray-100 font-medium text-sm">{wh.name}</p>}
-                    <p className="text-gray-400 text-xs truncate max-w-xs font-mono">{wh.url}</p>
+                    {wh.name && <p className="text-foreground font-medium text-sm">{wh.name}</p>}
+                    <p className="text-muted-foreground text-xs truncate max-w-xs font-mono">{wh.url}</p>
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-1 max-w-xs">
                     {wh.events.slice(0, 3).map((ev) => (
-                      <Badge key={ev} variant="outline" className="text-xs border-gray-700 text-gray-400">
+                      <Badge key={ev} variant="outline" className="text-xs border-border text-muted-foreground">
                         {ev}
                       </Badge>
                     ))}
                     {wh.events.length > 3 && (
-                      <Badge variant="outline" className="text-xs border-gray-700 text-gray-400">
+                      <Badge variant="outline" className="text-xs border-border text-muted-foreground">
                         +{wh.events.length - 3}
                       </Badge>
                     )}
@@ -227,20 +227,20 @@ export default function WebhooksPage() {
                   <Switch
                     checked={wh.isActive}
                     onCheckedChange={(v) => updateWebhook(wh.id, { isActive: v })}
-                    className="data-[state=checked]:bg-blue-600"
+                    className="data-[state=checked]:bg-primary"
                   />
                 </TableCell>
-                <TableCell className="text-gray-400 text-sm">
+                <TableCell className="text-muted-foreground text-sm">
                   {wh.lastTriggered
                     ? formatDate(wh.lastTriggered)
-                    : <span className="text-gray-600">Never</span>}
+                    : <span className="text-muted-foreground">Never</span>}
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1">
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-8 w-8 text-gray-400 hover:text-green-400"
+                      className="h-8 w-8 text-muted-foreground hover:text-green-400"
                       title="Test webhook"
                       onClick={() => handleTest(wh)}
                     >
@@ -249,7 +249,7 @@ export default function WebhooksPage() {
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-8 w-8 text-gray-400 hover:text-gray-100"
+                      className="h-8 w-8 text-muted-foreground hover:text-foreground"
                       onClick={() => openEdit(wh)}
                     >
                       <Pencil className="h-3.5 w-3.5" />
@@ -257,7 +257,7 @@ export default function WebhooksPage() {
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-8 w-8 text-gray-400 hover:text-red-400"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive/80"
                       onClick={() => setDeleteId(wh.id)}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -272,35 +272,35 @@ export default function WebhooksPage() {
 
       {/* Add/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="bg-gray-900 border-gray-800 text-gray-100 max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-card border-border text-foreground max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editing ? 'Edit Webhook' : 'Add Webhook'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label className="text-gray-300">Name (optional)</Label>
+              <Label className="text-muted-foreground">Name (optional)</Label>
               <Input
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500"
+                className="bg-muted border-border text-foreground focus:border-primary"
                 placeholder="My Webhook"
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-gray-300">Endpoint URL *</Label>
+              <Label className="text-muted-foreground">Endpoint URL *</Label>
               <Input
                 value={form.url}
                 onChange={(e) => setForm((f) => ({ ...f, url: e.target.value }))}
-                className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500 font-mono text-sm"
+                className="bg-muted border-border text-foreground focus:border-primary font-mono text-sm"
                 placeholder="https://example.com/webhook"
               />
             </div>
 
             <div className="space-y-3">
-              <Label className="text-gray-300">Events *</Label>
+              <Label className="text-muted-foreground">Events *</Label>
               {GROUPS.map((group) => (
                 <div key={group}>
-                  <p className="text-xs text-gray-500 uppercase tracking-wider mb-1.5">{group}</p>
+                  <p className="text-xs text-muted-foreground/80 uppercase tracking-wider mb-1.5">{group}</p>
                   <div className="grid grid-cols-2 gap-1.5">
                     {ALL_EVENTS.filter((e) => e.group === group).map((ev) => (
                       <label
@@ -310,9 +310,9 @@ export default function WebhooksPage() {
                         <Checkbox
                           checked={form.events.includes(ev.value)}
                           onCheckedChange={() => toggleEvent(ev.value)}
-                          className="border-gray-600 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                          className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                         />
-                        <span className="text-gray-300 text-sm group-hover:text-gray-100">
+                        <span className="text-muted-foreground text-sm group-hover:text-foreground">
                           {ev.value}
                         </span>
                       </label>
@@ -323,17 +323,17 @@ export default function WebhooksPage() {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-gray-300">Secret Key</Label>
+              <Label className="text-muted-foreground">Secret Key</Label>
               <div className="flex gap-2">
                 <Input
                   value={form.secret}
                   readOnly
-                  className="bg-gray-800 border-gray-700 text-gray-400 font-mono text-xs"
+                  className="bg-muted border-border text-muted-foreground font-mono text-xs"
                 />
                 <Button
                   size="icon"
                   variant="ghost"
-                  className="shrink-0 text-gray-400 hover:text-gray-100 border border-gray-700"
+                  className="shrink-0 text-muted-foreground hover:text-foreground border border-border"
                   onClick={copySecret}
                 >
                   {copied ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4" />}
@@ -346,18 +346,18 @@ export default function WebhooksPage() {
                 id="wh-active"
                 checked={form.isActive}
                 onCheckedChange={(v) => setForm((f) => ({ ...f, isActive: v }))}
-                className="data-[state=checked]:bg-blue-600"
+                className="data-[state=checked]:bg-primary"
               />
-              <Label htmlFor="wh-active" className="text-gray-300 cursor-pointer">
+              <Label htmlFor="wh-active" className="text-muted-foreground cursor-pointer">
                 Active
               </Label>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setDialogOpen(false)} className="text-gray-400">
+            <Button variant="ghost" onClick={() => setDialogOpen(false)} className="text-muted-foreground">
               Cancel
             </Button>
-            <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={handleSave} className="bg-primary hover:bg-primary/90">
               {editing ? 'Save Changes' : 'Create Webhook'}
             </Button>
           </DialogFooter>
@@ -366,20 +366,20 @@ export default function WebhooksPage() {
 
       {/* Delete confirmation */}
       <AlertDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
-        <AlertDialogContent className="bg-gray-900 border-gray-800 text-gray-100">
+        <AlertDialogContent className="bg-card border-border text-foreground">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Webhook</AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-400">
+            <AlertDialogDescription className="text-muted-foreground">
               This will permanently delete this webhook. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700">
+            <AlertDialogCancel className="bg-muted border-border text-muted-foreground hover:bg-accent">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
             >
               Delete
             </AlertDialogAction>

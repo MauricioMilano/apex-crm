@@ -50,7 +50,7 @@ import {
 import { cn } from '@/lib/utils';
 
 const STATUS_COLOR_MAP: Record<string, string> = {
-  blue: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+  blue: 'bg-primary/20 text-primary border-primary/30',
   yellow: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
   green: 'bg-green-500/20 text-green-400 border-green-500/30',
   purple: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
@@ -63,7 +63,7 @@ const STATUS_COLOR_MAP: Record<string, string> = {
 };
 
 const SOURCE_COLORS: Record<string, string> = {
-  form: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+  form: 'bg-primary/20 text-primary border-primary/30',
   manual: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
   import: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
   referral: 'bg-green-500/20 text-green-400 border-green-500/30',
@@ -80,10 +80,10 @@ function DetailRow({
 }) {
   return (
     <div className="flex items-start gap-3">
-      <Icon className="h-4 w-4 text-gray-500 mt-0.5 shrink-0" />
+      <Icon className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
       <div className="min-w-0">
-        <p className="text-xs text-gray-500">{label}</p>
-        <div className="text-sm text-gray-200 mt-0.5">{value}</div>
+        <p className="text-xs text-muted-foreground">{label}</p>
+        <div className="text-sm text-foreground/90 mt-0.5">{value}</div>
       </div>
     </div>
   );
@@ -117,11 +117,11 @@ export default function LeadDetailPage() {
   if (!lead) {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-4">
-        <p className="text-gray-400 text-lg">Lead not found</p>
+        <p className="text-muted-foreground text-lg">Lead not found</p>
         <Button
           variant="outline"
           onClick={() => router.push('/leads')}
-          className="border-gray-700 text-gray-300 hover:bg-gray-800"
+          className="border-border text-foreground/90 hover:bg-accent"
         >
           Back to Leads
         </Button>
@@ -179,7 +179,7 @@ export default function LeadDetailPage() {
           variant="ghost"
           size="sm"
           onClick={() => router.push('/leads')}
-          className="text-gray-400 hover:text-gray-100 hover:bg-gray-800 -ml-2"
+          className="text-muted-foreground hover:text-foreground hover:bg-accent -ml-2"
         >
           <ArrowLeft className="h-4 w-4 mr-1.5" />
           Back to Leads
@@ -200,7 +200,7 @@ export default function LeadDetailPage() {
             variant="outline"
             size="sm"
             onClick={() => setEditOpen(true)}
-            className="border-gray-700 text-gray-300 hover:bg-gray-800"
+            className="border-border text-foreground/90 hover:bg-accent"
           >
             <Edit className="h-4 w-4 mr-1.5" />
             Edit
@@ -209,7 +209,7 @@ export default function LeadDetailPage() {
             variant="outline"
             size="sm"
             onClick={() => setDeleteOpen(true)}
-            className="border-red-900 text-red-400 hover:bg-red-900/20"
+            className="border-red-900 text-destructive/80 hover:bg-red-900/20"
           >
             <Trash2 className="h-4 w-4 mr-1.5" />
             Delete
@@ -218,14 +218,14 @@ export default function LeadDetailPage() {
       </div>
 
       {/* Lead header card */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+      <div className="bg-card border border-border rounded-xl p-6">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-2xl font-bold text-gray-100">
+            <h1 className="text-2xl font-bold text-foreground">
               {lead.firstName} {lead.lastName}
             </h1>
             {lead.company && (
-              <p className="text-gray-400 mt-1">{lead.company}</p>
+              <p className="text-muted-foreground mt-1">{lead.company}</p>
             )}
             <div className="flex items-center gap-2 mt-3 flex-wrap">
               {status && (
@@ -264,12 +264,12 @@ export default function LeadDetailPage() {
 
           {/* Quick status change */}
           <div className="flex flex-col gap-1.5">
-            <p className="text-xs text-gray-500">Change Status</p>
+            <p className="text-xs text-muted-foreground">Change Status</p>
             <Select value={lead.statusId} onValueChange={handleStatusChange}>
-              <SelectTrigger className="w-44 bg-gray-800 border-gray-700 text-gray-200 h-9">
+              <SelectTrigger className="w-44 bg-muted border-border text-foreground/90 h-9">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700">
+              <SelectContent className="bg-muted border-border">
                 {sortedStatuses.map((s) => (
                   <SelectItem key={s.id} value={s.id}>
                     {s.name}
@@ -284,11 +284,11 @@ export default function LeadDetailPage() {
       {/* Details grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Contact info */}
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+        <div className="bg-card border border-border rounded-xl p-5 space-y-4">
+          <h2 className="text-sm font-semibold text-foreground/90 uppercase tracking-wider">
             Contact Information
           </h2>
-          <Separator className="bg-gray-800" />
+          <Separator className="bg-muted" />
           <div className="space-y-3.5">
             {lead.email && (
               <DetailRow icon={Mail} label="Email" value={lead.email} />
@@ -318,11 +318,11 @@ export default function LeadDetailPage() {
         </div>
 
         {/* Lead details */}
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+        <div className="bg-card border border-border rounded-xl p-5 space-y-4">
+          <h2 className="text-sm font-semibold text-foreground/90 uppercase tracking-wider">
             Lead Details
           </h2>
-          <Separator className="bg-gray-800" />
+          <Separator className="bg-muted" />
           <div className="space-y-3.5">
             <DetailRow
               icon={User}
@@ -331,7 +331,7 @@ export default function LeadDetailPage() {
                 assignedUser ? (
                   <div className="flex items-center gap-2">
                     <Avatar className="h-5 w-5">
-                      <AvatarFallback className="text-[9px] bg-blue-600 text-white">
+                      <AvatarFallback className="text-[9px] bg-primary text-foreground">
                         {assignedInitials}
                       </AvatarFallback>
                     </Avatar>
@@ -340,7 +340,7 @@ export default function LeadDetailPage() {
                     </span>
                   </div>
                 ) : (
-                  <span className="text-gray-500">Unassigned</span>
+                  <span className="text-muted-foreground">Unassigned</span>
                 )
               }
             />
@@ -364,7 +364,7 @@ export default function LeadDetailPage() {
                       <Badge
                         key={tag}
                         variant="outline"
-                        className="text-xs px-1.5 py-0 h-5 bg-gray-700/50 text-gray-400 border-gray-600"
+                        className="text-xs px-1.5 py-0 h-5 bg-muted/50 text-muted-foreground border-border"
                       >
                         {tag}
                       </Badge>
@@ -378,26 +378,26 @@ export default function LeadDetailPage() {
       </div>
 
       {/* Notes */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 space-y-4">
-        <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wider flex items-center gap-2">
+      <div className="bg-card border border-border rounded-xl p-5 space-y-4">
+        <h2 className="text-sm font-semibold text-foreground/90 uppercase tracking-wider flex items-center gap-2">
           <StickyNote className="h-4 w-4" />
           Notes
         </h2>
-        <Separator className="bg-gray-800" />
+        <Separator className="bg-muted" />
         {lead.notes ? (
-          <p className="text-gray-300 text-sm whitespace-pre-wrap leading-relaxed">
+          <p className="text-foreground/90 text-sm whitespace-pre-wrap leading-relaxed">
             {lead.notes}
           </p>
         ) : (
-          <p className="text-gray-600 text-sm italic">No notes added yet.</p>
+          <p className="text-muted-foreground text-sm italic">No notes added yet.</p>
         )}
       </div>
 
       {/* Edit dialog */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent className="bg-gray-900 border-gray-700 max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-card border-border max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-gray-100">Edit Lead</DialogTitle>
+            <DialogTitle className="text-foreground">Edit Lead</DialogTitle>
           </DialogHeader>
           <LeadForm
             lead={lead}
@@ -411,26 +411,26 @@ export default function LeadDetailPage() {
 
       {/* Delete confirmation */}
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent className="bg-gray-900 border-gray-700">
+        <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-gray-100">
+            <AlertDialogTitle className="text-foreground">
               Delete Lead
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-400">
+            <AlertDialogDescription className="text-muted-foreground">
               Are you sure you want to delete{' '}
-              <span className="text-gray-200 font-medium">
+              <span className="text-foreground/90 font-medium">
                 {lead.firstName} {lead.lastName}
               </span>
               ? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-gray-700 text-gray-300 hover:bg-gray-800">
+            <AlertDialogCancel className="border-border text-foreground/90 hover:bg-accent">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              className="bg-red-600 hover:bg-red-500 text-white"
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
             >
               Delete
             </AlertDialogAction>
@@ -440,26 +440,26 @@ export default function LeadDetailPage() {
 
       {/* Convert to client confirmation */}
       <AlertDialog open={convertOpen} onOpenChange={setConvertOpen}>
-        <AlertDialogContent className="bg-gray-900 border-gray-700">
+        <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-gray-100">
+            <AlertDialogTitle className="text-foreground">
               Convert to Client
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-400">
+            <AlertDialogDescription className="text-muted-foreground">
               This will create a new client record for{' '}
-              <span className="text-gray-200 font-medium">
+              <span className="text-foreground/90 font-medium">
                 {lead.firstName} {lead.lastName}
               </span>{' '}
               using their current contact information.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-gray-700 text-gray-300 hover:bg-gray-800">
+            <AlertDialogCancel className="border-border text-foreground/90 hover:bg-accent">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConvertToClient}
-              className="bg-emerald-600 hover:bg-emerald-500 text-white"
+              className="bg-emerald-600 hover:bg-emerald-500 text-foreground"
             >
               Convert
             </AlertDialogAction>

@@ -120,12 +120,12 @@ export function SmtpConfigForm({ onSettingsChange }: SmtpConfigFormProps) {
 
   if (loading) {
     return (
-      <Card className="bg-gray-900 border-gray-800">
+      <Card className="bg-card border-border">
         <CardContent className="p-6">
           <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-gray-700 rounded w-1/3" />
-            <div className="h-10 bg-gray-700 rounded" />
-            <div className="h-10 bg-gray-700 rounded" />
+            <div className="h-4 bg-muted rounded w-1/3" />
+            <div className="h-10 bg-muted rounded" />
+            <div className="h-10 bg-muted rounded" />
           </div>
         </CardContent>
       </Card>
@@ -133,10 +133,10 @@ export function SmtpConfigForm({ onSettingsChange }: SmtpConfigFormProps) {
   }
 
   return (
-    <Card className="bg-gray-900 border-gray-800">
+    <Card className="bg-card border-border">
       <CardHeader>
-        <CardTitle className="text-gray-100">SMTP Configuration</CardTitle>
-        <CardDescription className="text-gray-400">
+        <CardTitle className="text-foreground">SMTP Configuration</CardTitle>
+        <CardDescription className="text-muted-foreground">
           Configure your SMTP server to enable email sending from the CRM.
         </CardDescription>
       </CardHeader>
@@ -144,37 +144,37 @@ export function SmtpConfigForm({ onSettingsChange }: SmtpConfigFormProps) {
         {/* Enable/Disable Toggle */}
         <div className="flex items-center justify-between">
           <div>
-            <Label className="text-gray-300 font-medium">Enable Email Sending</Label>
-            <p className="text-sm text-gray-500 mt-0.5">
+            <Label className="text-muted-foreground font-medium">Enable Email Sending</Label>
+            <p className="text-sm text-muted-foreground/80 mt-0.5">
               When disabled, no emails will be sent from the system
             </p>
           </div>
           <Switch
             checked={enabled}
             onCheckedChange={setEnabled}
-            className={enabled ? "bg-blue-600" : ""}
+            className={enabled ? "bg-primary" : ""}
           />
         </div>
 
-        <div className="border-t border-gray-800 pt-6" />
+        <div className="border-t border-border pt-6" />
 
         {/* Server Settings */}
         <div className="grid grid-cols-3 gap-4">
           <div className="col-span-2 space-y-2">
-            <Label className="text-gray-300">SMTP Host</Label>
+            <Label className="text-muted-foreground">SMTP Host</Label>
             <Input
               value={host}
               onChange={(e) => setHost(e.target.value)}
-              className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500"
+              className="bg-muted border-border text-foreground focus:border-primary"
               placeholder="smtp.sendgrid.net"
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-gray-300">Port</Label>
+            <Label className="text-muted-foreground">Port</Label>
             <Input
               value={port}
               onChange={(e) => setPort(e.target.value)}
-              className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500"
+              className="bg-muted border-border text-foreground focus:border-primary"
               placeholder="587"
             />
           </div>
@@ -183,16 +183,16 @@ export function SmtpConfigForm({ onSettingsChange }: SmtpConfigFormProps) {
         {/* Authentication */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label className="text-gray-300">Username</Label>
+            <Label className="text-muted-foreground">Username</Label>
             <Input
               value={user}
               onChange={(e) => setUser(e.target.value)}
-              className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500"
+              className="bg-muted border-border text-foreground focus:border-primary"
               placeholder="apikey"
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-gray-300">Password</Label>
+            <Label className="text-muted-foreground">Password</Label>
             <Input
               type="password"
               value={password}
@@ -202,7 +202,7 @@ export function SmtpConfigForm({ onSettingsChange }: SmtpConfigFormProps) {
                   setHasExistingPassword(false)
                 }
               }}
-              className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500"
+              className="bg-muted border-border text-foreground focus:border-primary"
               placeholder={hasExistingPassword ? "••••••" : "Enter password"}
             />
           </div>
@@ -211,12 +211,12 @@ export function SmtpConfigForm({ onSettingsChange }: SmtpConfigFormProps) {
         {/* From & Secure */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label className="text-gray-300">From Address</Label>
+            <Label className="text-muted-foreground">From Address</Label>
             <Input
               type="email"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
-              className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500"
+              className="bg-muted border-border text-foreground focus:border-primary"
               placeholder="noreply@yourdomain.com"
             />
           </div>
@@ -225,9 +225,9 @@ export function SmtpConfigForm({ onSettingsChange }: SmtpConfigFormProps) {
               <Switch
                 checked={secure}
                 onCheckedChange={setSecure}
-                className={secure ? "bg-blue-600" : ""}
+                className={secure ? "bg-primary" : ""}
               />
-              <Label className="text-gray-300 cursor-pointer">Use SSL/TLS (port 465)</Label>
+              <Label className="text-muted-foreground cursor-pointer">Use SSL/TLS (port 465)</Label>
             </div>
           </div>
         </div>
@@ -237,7 +237,7 @@ export function SmtpConfigForm({ onSettingsChange }: SmtpConfigFormProps) {
           <Button
             onClick={handleSave}
             disabled={saving}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-primary hover:bg-primary/90"
           >
             {saving ? (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -250,7 +250,7 @@ export function SmtpConfigForm({ onSettingsChange }: SmtpConfigFormProps) {
             onClick={handleTest}
             disabled={testing || !host}
             variant="outline"
-            className="border-gray-700 text-gray-300 hover:text-gray-100 hover:bg-gray-800"
+            className="border-border text-muted-foreground hover:text-foreground hover:bg-accent"
           >
             {testing ? (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />

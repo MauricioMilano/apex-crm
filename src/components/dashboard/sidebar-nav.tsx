@@ -31,7 +31,7 @@ export function SidebarNav({ sections, collapsed }: SidebarNavProps) {
         {sections.map((section, idx) => (
           <div key={section.title ?? `section-${idx}`}>
             {!collapsed && section.title && (
-              <p className="px-2 mb-1 text-xs font-semibold uppercase tracking-wider text-gray-600">
+              <p className="px-2 mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {section.title}
               </p>
             )}
@@ -46,8 +46,8 @@ export function SidebarNav({ sections, collapsed }: SidebarNavProps) {
                     className={cn(
                       'flex items-center gap-3 rounded-lg px-2 py-2 text-sm font-medium transition-colors',
                       active
-                        ? 'bg-blue-600/20 text-blue-400'
-                        : 'text-gray-400 hover:text-gray-100 hover:bg-gray-800',
+                        ? 'bg-primary/20 text-primary'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-accent',
                       collapsed && 'justify-center',
                     )}
                   >
@@ -55,7 +55,7 @@ export function SidebarNav({ sections, collapsed }: SidebarNavProps) {
                       <IconComponent
                         className={cn(
                           'h-4 w-4 shrink-0',
-                          active ? 'text-blue-400' : '',
+                          active ? 'text-primary' : '',
                         )}
                       />
                     )}
@@ -63,7 +63,7 @@ export function SidebarNav({ sections, collapsed }: SidebarNavProps) {
                       <span className="flex-1 truncate">{item.title}</span>
                     )}
                     {!collapsed && item.badge && (
-                      <span className="ml-auto text-xs bg-blue-600/20 text-blue-400 px-1.5 py-0.5 rounded-full">
+                      <span className="ml-auto text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded-full">
                         {item.badge}
                       </span>
                     )}

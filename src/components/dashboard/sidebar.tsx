@@ -34,25 +34,25 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
     <TooltipProvider delayDuration={0}>
       <aside
         className={cn(
-          'flex flex-col h-full bg-gray-950 border-r border-gray-800 transition-all duration-300 ease-in-out',
+          'flex flex-col h-full bg-background border-r border-border transition-all duration-300 ease-in-out',
           collapsed ? 'w-16' : 'w-60',
         )}
       >
         {/* Logo */}
-        <div className="flex items-center h-16 px-3 border-b border-gray-800 shrink-0">
+        <div className="flex items-center h-16 px-3 border-b border-border shrink-0">
           <div className="flex items-center gap-2 overflow-hidden">
-            <div className="shrink-0 flex items-center justify-center w-8 h-8 rounded-lg bg-blue-600">
-              <Building2 className="h-4 w-4 text-white" />
+            <div className="shrink-0 flex items-center justify-center w-8 h-8 rounded-lg bg-primary">
+              <Building2 className="h-4 w-4 text-primary-foreground" />
             </div>
             {!collapsed && (
-              <span className="font-bold text-white text-lg tracking-tight whitespace-nowrap">
+              <span className="font-bold text-foreground text-lg tracking-tight whitespace-nowrap">
                 ApexCRM
               </span>
             )}
           </div>
           <button
             onClick={onToggle}
-            className="ml-auto shrink-0 flex items-center justify-center w-6 h-6 rounded text-gray-500 hover:text-gray-300 hover:bg-gray-800 transition-colors"
+            className="ml-auto shrink-0 flex items-center justify-center w-6 h-6 rounded text-muted-foreground/80 hover:text-muted-foreground hover:bg-accent transition-colors"
             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {collapsed ? (
@@ -67,7 +67,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         <SidebarNav sections={navSections} collapsed={collapsed} />
 
         {/* User profile */}
-        <div className="shrink-0 border-t border-gray-800 p-2">
+        <div className="shrink-0 border-t border-border p-2">
           <div
             className={cn(
               'flex items-center gap-3 px-2 py-2 rounded-lg',
@@ -78,18 +78,18 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               {currentUser?.avatar && (
                 <AvatarImage src={currentUser.avatar} />
               )}
-              <AvatarFallback className="bg-blue-600 text-white text-xs font-semibold">
+              <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
                 {initials}
               </AvatarFallback>
             </Avatar>
             {!collapsed && (
               <div className="flex-1 overflow-hidden">
-                <p className="text-sm font-medium text-white truncate">
+                <p className="text-sm font-medium text-foreground truncate">
                   {currentUser
                     ? `${currentUser.firstName} ${currentUser.lastName}`
                     : 'User'}
                 </p>
-                <p className="text-xs text-gray-500 truncate">
+                <p className="text-xs text-muted-foreground/80 truncate">
                   {currentUser?.email}
                 </p>
               </div>
@@ -102,7 +102,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                   variant="ghost"
                   size="sm"
                   onClick={logout}
-                  className="w-full justify-center text-gray-500 hover:text-red-400 hover:bg-red-400/10 mt-1"
+                  className="w-full justify-center text-muted-foreground/80 hover:text-red-400 hover:bg-red-400/10 mt-1"
                 >
                   <LogOut className="h-4 w-4" />
                 </Button>
@@ -114,7 +114,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               variant="ghost"
               size="sm"
               onClick={logout}
-              className="w-full justify-start gap-2 text-gray-500 hover:text-red-400 hover:bg-red-400/10 mt-1"
+              className="w-full justify-start gap-2 text-muted-foreground/80 hover:text-red-400 hover:bg-red-400/10 mt-1"
             >
               <LogOut className="h-4 w-4" />
               Logout

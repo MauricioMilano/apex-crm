@@ -102,7 +102,7 @@ export function ClientSubscriptionsPanel({ clientId }: { clientId: string }) {
   }
 
   if (loading) {
-    return <p className="text-sm text-gray-400 py-4">Loading subscriptions...</p>;
+    return <p className="text-sm text-muted-foreground py-4">Loading subscriptions...</p>;
   }
 
   return (
@@ -112,14 +112,14 @@ export function ClientSubscriptionsPanel({ clientId }: { clientId: string }) {
         <CardContent className="pt-4 pb-4">
           <div className="flex items-end gap-3">
             <div className="flex-1">
-              <label className="text-sm font-medium text-gray-300 mb-1 block">
+              <label className="text-sm font-medium text-muted-foreground mb-1 block">
                 Assign a Plan
               </label>
               <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
-                <SelectTrigger className="bg-gray-800 border-gray-700 text-gray-100">
+                <SelectTrigger className="bg-muted border-border text-foreground">
                   <SelectValue placeholder="Select a plan..." />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700 text-gray-100">
+                <SelectContent className="bg-muted border-border text-foreground">
                   {plans
                     .filter((p) => p.isActive)
                     .map((plan) => (
@@ -128,7 +128,7 @@ export function ClientSubscriptionsPanel({ clientId }: { clientId: string }) {
                       </SelectItem>
                     ))}
                   {plans.filter((p) => p.isActive).length === 0 && (
-                    <div className="px-2 py-4 text-sm text-gray-500 text-center">
+                    <div className="px-2 py-4 text-sm text-muted-foreground/80 text-center">
                       No active plans available
                     </div>
                   )}
@@ -138,7 +138,7 @@ export function ClientSubscriptionsPanel({ clientId }: { clientId: string }) {
             <Button
               onClick={handleAssign}
               disabled={!selectedPlanId || assigning}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-primary hover:bg-primary/90"
             >
               <Plus className="h-4 w-4 mr-1.5" />
               Assign
@@ -149,7 +149,7 @@ export function ClientSubscriptionsPanel({ clientId }: { clientId: string }) {
 
       {/* Subscriptions list */}
       {subscriptions.length === 0 ? (
-        <p className="text-sm text-gray-500 text-center py-8">
+        <p className="text-sm text-muted-foreground/80 text-center py-8">
           No subscriptions yet. Assign a plan above.
         </p>
       ) : (
@@ -160,8 +160,8 @@ export function ClientSubscriptionsPanel({ clientId }: { clientId: string }) {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
-                      <CreditCard className="h-4 w-4 text-blue-400 shrink-0" />
-                      <span className="font-medium text-gray-100">
+                      <CreditCard className="h-4 w-4 text-primary shrink-0" />
+                      <span className="font-medium text-foreground">
                         {sub.plan?.name ?? 'Unknown Plan'}
                       </span>
                       <Badge
@@ -172,7 +172,7 @@ export function ClientSubscriptionsPanel({ clientId }: { clientId: string }) {
                       </Badge>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-gray-400 mb-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-muted-foreground mb-3">
                       <span>
                         Period: {formatDate(sub.currentPeriodStart)} –{' '}
                         {formatDate(sub.currentPeriodEnd)}
@@ -189,8 +189,8 @@ export function ClientSubscriptionsPanel({ clientId }: { clientId: string }) {
                     {sub.plan?.maxApptsPerPeriod && (
                       <div className="space-y-1">
                         <div className="flex justify-between text-xs">
-                          <span className="text-gray-400">Usage</span>
-                          <span className="text-gray-300">
+                          <span className="text-muted-foreground">Usage</span>
+                          <span className="text-muted-foreground">
                             {sub.appointmentsUsed} / {sub.plan.maxApptsPerPeriod}
                           </span>
                         </div>
@@ -212,7 +212,7 @@ export function ClientSubscriptionsPanel({ clientId }: { clientId: string }) {
                       variant="ghost"
                       size="sm"
                       onClick={() => setCancelId(sub.id)}
-                      className="text-red-400 hover:text-red-300 hover:bg-red-500/10 shrink-0"
+                      className="text-destructive/80 hover:text-destructive/60 hover:bg-destructive/10 shrink-0"
                     >
                       <XCircle className="h-4 w-4 mr-1" />
                       Cancel
@@ -226,21 +226,21 @@ export function ClientSubscriptionsPanel({ clientId }: { clientId: string }) {
       )}
 
       <AlertDialog open={!!cancelId} onOpenChange={(o) => !o && setCancelId(null)}>
-        <AlertDialogContent className="bg-gray-900 border-gray-800 text-gray-100">
+        <AlertDialogContent className="bg-card border-border text-foreground">
           <AlertDialogHeader>
             <AlertDialogTitle>Cancel Subscription</AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-400">
+            <AlertDialogDescription className="text-muted-foreground">
               This will cancel the subscription immediately. The client will lose access
               to plan-covered services.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700">
+            <AlertDialogCancel className="bg-muted border-border text-muted-foreground hover:bg-accent">
               Keep Active
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleCancel}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
             >
               Cancel Subscription
             </AlertDialogAction>
@@ -280,7 +280,7 @@ function SubscriptionPaymentHistory({ subscriptionId }: { subscriptionId: string
     <div className="mt-3">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-200 transition-colors"
+        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
       >
         <DollarSign className="h-3 w-3" />
         Payment History
@@ -294,14 +294,14 @@ function SubscriptionPaymentHistory({ subscriptionId }: { subscriptionId: string
       {open && (
         <div className="mt-2 space-y-1">
           {loading ? (
-            <p className="text-xs text-gray-500">Loading...</p>
+            <p className="text-xs text-muted-foreground/80">Loading...</p>
           ) : payments.length === 0 ? (
-            <p className="text-xs text-gray-500">No payment records</p>
+            <p className="text-xs text-muted-foreground/80">No payment records</p>
           ) : (
             payments.map((p) => (
               <div
                 key={p.id}
-                className="flex items-center justify-between py-1 px-2 rounded bg-gray-800/50"
+                className="flex items-center justify-between py-1 px-2 rounded bg-muted/50"
               >
                 <div className="flex items-center gap-2">
                   <span className={cn(
@@ -313,14 +313,14 @@ function SubscriptionPaymentHistory({ subscriptionId }: { subscriptionId: string
                     {p.status}
                   </span>
                   {p.description && (
-                    <span className="text-[11px] text-gray-500 truncate max-w-[140px]">
+                    <span className="text-[11px] text-muted-foreground/80 truncate max-w-[140px]">
                       {p.description}
                     </span>
                   )}
                 </div>
                 <span className={cn(
                   'text-xs font-medium',
-                  p.amount < 0 ? 'text-red-400' : 'text-gray-200',
+                  p.amount < 0 ? 'text-destructive/80' : 'text-foreground/90',
                 )}>
                   {p.amount < 0 ? '-' : ''}$${Math.abs(p.amount).toFixed(2)}
                 </span>

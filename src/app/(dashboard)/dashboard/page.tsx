@@ -32,7 +32,7 @@ import { cn } from '@/lib/utils';
 import type { Payment, PaymentMethod } from '@/types';
 
 const STATUS_COLOR_MAP: Record<string, string> = {
-  blue: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+  blue: 'bg-primary/20 text-primary border-primary/30',
   yellow: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
   green: 'bg-green-500/20 text-green-400 border-green-500/30',
   purple: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
@@ -43,9 +43,9 @@ const STATUS_COLOR_MAP: Record<string, string> = {
 
 const APPT_STATUS_COLORS: Record<string, string> = {
   pending: 'bg-yellow-500/20 text-yellow-400',
-  confirmed: 'bg-blue-500/20 text-blue-400',
+  confirmed: 'bg-primary/20 text-primary',
   completed: 'bg-emerald-500/20 text-emerald-400',
-  cancelled: 'bg-red-500/20 text-red-400',
+  cancelled: 'bg-destructive/20 text-destructive/80',
   no_show: 'bg-gray-500/20 text-gray-400',
 };
 
@@ -192,7 +192,7 @@ export default function DashboardPage() {
       <div className="flex flex-wrap gap-3">
         <Button
           onClick={() => router.push('/leads')}
-          className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
         >
           <Plus className="h-4 w-4" />
           Add Lead
@@ -200,7 +200,7 @@ export default function DashboardPage() {
         <Button
           onClick={() => router.push('/appointments')}
           variant="outline"
-          className="border-gray-700 text-gray-300 hover:bg-gray-800 gap-2"
+          className="border-border text-foreground/90 hover:bg-accent gap-2"
         >
           <Plus className="h-4 w-4" />
           New Appointment
@@ -208,7 +208,7 @@ export default function DashboardPage() {
         <Button
           onClick={() => router.push('/clients')}
           variant="outline"
-          className="border-gray-700 text-gray-300 hover:bg-gray-800 gap-2"
+          className="border-border text-foreground/90 hover:bg-accent gap-2"
         >
           <Plus className="h-4 w-4" />
           Add Client
@@ -223,7 +223,7 @@ export default function DashboardPage() {
           icon={Users2}
           trend={leadTrend}
           description="vs last month"
-          iconColor="bg-blue-500/20 text-blue-400"
+          iconColor="bg-primary/20 text-primary"
         />
         <StatsCard
           title="Active Clients"
@@ -240,9 +240,9 @@ export default function DashboardPage() {
           description="scheduled today"
           iconColor="bg-purple-500/20 text-purple-400"
         />
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-card border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Monthly Revenue
             </CardTitle>
             <div className="p-2 rounded-lg bg-yellow-500/20 text-yellow-400">
@@ -250,14 +250,14 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">
+            <div className="text-2xl font-bold text-foreground">
               {formatCurrency(monthlyRevenue)}
             </div>
             <div className="flex items-center gap-1 mt-1">
               <span
                 className={cn(
                   'flex items-center text-xs font-medium',
-                  revenueTrend >= 0 ? 'text-emerald-400' : 'text-red-400',
+                  revenueTrend >= 0 ? 'text-emerald-400' : 'text-destructive/80',
                 )}
               >
                 {revenueTrend >= 0 ? (
@@ -268,7 +268,7 @@ export default function DashboardPage() {
                 {revenueTrend >= 0 ? '+' : ''}
                 {revenueTrend.toFixed(1)}%
               </span>
-              <p className="text-xs text-gray-500">recorded payments</p>
+              <p className="text-xs text-muted-foreground">recorded payments</p>
             </div>
             {/* Revenue breakdown by method */}
             {(() => {
@@ -289,16 +289,16 @@ export default function DashboardPage() {
                     const pct = (amt / maxAmount) * 100;
                     return (
                       <div key={methodId} className="flex items-center gap-2 text-xs">
-                        <span className="text-gray-400 w-16 truncate" title={method?.name ?? methodId}>
+                        <span className="text-muted-foreground w-16 truncate" title={method?.name ?? methodId}>
                           {method?.name ?? (methodId === '__unknown__' ? 'Other' : methodId)}
                         </span>
-                        <div className="flex-1 h-2 rounded-full bg-gray-800 overflow-hidden">
+                        <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
                           <div
-                            className="h-full rounded-full bg-blue-500"
+                            className="h-full rounded-full bg-primary"
                             style={{ width: `${pct}%` }}
                           />
                         </div>
-                        <span className="text-gray-300 w-16 text-right font-medium">
+                        <span className="text-foreground/90 w-16 text-right font-medium">
                           {formatCurrency(amt)}
                         </span>
                       </div>
@@ -314,14 +314,14 @@ export default function DashboardPage() {
       {/* Middle row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Leads */}
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-card border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-white text-base">Recent Leads</CardTitle>
+            <CardTitle className="text-foreground text-base">Recent Leads</CardTitle>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => router.push('/leads')}
-              className="text-blue-400 hover:text-blue-300 hover:bg-blue-400/10 text-xs"
+              className="text-primary hover:text-primary/80 hover:bg-primary/10 text-xs"
             >
               View all
             </Button>
@@ -329,10 +329,10 @@ export default function DashboardPage() {
           <CardContent className="p-0">
             <Table>
               <TableHeader>
-                <TableRow className="border-gray-800 hover:bg-transparent">
-                  <TableHead className="text-gray-500 text-xs">Name</TableHead>
-                  <TableHead className="text-gray-500 text-xs">Status</TableHead>
-                  <TableHead className="text-gray-500 text-xs text-right">
+                <TableRow className="border-border hover:bg-transparent">
+                  <TableHead className="text-muted-foreground text-xs">Name</TableHead>
+                  <TableHead className="text-muted-foreground text-xs">Status</TableHead>
+                  <TableHead className="text-muted-foreground text-xs text-right">
                     Value
                   </TableHead>
                 </TableRow>
@@ -342,7 +342,7 @@ export default function DashboardPage() {
                   <TableRow>
                     <TableCell
                       colSpan={3}
-                      className="text-center text-gray-600 py-6"
+                      className="text-center text-muted-foreground py-6"
                     >
                       No leads yet
                     </TableCell>
@@ -355,15 +355,15 @@ export default function DashboardPage() {
                     return (
                       <TableRow
                         key={lead.id}
-                        className="border-gray-800 hover:bg-gray-800/50"
+                        className="border-border hover:bg-accent/50"
                       >
                         <TableCell className="py-3">
                           <div>
-                            <p className="text-sm font-medium text-white">
+                            <p className="text-sm font-medium text-foreground">
                               {lead.firstName} {lead.lastName}
                             </p>
                             {lead.company && (
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-muted-foreground">
                                 {lead.company}
                               </p>
                             )}
@@ -379,7 +379,7 @@ export default function DashboardPage() {
                             </Badge>
                           )}
                         </TableCell>
-                        <TableCell className="py-3 text-right text-sm text-gray-300">
+                        <TableCell className="py-3 text-right text-sm text-foreground/90">
                           {lead.value != null
                             ? formatCurrency(lead.value)
                             : '—'}
@@ -394,23 +394,23 @@ export default function DashboardPage() {
         </Card>
 
         {/* Upcoming Appointments */}
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-card border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-white text-base">
+            <CardTitle className="text-foreground text-base">
               Upcoming Appointments
             </CardTitle>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => router.push('/appointments')}
-              className="text-blue-400 hover:text-blue-300 hover:bg-blue-400/10 text-xs"
+              className="text-primary hover:text-primary/80 hover:bg-primary/10 text-xs"
             >
               View all
             </Button>
           </CardHeader>
           <CardContent>
             {upcomingAppointments.length === 0 ? (
-              <p className="text-gray-600 text-sm text-center py-6">
+              <p className="text-muted-foreground text-sm text-center py-6">
                 No upcoming appointments
               </p>
             ) : (
@@ -423,18 +423,18 @@ export default function DashboardPage() {
                   return (
                     <li
                       key={appt.id}
-                      className="flex items-start gap-3 p-3 rounded-lg bg-gray-800/50 border border-gray-800"
+                      className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 border border-border"
                     >
-                      <div className="shrink-0 mt-0.5 flex items-center justify-center w-8 h-8 rounded-full bg-blue-500/20">
-                        <Clock className="h-4 w-4 text-blue-400" />
+                      <div className="shrink-0 mt-0.5 flex items-center justify-center w-8 h-8 rounded-full bg-primary/20">
+                        <Clock className="h-4 w-4 text-primary" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-white truncate">
+                        <p className="text-sm font-medium text-foreground truncate">
                           {client
                             ? `${client.firstName} ${client.lastName}`
                             : 'Unknown client'}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-muted-foreground">
                           {svc?.name ?? 'Service'} &middot;{' '}
                           {isToday(start)
                             ? `Today at ${format(start, 'h:mm a')}`
@@ -456,28 +456,28 @@ export default function DashboardPage() {
       </div>
 
       {/* Lead status distribution */}
-      <Card className="bg-gray-900 border-gray-800">
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-white text-base">
+          <CardTitle className="text-foreground text-base">
             Lead Pipeline
           </CardTitle>
         </CardHeader>
         <CardContent>
           {totalLeads === 0 ? (
-            <p className="text-gray-600 text-sm">No leads to display.</p>
+            <p className="text-muted-foreground text-sm">No leads to display.</p>
           ) : (
             <div className="space-y-3">
               {statusDistribution.map((s) => (
                 <div key={s.id} className="space-y-1">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-300">{s.name}</span>
-                    <span className="text-gray-500">
+                    <span className="text-foreground/90">{s.name}</span>
+                    <span className="text-muted-foreground">
                       {s.count} lead{s.count !== 1 ? 's' : ''} &middot; {s.pct}%
                     </span>
                   </div>
                   <Progress
                     value={s.pct}
-                    className="h-2 bg-gray-800"
+                    className="h-2 bg-muted"
                   />
                 </div>
               ))}

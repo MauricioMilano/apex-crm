@@ -202,7 +202,7 @@ export default function PlansPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className="text-gray-400">Loading plans...</p>
+        <p className="text-muted-foreground">Loading plans...</p>
       </div>
     );
   }
@@ -211,56 +211,56 @@ export default function PlansPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-100">Subscription Plans</h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-foreground">Subscription Plans</h1>
+          <p className="text-muted-foreground text-sm mt-1">
             Create and manage subscription plans for your clients.
           </p>
         </div>
-        <Button onClick={openAdd} className="bg-blue-600 hover:bg-blue-700">
+        <Button onClick={openAdd} className="bg-primary hover:bg-primary/90">
           <Plus className="h-4 w-4 mr-2" />
           Add Plan
         </Button>
       </div>
 
-      <div className="rounded-lg border border-gray-800 overflow-hidden">
+      <div className="rounded-lg border border-border overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="border-gray-800 hover:bg-transparent">
-              <TableHead className="text-gray-400">Name</TableHead>
-              <TableHead className="text-gray-400">Price</TableHead>
-              <TableHead className="text-gray-400">Billing</TableHead>
-              <TableHead className="text-gray-400">Limit</TableHead>
-              <TableHead className="text-gray-400">Status</TableHead>
-              <TableHead className="text-gray-400 w-20">Actions</TableHead>
+            <TableRow className="border-border hover:bg-transparent">
+              <TableHead className="text-muted-foreground">Name</TableHead>
+              <TableHead className="text-muted-foreground">Price</TableHead>
+              <TableHead className="text-muted-foreground">Billing</TableHead>
+              <TableHead className="text-muted-foreground">Limit</TableHead>
+              <TableHead className="text-muted-foreground">Status</TableHead>
+              <TableHead className="text-muted-foreground w-20">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {plans.length === 0 && (
-              <TableRow className="border-gray-800">
-                <TableCell colSpan={6} className="text-center text-gray-500 py-10">
+              <TableRow className="border-border">
+                <TableCell colSpan={6} className="text-center text-muted-foreground/80 py-10">
                   No plans yet. Create one to get started.
                 </TableCell>
               </TableRow>
             )}
             {plans.map((plan) => (
-              <TableRow key={plan.id} className="border-gray-800 hover:bg-gray-800/50">
+              <TableRow key={plan.id} className="border-border hover:bg-accent/50">
                 <TableCell>
                   <div>
-                    <p className="text-gray-100 font-medium">{plan.name}</p>
+                    <p className="text-foreground font-medium">{plan.name}</p>
                     {plan.description && (
-                      <p className="text-gray-500 text-xs mt-0.5 truncate max-w-xs">
+                      <p className="text-muted-foreground/80 text-xs mt-0.5 truncate max-w-xs">
                         {plan.description}
                       </p>
                     )}
                   </div>
                 </TableCell>
-                <TableCell className="text-gray-300">${formatPrice(plan.price)}</TableCell>
-                <TableCell className="text-gray-300">
-                  <Badge variant="outline" className="text-xs border-gray-600 text-gray-400">
+                <TableCell className="text-muted-foreground">${formatPrice(plan.price)}</TableCell>
+                <TableCell className="text-muted-foreground">
+                  <Badge variant="outline" className="text-xs border-border text-muted-foreground">
                     {BILLING_LABELS[plan.billingPeriod]}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-gray-300">
+                <TableCell className="text-muted-foreground">
                   {plan.maxApptsPerPeriod ? `${plan.maxApptsPerPeriod}/period` : 'Unlimited'}
                 </TableCell>
                 <TableCell>
@@ -274,7 +274,7 @@ export default function PlansPage() {
                       });
                       await fetchPlans();
                     }}
-                    className="data-[state=checked]:bg-blue-600"
+                    className="data-[state=checked]:bg-primary"
                   />
                 </TableCell>
                 <TableCell>
@@ -282,7 +282,7 @@ export default function PlansPage() {
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-8 w-8 text-gray-400 hover:text-gray-100"
+                      className="h-8 w-8 text-muted-foreground hover:text-foreground"
                       onClick={() => openEdit(plan)}
                     >
                       <Pencil className="h-3.5 w-3.5" />
@@ -290,7 +290,7 @@ export default function PlansPage() {
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-8 w-8 text-gray-400 hover:text-red-400"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive/80"
                       onClick={() => setDeleteId(plan.id)}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -305,27 +305,27 @@ export default function PlansPage() {
 
       {/* Add/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="bg-gray-900 border-gray-800 text-gray-100 max-w-lg">
+        <DialogContent className="bg-card border-border text-foreground max-w-lg">
           <DialogHeader>
             <DialogTitle>{editing ? 'Edit Plan' : 'Add Plan'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2 max-h-[60vh] overflow-y-auto pr-2">
             <div className="space-y-2">
-              <Label className="text-gray-300">Name *</Label>
+              <Label className="text-muted-foreground">Name *</Label>
               <Input
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500"
+                className="bg-muted border-border text-foreground focus:border-primary"
                 placeholder="e.g. Premium"
               />
             </div>
 
             <div className="space-y-2">
-              <Label className="text-gray-300">Description</Label>
+              <Label className="text-muted-foreground">Description</Label>
               <Textarea
                 value={form.description}
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500 resize-none"
+                className="bg-muted border-border text-foreground focus:border-primary resize-none"
                 placeholder="Optional description"
                 rows={2}
               />
@@ -333,7 +333,7 @@ export default function PlansPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-gray-300">Price ($)</Label>
+                <Label className="text-muted-foreground">Price ($)</Label>
                 <Input
                   type="number"
                   min={0}
@@ -342,19 +342,19 @@ export default function PlansPage() {
                   onChange={(e) =>
                     setForm((f) => ({ ...f, price: Math.max(0, Number(e.target.value)) }))
                   }
-                  className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500"
+                  className="bg-muted border-border text-foreground focus:border-primary"
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-gray-300">Billing Period</Label>
+                <Label className="text-muted-foreground">Billing Period</Label>
                 <Select
                   value={form.billingPeriod}
                   onValueChange={(v: BillingPeriod) => setForm((f) => ({ ...f, billingPeriod: v }))}
                 >
-                  <SelectTrigger className="bg-gray-800 border-gray-700 text-gray-100">
+                  <SelectTrigger className="bg-muted border-border text-foreground">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-gray-700 text-gray-100">
+                  <SelectContent className="bg-muted border-border text-foreground">
                     {Object.entries(BILLING_LABELS).map(([value, label]) => (
                       <SelectItem key={value} value={value}>
                         {label}
@@ -366,9 +366,9 @@ export default function PlansPage() {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-gray-300">
+              <Label className="text-muted-foreground">
                 Max Appointments Per Period{' '}
-                <span className="text-gray-500 text-xs">(leave empty for unlimited)</span>
+                <span className="text-muted-foreground/80 text-xs">(leave empty for unlimited)</span>
               </Label>
               <Input
                 type="number"
@@ -380,7 +380,7 @@ export default function PlansPage() {
                     maxApptsPerPeriod: e.target.value ? Number(e.target.value) : null,
                   }))
                 }
-                className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500"
+                className="bg-muted border-border text-foreground focus:border-primary"
                 placeholder="Unlimited"
               />
             </div>
@@ -391,36 +391,36 @@ export default function PlansPage() {
                   id="isActive"
                   checked={form.isActive}
                   onCheckedChange={(v) => setForm((f) => ({ ...f, isActive: v }))}
-                  className="data-[state=checked]:bg-blue-600"
+                  className="data-[state=checked]:bg-primary"
                 />
-                <Label htmlFor="isActive" className="text-gray-300 cursor-pointer">
+                <Label htmlFor="isActive" className="text-muted-foreground cursor-pointer">
                   Active
                 </Label>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label className="text-gray-300">Included Services</Label>
-              <div className="grid grid-cols-1 gap-1.5 max-h-40 overflow-y-auto border border-gray-800 rounded-lg p-2">
+              <Label className="text-muted-foreground">Included Services</Label>
+              <div className="grid grid-cols-1 gap-1.5 max-h-40 overflow-y-auto border border-border rounded-lg p-2">
                 {services.length === 0 && (
-                  <p className="text-gray-500 text-sm text-center py-4">
+                  <p className="text-muted-foreground/80 text-sm text-center py-4">
                     No services available. Create services first.
                   </p>
                 )}
                 {services.map((svc) => (
                   <label
                     key={svc.id}
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-colors hover:bg-gray-800"
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-colors hover:bg-accent"
                   >
                     <input
                       type="checkbox"
                       checked={form.serviceIds.includes(svc.id)}
                       onChange={() => toggleService(svc.id)}
-                      className="rounded border-gray-600 bg-gray-800 text-blue-600 focus:ring-blue-500"
+                      className="rounded border-border bg-muted text-primary focus:ring-primary"
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-200">{svc.name}</p>
-                      <p className="text-xs text-gray-500">{svc.duration} min — ${formatPrice(svc.price)}</p>
+                      <p className="text-sm text-foreground/90">{svc.name}</p>
+                      <p className="text-xs text-muted-foreground/80">{svc.duration} min — ${formatPrice(svc.price)}</p>
                     </div>
                   </label>
                 ))}
@@ -428,10 +428,10 @@ export default function PlansPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setDialogOpen(false)} className="text-gray-400">
+            <Button variant="ghost" onClick={() => setDialogOpen(false)} className="text-muted-foreground">
               Cancel
             </Button>
-            <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={handleSave} className="bg-primary hover:bg-primary/90">
               {editing ? 'Save Changes' : 'Create Plan'}
             </Button>
           </DialogFooter>
@@ -440,21 +440,21 @@ export default function PlansPage() {
 
       {/* Delete confirmation */}
       <AlertDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
-        <AlertDialogContent className="bg-gray-900 border-gray-800 text-gray-100">
+        <AlertDialogContent className="bg-card border-border text-foreground">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Plan</AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-400">
+            <AlertDialogDescription className="text-muted-foreground">
               This will permanently delete the plan. If clients have active subscriptions under this plan,
               deletion will be blocked.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700">
+            <AlertDialogCancel className="bg-muted border-border text-muted-foreground hover:bg-accent">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
             >
               Delete
             </AlertDialogAction>

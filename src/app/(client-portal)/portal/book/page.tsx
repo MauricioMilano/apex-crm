@@ -33,20 +33,17 @@ export default function ClientPortalBookPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Book an Appointment</h1>
-        <p className="text-gray-500 mt-1">
+        <h1 className="text-2xl font-bold text-foreground">Book an Appointment</h1>
+        <p className="text-muted-foreground mt-1">
           Choose a service and time that works for you.
         </p>
       </div>
 
-      {/* BookingFlow uses a dark theme internally — wrap in dark container */}
-      <div className="bg-gray-900 rounded-xl border border-gray-700 p-6">
-        <BookingFlow
-          initialClientId={client?.id}
-          onComplete={handleComplete}
-          onCancel={handleCancel}
-        />
-      </div>
+      <BookingFlow
+        initialClientId={client?.id}
+        onComplete={handleComplete}
+        onCancel={handleCancel}
+      />
     </div>
   );
 }

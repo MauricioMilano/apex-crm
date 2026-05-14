@@ -98,18 +98,18 @@ export default function ClientPortalRegisterPage() {
 
   if (orgLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 to-primary/10 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   if (!orgSlug) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 to-primary/10 flex flex-col items-center justify-center p-4">
         <Card className="shadow-xl border-0 max-w-md w-full">
           <CardHeader className="text-center">
-            <AlertCircle className="h-10 w-10 text-red-400 mx-auto mb-2" />
+            <AlertCircle className="h-10 w-10 text-destructive/80 mx-auto mb-2" />
             <CardTitle className="text-xl">Invalid Link</CardTitle>
             <CardDescription>
               This registration link is missing organization information. Please use the link
@@ -130,15 +130,15 @@ export default function ClientPortalRegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 to-primary/10 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="h-14 w-14 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <Building2 className="h-8 w-8 text-white" />
+          <div className="h-14 w-14 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <Building2 className="h-8 w-8 text-primary-foreground" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Create Account</h1>
-          <p className="text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-foreground">Create Account</h1>
+          <p className="text-muted-foreground mt-1">
             Join {orgName ?? orgSlug}
           </p>
         </div>
@@ -160,7 +160,7 @@ export default function ClientPortalRegisterPage() {
                         <FormLabel>First Name</FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <User className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                            <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input {...field} className="pl-9" placeholder="John" />
                           </div>
                         </FormControl>
@@ -191,7 +191,7 @@ export default function ClientPortalRegisterPage() {
                       <FormLabel>Email</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Mail className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                          <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                           <Input
                             {...field}
                             type="email"
@@ -213,7 +213,7 @@ export default function ClientPortalRegisterPage() {
                       <FormLabel>Password</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Lock className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                          <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                           <Input
                             {...field}
                             type="password"
@@ -234,11 +234,11 @@ export default function ClientPortalRegisterPage() {
               </form>
             </Form>
 
-            <p className="text-center text-sm text-gray-500 mt-4">
+            <p className="text-center text-sm text-muted-foreground mt-4">
               Already have an account?{' '}
               <Link
                 href="/portal/login"
-                className="text-blue-600 hover:text-blue-700 font-medium"
+                className="text-primary hover:text-primary font-medium"
               >
                 Sign In
               </Link>
@@ -249,7 +249,7 @@ export default function ClientPortalRegisterPage() {
         <p className="text-center mt-6">
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground/80 transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Back to main site

@@ -25,10 +25,10 @@ import type { AppointmentStatus } from '@/types';
 
 const STATUS_COLORS: Record<AppointmentStatus, string> = {
   pending:   'bg-amber-100 text-amber-700 border-amber-200',
-  confirmed: 'bg-blue-100 text-blue-700 border-blue-200',
+  confirmed: 'bg-primary/10 text-primary border-primary/30',
   completed: 'bg-green-100 text-green-700 border-green-200',
-  cancelled: 'bg-red-100 text-red-700 border-red-200',
-  no_show:   'bg-gray-100 text-gray-600 border-gray-200',
+  cancelled: 'bg-destructive/10 text-destructive border-destructive/30',
+  no_show:   'bg-muted text-muted-foreground border-border',
 };
 
 export default function ClientPortalDashboardPage() {
@@ -99,10 +99,10 @@ export default function ClientPortalDashboardPage() {
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
       {/* Welcome */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-foreground">
           Welcome back, {currentUser?.firstName}!
         </h1>
-        <p className="text-gray-500 mt-1">Here&apos;s an overview of your activity.</p>
+        <p className="text-muted-foreground mt-1">Here&apos;s an overview of your activity.</p>
       </div>
 
       {/* Stats */}
@@ -118,8 +118,8 @@ export default function ClientPortalDashboardPage() {
         ].map(({ value, label }) => (
           <Card key={label}>
             <CardContent className="pt-5 pb-4">
-              <div className="text-2xl font-bold text-gray-900">{value}</div>
-              <div className="text-sm text-gray-500">{label}</div>
+              <div className="text-2xl font-bold text-foreground">{value}</div>
+              <div className="text-sm text-muted-foreground">{label}</div>
             </CardContent>
           </Card>
         ))}
@@ -142,7 +142,7 @@ export default function ClientPortalDashboardPage() {
             </CardHeader>
             <CardContent>
               {upcoming.length === 0 ? (
-                <div className="text-center py-8 text-gray-400">
+                <div className="text-center py-8 text-muted-foreground">
                   <CalendarDays className="h-8 w-8 mx-auto mb-2 opacity-40" />
                   <p className="text-sm">No upcoming appointments</p>
                   <Button
@@ -162,14 +162,14 @@ export default function ClientPortalDashboardPage() {
                     return (
                       <div
                         key={appt.id}
-                        className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100"
+                        className="flex items-start gap-3 p-3 rounded-lg bg-muted border border-border"
                       >
-                        <div className="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <CalendarDays className="h-5 w-5 text-blue-600" />
+                        <div className="flex-shrink-0 h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                          <CalendarDays className="h-5 w-5 text-primary" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-medium text-gray-900 text-sm">
+                            <span className="font-medium text-foreground text-sm">
                               {svc?.name}
                             </span>
                             <Badge
@@ -181,7 +181,7 @@ export default function ClientPortalDashboardPage() {
                               {appt.status}
                             </Badge>
                           </div>
-                          <div className="text-xs text-gray-500 mt-0.5 flex flex-wrap items-center gap-3">
+                          <div className="text-xs text-muted-foreground mt-0.5 flex flex-wrap items-center gap-3">
                             <span className="flex items-center gap-1">
                               <CalendarDays className="h-3 w-3" />
                               {formatDate(appt.startTime)}
@@ -203,7 +203,7 @@ export default function ClientPortalDashboardPage() {
                   })}
                   <Link
                     href="/portal/appointments"
-                    className="block text-sm text-blue-600 hover:text-blue-700 text-center pt-1"
+                    className="block text-sm text-primary hover:text-primary text-center pt-1"
                   >
                     View all appointments →
                   </Link>
@@ -219,7 +219,7 @@ export default function ClientPortalDashboardPage() {
             </CardHeader>
             <CardContent>
               {recentActivity.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-4">No recent activity</p>
+                <p className="text-sm text-muted-foreground text-center py-4">No recent activity</p>
               ) : (
                 <div className="space-y-3">
                   {recentActivity.map((appt) => {
@@ -234,20 +234,20 @@ export default function ClientPortalDashboardPage() {
                             isCompleted
                               ? 'bg-green-100'
                               : isCancelled
-                              ? 'bg-red-100'
-                              : 'bg-blue-100',
+                              ? 'bg-destructive/10'
+                              : 'bg-primary/10',
                           )}
                         >
                           {isCompleted ? (
                             <CheckCircle className="h-3.5 w-3.5 text-green-600" />
                           ) : isCancelled ? (
-                            <AlertCircle className="h-3.5 w-3.5 text-red-500" />
+                            <AlertCircle className="h-3.5 w-3.5 text-destructive" />
                           ) : (
-                            <CalendarDays className="h-3.5 w-3.5 text-blue-600" />
+                            <CalendarDays className="h-3.5 w-3.5 text-primary" />
                           )}
                         </div>
                         <div className="flex-1 text-sm">
-                          <span className="text-gray-700">
+                          <span className="text-foreground/80">
                             {svc?.name} —{' '}
                             <span
                               className={cn(
@@ -255,14 +255,14 @@ export default function ClientPortalDashboardPage() {
                                 isCompleted
                                   ? 'text-green-600'
                                   : isCancelled
-                                  ? 'text-red-500'
-                                  : 'text-blue-600',
+                                  ? 'text-destructive'
+                                  : 'text-primary',
                               )}
                             >
                               {appt.status}
                             </span>
                           </span>
-                          <div className="text-xs text-gray-400">
+                          <div className="text-xs text-muted-foreground">
                             {formatDate(appt.startTime)}
                           </div>
                         </div>
@@ -284,12 +284,12 @@ export default function ClientPortalDashboardPage() {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Progress</span>
-                <span className="font-semibold text-gray-900">{profileCompletion}%</span>
+                <span className="text-muted-foreground">Progress</span>
+                <span className="font-semibold text-foreground">{profileCompletion}%</span>
               </div>
               <Progress value={profileCompletion} className="h-2" />
               {profileCompletion < 100 && (
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted-foreground">
                   Complete your profile for a better experience.
                 </p>
               )}
@@ -307,7 +307,7 @@ export default function ClientPortalDashboardPage() {
             <Card key={sub.id}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
-                  <CreditCard className="h-4 w-4 text-blue-500" />
+                  <CreditCard className="h-4 w-4 text-primary" />
                   {sub.plan?.name ?? 'Subscription'}
                 </CardTitle>
               </CardHeader>
@@ -315,8 +315,8 @@ export default function ClientPortalDashboardPage() {
                 {sub.plan?.maxApptsPerPeriod ? (
                   <>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Usage this period</span>
-                      <span className="font-semibold text-gray-900">
+                      <span className="text-muted-foreground">Usage this period</span>
+                      <span className="font-semibold text-foreground">
                         {sub.appointmentsUsed} / {sub.plan.maxApptsPerPeriod}
                       </span>
                     </div>
@@ -326,7 +326,7 @@ export default function ClientPortalDashboardPage() {
                     />
                   </>
                 ) : (
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-muted-foreground">
                     {sub.appointmentsUsed} appointments used · Unlimited plan
                   </p>
                 )}
@@ -376,19 +376,19 @@ export default function ClientPortalDashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 text-sm">
-                  <div className="flex justify-between text-gray-600">
+                  <div className="flex justify-between text-muted-foreground">
                     <span>Total sessions</span>
-                    <span className="font-medium text-gray-900">{past.length}</span>
+                    <span className="font-medium text-foreground">{past.length}</span>
                   </div>
-                  <div className="flex justify-between text-gray-600">
+                  <div className="flex justify-between text-muted-foreground">
                     <span>Completed</span>
                     <span className="font-medium text-green-600">
                       {past.filter((a) => a.status === 'completed').length}
                     </span>
                   </div>
-                  <div className="flex justify-between text-gray-600">
+                  <div className="flex justify-between text-muted-foreground">
                     <span>Cancelled</span>
-                    <span className="font-medium text-red-500">
+                    <span className="font-medium text-destructive">
                       {past.filter((a) => a.status === 'cancelled').length}
                     </span>
                   </div>

@@ -366,21 +366,21 @@ export function BookingFlow({
             <div
               className={cn(
                 "flex items-center gap-1.5 text-sm whitespace-nowrap",
-                idx + 1 === step
-                  ? "text-blue-400"
-                  : idx + 1 < step
-                    ? "text-green-400"
-                    : "text-gray-500",
+                  idx + 1 === step
+                    ? "text-primary"
+                    : idx + 1 < step
+                      ? "text-green-400"
+                      : "text-muted-foreground",
               )}
             >
               <div
                 className={cn(
                   "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0",
                   idx + 1 === step
-                    ? "bg-blue-500 text-white"
+                    ? "bg-primary text-primary-foreground"
                     : idx + 1 < step
                       ? "bg-green-500 text-white"
-                      : "bg-gray-700 text-gray-400",
+                      : "bg-muted text-muted-foreground",
                 )}
               >
                 {idx + 1 < step ? <CheckCircle className="h-3 w-3" /> : idx + 1}
@@ -391,7 +391,7 @@ export function BookingFlow({
               <div
                 className={cn(
                   "flex-1 h-px mx-2",
-                  idx + 1 < step ? "bg-green-500/50" : "bg-gray-700",
+                  idx + 1 < step ? "bg-green-500/50" : "bg-border",
                 )}
               />
             )}
@@ -402,7 +402,7 @@ export function BookingFlow({
       {/* ── Step 1: Select Service ── */}
       {step === 1 && (
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-white">Select a Service</h3>
+          <h3 className="text-lg font-semibold text-foreground">Select a Service</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {activeServices.map((svc) => {
               const coverage = (svc as ServiceWithCoverage).planCoverage;
@@ -424,28 +424,28 @@ export function BookingFlow({
                   className={cn(
                     "text-left p-4 rounded-lg border transition-all",
                     selectedServiceId === svc.id
-                      ? "border-blue-500 bg-blue-500/10"
-                      : "border-gray-700 bg-gray-800 hover:border-gray-600",
+                      ? "border-primary bg-primary/10"
+                      : "border-border bg-card hover:border-border",
                   )}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-medium text-white">{svc.name}</span>
+                    <span className="font-medium text-foreground">{svc.name}</span>
                     {selectedServiceId === svc.id && (
-                      <CheckCircle className="h-4 w-4 text-blue-400" />
+                      <CheckCircle className="h-4 w-4 text-primary" />
                     )}
                   </div>
                   {svc.description && (
-                    <p className="text-xs text-gray-400 mb-2 line-clamp-2">
+                    <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
                       {svc.description}
                     </p>
                   )}
-                  <div className="flex items-center gap-3 text-sm text-gray-400">
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
                       {svc.duration} min
                     </span>
                     {isCovered ? (
-                      <span className="text-blue-400 font-medium text-xs flex items-center gap-1">
+                      <span className="text-primary font-medium text-xs flex items-center gap-1">
                         <CreditCard className="h-3 w-3" />
                         Included {planNames ? `(${planNames})` : ""}
                       </span>
@@ -465,7 +465,7 @@ export function BookingFlow({
       {/* ── Step 2: Select Employee ── */}
       {step === 2 && (
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-white">
+          <h3 className="text-lg font-semibold text-foreground">
             Select an Employee
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -474,22 +474,22 @@ export function BookingFlow({
               className={cn(
                 "text-left p-4 rounded-lg border transition-all",
                 selectedEmployeeId === null
-                  ? "border-blue-500 bg-blue-500/10"
-                  : "border-gray-700 bg-gray-800 hover:border-gray-600",
+                  ? "border-primary bg-primary/10"
+                  : "border-border bg-card hover:border-border",
               )}
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center">
-                  <User className="h-5 w-5 text-gray-400" />
+                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                  <User className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <div className="flex-1">
-                  <p className="font-medium text-white">Any Available</p>
-                  <p className="text-xs text-gray-400">
+                  <p className="font-medium text-foreground">Any Available</p>
+                  <p className="text-xs text-muted-foreground">
                     Auto-assign to available staff
                   </p>
                 </div>
                 {selectedEmployeeId === null && (
-                  <CheckCircle className="h-4 w-4 text-blue-400" />
+                  <CheckCircle className="h-4 w-4 text-primary" />
                 )}
               </div>
             </button>
@@ -501,25 +501,25 @@ export function BookingFlow({
                 className={cn(
                   "text-left p-4 rounded-lg border transition-all",
                   selectedEmployeeId === emp.id
-                    ? "border-blue-500 bg-blue-500/10"
-                    : "border-gray-700 bg-gray-800 hover:border-gray-600",
+                    ? "border-primary bg-primary/10"
+                    : "border-border bg-card hover:border-border",
                 )}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium text-sm shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-foreground font-medium text-sm shrink-0">
                     {emp.firstName?.[0] ?? ""}
                     {emp.lastName?.[0] ?? ""}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-white">
+                    <p className="font-medium text-foreground">
                       {emp.firstName} {emp.lastName}
                     </p>
-                    <p className="text-xs text-gray-400 capitalize">
+                    <p className="text-xs text-muted-foreground capitalize">
                       {emp.role}
                     </p>
                   </div>
                   {selectedEmployeeId === emp.id && (
-                    <CheckCircle className="h-4 w-4 text-blue-400" />
+                    <CheckCircle className="h-4 w-4 text-primary" />
                   )}
                 </div>
               </button>
@@ -531,7 +531,7 @@ export function BookingFlow({
       {/* ── Step 3: Select Date & Time ── */}
       {step === 3 && (
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-white">
+          <h3 className="text-lg font-semibold text-foreground">
             Select Date & Time
           </h3>
           <div className="flex flex-col lg:flex-row gap-6">
@@ -544,29 +544,29 @@ export function BookingFlow({
                   setSelectedTime(null);
                 }}
                 disabled={{ before: new Date() }}
-                className="rounded-lg border border-gray-700 bg-gray-900"
+                className="rounded-lg border border-border bg-background"
               />
             </div>
 
             {selectedDate && (
               <div className="flex-1">
-                <p className="text-sm text-gray-400 mb-3">
+                <p className="text-sm text-muted-foreground mb-3">
                   Available slots for{" "}
-                  <span className="text-white font-medium">
+                  <span className="text-foreground font-medium">
                     {format(selectedDate, "EEEE, MMMM d")}
                   </span>
                 </p>
 
                 {slotsLoading ? (
                   <div className="flex items-center justify-center py-12">
-                    <Loader2 className="h-6 w-6 text-blue-400 animate-spin" />
+                    <Loader2 className="h-6 w-6 text-primary animate-spin" />
                   </div>
                 ) : !dayCoverage ? (
-                  <div className="text-center py-12 text-gray-500 text-sm">
+                  <div className="text-center py-12 text-muted-foreground/80 text-sm">
                     No employees available on this day. Pick another date.
                   </div>
                 ) : availableSlots.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500 text-sm">
+                  <div className="text-center py-12 text-muted-foreground/80 text-sm">
                     No available slots for this date.
                   </div>
                 ) : (
@@ -581,8 +581,8 @@ export function BookingFlow({
                           className={cn(
                             "py-2 px-3 rounded-lg text-sm font-medium transition-all relative",
                             isSelected
-                              ? "bg-blue-500 text-white"
-                              : "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700",
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-card text-muted-foreground hover:bg-accent border border-border",
                           )}
                           title={
                             employeeCount > 1
@@ -594,7 +594,7 @@ export function BookingFlow({
                         >
                           {formatSlotLabel(slot.time)}
                           {!selectedEmployeeId && employeeCount > 0 && (
-                            <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-blue-500 text-[9px] font-bold text-white flex items-center justify-center">
+                            <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-primary text-[9px] font-bold text-foreground flex items-center justify-center">
                               {employeeCount}
                             </span>
                           )}
@@ -607,7 +607,7 @@ export function BookingFlow({
             )}
 
             {!selectedDate && (
-              <div className="flex-1 flex items-center justify-center text-gray-500 text-sm">
+              <div className="flex-1 flex items-center justify-center text-muted-foreground/80 text-sm">
                 Pick a date to see available time slots
               </div>
             )}
@@ -618,17 +618,17 @@ export function BookingFlow({
       {/* ── Step 4: Payment (only if prepayment required) ── */}
       {step === 4 && needsPrepayment && (
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-white">
+          <h3 className="text-lg font-semibold text-foreground">
             Payment Method
           </h3>
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-muted-foreground">
             This service requires prepayment. Select how the client will pay.
           </p>
 
           <div className="space-y-4">
             {/* Method selector */}
             <div className="space-y-1">
-              <label className="text-sm text-gray-400 font-medium">Payment Method</label>
+              <label className="text-sm text-muted-foreground font-medium">Payment Method</label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {paymentMethods.map((method) => (
                   <button
@@ -637,17 +637,17 @@ export function BookingFlow({
                     className={cn(
                       "text-left p-3 rounded-lg border transition-all",
                       selectedMethodId === method.id
-                        ? "border-blue-500 bg-blue-500/10"
-                        : "border-gray-700 bg-gray-800 hover:border-gray-600",
+                        ? "border-primary bg-primary/10"
+                        : "border-border bg-card hover:border-border",
                     )}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-medium text-white">{method.name}</span>
+                      <span className="font-medium text-foreground">{method.name}</span>
                       {selectedMethodId === method.id && (
-                        <CheckCircle className="h-4 w-4 text-blue-400" />
+                        <CheckCircle className="h-4 w-4 text-primary" />
                       )}
                     </div>
-                    <p className="text-xs text-gray-500 mt-0.5 capitalize">{method.code}</p>
+                    <p className="text-xs text-muted-foreground/80 mt-0.5 capitalize">{method.code}</p>
                   </button>
                 ))}
               </div>
@@ -659,7 +659,7 @@ export function BookingFlow({
               if (!method || (method.code !== "credit" && !method.requiresDocs)) return null;
               return (
                 <div className="space-y-1">
-                  <label className="text-sm text-gray-400 font-medium">Installments</label>
+                  <label className="text-sm text-muted-foreground font-medium">Installments</label>
                   <div className="grid grid-cols-4 gap-2">
                     {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => (
                       <button
@@ -668,8 +668,8 @@ export function BookingFlow({
                         className={cn(
                           "py-2 rounded-lg text-sm font-medium transition-all",
                           selectedInstallments === n
-                            ? "bg-blue-500 text-white"
-                            : "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700",
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-card text-muted-foreground hover:bg-accent border border-border",
                         )}
                       >
                         {n}x
@@ -686,7 +686,7 @@ export function BookingFlow({
       {/* ── Step 4/5: Confirm ── */}
       {step === (needsPrepayment ? 5 : 4) && (
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-white">
+          <h3 className="text-lg font-semibold text-foreground">
             Confirm Appointment
           </h3>
 
@@ -694,11 +694,11 @@ export function BookingFlow({
           {!initialClientId && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <label className="text-sm text-gray-400 font-medium">
+                <label className="text-sm text-muted-foreground font-medium">
                   Select {entityType === "client" ? "Client" : "Lead"}
                 </label>
                 {!selectedClientId && !selectedLeadId && (
-                  <div className="flex bg-gray-900 rounded-md p-0.5 border border-gray-700">
+                  <div className="flex bg-card rounded-md p-0.5 border border-border">
                     <button
                       onClick={() => {
                         setEntityType("client");
@@ -707,8 +707,8 @@ export function BookingFlow({
                       className={cn(
                         "px-2 py-1 text-xs rounded-sm transition-colors",
                         entityType === "client"
-                          ? "bg-blue-600 text-white"
-                          : "text-gray-400 hover:text-gray-200",
+                          ? "bg-primary text-primary-foreground"
+                          : "text-muted-foreground hover:text-foreground",
                       )}
                     >
                       Client
@@ -721,8 +721,8 @@ export function BookingFlow({
                       className={cn(
                         "px-2 py-1 text-xs rounded-sm transition-colors",
                         entityType === "lead"
-                          ? "bg-blue-600 text-white"
-                          : "text-gray-400 hover:text-gray-200",
+                          ? "bg-primary text-primary-foreground"
+                          : "text-muted-foreground hover:text-foreground",
                       )}
                     >
                       Lead
@@ -734,12 +734,12 @@ export function BookingFlow({
               {!selectedClientId && !selectedLeadId ? (
                 <>
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       placeholder={`Search ${entityType}s by name, email, or company...`}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-9 bg-gray-800 border-gray-700 text-white"
+                      className="pl-9 bg-card border-border text-foreground"
                     />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
@@ -752,38 +752,38 @@ export function BookingFlow({
                               ? setSelectedClientId(e.id)
                               : setSelectedLeadId(e.id)
                           }
-                          className="text-left px-3 py-2 rounded-lg border text-sm transition-all border-gray-700 bg-gray-800 text-gray-300 hover:border-gray-600"
+                          className="text-left px-3 py-2 rounded-lg border text-sm transition-all border-border bg-card text-muted-foreground hover:border-border"
                         >
-                          <span className="font-medium text-white block">
+                          <span className="font-medium text-foreground block">
                             {e.firstName} {e.lastName}
                           </span>
                           {e.company && (
-                            <span className="text-gray-500 text-xs block">
+                            <span className="text-muted-foreground/80 text-xs block">
                               {e.company}
                             </span>
                           )}
                         </button>
                       ))
                     ) : (
-                      <div className="col-span-full py-4 text-center text-sm text-gray-500">
+                      <div className="col-span-full py-4 text-center text-sm text-muted-foreground/80">
                         No {entityType}s found.
                       </div>
                     )}
                   </div>
                 </>
               ) : (
-                <div className="flex items-center justify-between p-3 rounded-lg border border-blue-500 bg-blue-500/10">
+                <div className="flex items-center justify-between p-3 rounded-lg border border-primary bg-primary/10">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-600/20 text-blue-400 flex items-center justify-center font-medium shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-medium shrink-0">
                       <User className="h-5 w-5" />
                     </div>
                     <div className="min-w-0">
-                      <p className="font-medium text-white truncate">
+                      <p className="font-medium text-foreground truncate">
                         {selectedClient
                           ? `${selectedClient.firstName} ${selectedClient.lastName}`
                           : `${selectedLead?.firstName} ${selectedLead?.lastName}`}
                       </p>
-                      <p className="text-xs text-gray-400 truncate">
+                      <p className="text-xs text-muted-foreground truncate">
                         {selectedClient
                           ? selectedClient.company || "Client"
                           : selectedLead?.company || "Lead"}
@@ -798,7 +798,7 @@ export function BookingFlow({
                       setSelectedLeadId(null);
                       setSearchQuery("");
                     }}
-                    className="text-gray-400 hover:text-gray-300 hover:bg-gray-800"
+                    className="text-muted-foreground hover:text-muted-foreground hover:bg-accent"
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -808,15 +808,15 @@ export function BookingFlow({
           )}
 
           {/* Summary */}
-          <Card className="bg-gray-800 border-gray-700">
+          <Card className="bg-card border-border">
             <CardContent className="p-4 space-y-3">
               {(selectedClient || selectedLead) && (
                 <div className="flex items-center gap-2 text-sm">
-                  <User className="h-4 w-4 text-gray-400 shrink-0" />
-                  <span className="text-gray-400">
+                  <User className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-muted-foreground">
                     {selectedClient ? "Client:" : "Lead:"}
                   </span>
-                  <span className="text-white font-medium">
+                  <span className="text-foreground font-medium">
                     {selectedClient
                       ? `${selectedClient.firstName} ${selectedClient.lastName}`
                       : `${selectedLead?.firstName} ${selectedLead?.lastName}`}
@@ -826,13 +826,13 @@ export function BookingFlow({
               {selectedService && (
                 <>
                   <div className="flex items-center gap-2 text-sm">
-                    <CalendarIcon className="h-4 w-4 text-gray-400 shrink-0" />
-                    <span className="text-gray-400">Service:</span>
-                    <span className="text-white">{selectedService.name}</span>
+                    <CalendarIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <span className="text-muted-foreground">Service:</span>
+                    <span className="text-foreground">{selectedService.name}</span>
                     {(selectedService as ServiceWithCoverage).planCoverage?.isCovered ? (
                       <Badge
                         variant="outline"
-                        className="text-blue-400 border-blue-500/30 text-xs ml-auto"
+                        className="text-primary border-primary/30 text-xs ml-auto"
                       >
                         <CreditCard className="h-3 w-3 mr-1" />
                         Included
@@ -847,9 +847,9 @@ export function BookingFlow({
                     )}
                   </div>
                   <div className="flex items-center gap-2 text-sm">
-                    <Clock className="h-4 w-4 text-gray-400 shrink-0" />
-                    <span className="text-gray-400">Duration:</span>
-                    <span className="text-white">
+                    <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <span className="text-muted-foreground">Duration:</span>
+                    <span className="text-foreground">
                       {selectedService.duration} min
                     </span>
                   </div>
@@ -857,8 +857,8 @@ export function BookingFlow({
                   {/* Plan selector when multiple plans cover the same service */}
                   {(selectedService as ServiceWithCoverage).planCoverage?.isCovered &&
                     (selectedService as ServiceWithCoverage).planCoverage.plans.length > 1 && (
-                    <div className="pt-2 border-t border-gray-700">
-                      <label className="text-sm text-gray-400 font-medium block mb-2">
+                    <div className="pt-2 border-t border-border">
+                      <label className="text-sm text-muted-foreground font-medium block mb-2">
                         Use which plan?
                       </label>
                       <div className="space-y-1.5">
@@ -869,12 +869,12 @@ export function BookingFlow({
                             className={cn(
                               "w-full text-left px-3 py-2 rounded-lg border text-sm transition-all",
                               selectedSubscriptionId === p.subscriptionId
-                                ? "border-blue-500 bg-blue-500/10 text-blue-300"
-                                : "border-gray-700 bg-gray-800 text-gray-300 hover:border-gray-600",
+                                ? "border-primary bg-primary/10 text-primary/80"
+                                : "border-border bg-card text-muted-foreground hover:border-border",
                             )}
                           >
                             <span className="font-medium">{p.planName}</span>
-                            <span className="text-xs ml-2 text-gray-500">
+                            <span className="text-xs ml-2 text-muted-foreground/80">
                               ({p.remaining} remaining)
                             </span>
                           </button>
@@ -886,9 +886,9 @@ export function BookingFlow({
               )}
               {selectedDate && selectedTime && (
                 <div className="flex items-center gap-2 text-sm">
-                  <CalendarIcon className="h-4 w-4 text-gray-400 shrink-0" />
-                  <span className="text-gray-400">When:</span>
-                  <span className="text-white">
+                  <CalendarIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-muted-foreground">When:</span>
+                  <span className="text-foreground">
                     {format(selectedDate, "MMM d, yyyy")} at{" "}
                     {formatSlotLabel(selectedTime)}
                   </span>
@@ -896,32 +896,32 @@ export function BookingFlow({
               )}
               {selectedEmployee && (
                 <div className="flex items-center gap-2 text-sm">
-                  <User className="h-4 w-4 text-gray-400 shrink-0" />
-                  <span className="text-gray-400">With:</span>
-                  <span className="text-white">
+                  <User className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-muted-foreground">With:</span>
+                  <span className="text-foreground">
                     {selectedEmployee.firstName} {selectedEmployee.lastName}
                   </span>
                 </div>
               )}
               {!selectedEmployee && (
                 <div className="flex items-center gap-2 text-sm">
-                  <User className="h-4 w-4 text-gray-400 shrink-0" />
-                  <span className="text-gray-400">With:</span>
-                  <span className="text-white">Any available employee</span>
+                  <User className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-muted-foreground">With:</span>
+                  <span className="text-foreground">Any available employee</span>
                 </div>
               )}
             </CardContent>
           </Card>
 
           <div className="space-y-2">
-            <label className="text-sm text-gray-400 font-medium">
+            <label className="text-sm text-muted-foreground font-medium">
               Notes (optional)
             </label>
             <Textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Add any notes or special requests..."
-              className="bg-gray-800 border-gray-700 text-white resize-none"
+              className="bg-card border-border text-foreground resize-none"
               rows={3}
             />
           </div>
@@ -929,11 +929,11 @@ export function BookingFlow({
       )}
 
       {/* Navigation */}
-      <div className="flex justify-between pt-2 border-t border-gray-800">
+      <div className="flex justify-between pt-2 border-t border-border">
         <Button
           variant="ghost"
           onClick={goBack}
-          className="text-gray-400 hover:text-white"
+          className="text-muted-foreground hover:text-foreground"
         >
           <ChevronLeft className="h-4 w-4 mr-1" />
           {step === 1 ? "Cancel" : "Back"}
@@ -943,7 +943,7 @@ export function BookingFlow({
           <Button
             onClick={goNext}
             disabled={!canAdvance()}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             Next <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
@@ -956,7 +956,7 @@ export function BookingFlow({
               !selectedDate ||
               !selectedTime
             }
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             <CheckCircle className="h-4 w-4 mr-1" />
             Confirm Booking

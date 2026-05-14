@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { Sidebar, useSidebarState } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
 import { PaymentModalWatcher } from '@/components/payments/payment-modal-watcher';
+import { ThemeProvider } from '@/components/theme/theme-provider';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -27,8 +28,8 @@ export default function DashboardLayout({
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -38,35 +39,37 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen bg-gray-950 overflow-hidden">
-      {/* Mobile overlay */}
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 z-30 bg-black/60 lg:hidden"
-          onClick={() => setMobileOpen(false)}
-        />
-      )}
-
-      {/* Sidebar — always visible on lg+, drawer on mobile */}
-      <div
-        className={cn(
-          'fixed inset-y-0 left-0 z-40 lg:static lg:z-auto transition-transform duration-300',
-          mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
+    <ThemeProvider context="dashboard">
+      <div className="flex h-screen bg-background overflow-hidden">
+        {/* Mobile overlay */}
+        {mobileOpen && (
+          <div
+            className="fixed inset-0 z-30 bg-black/60 lg:hidden"
+            onClick={() => setMobileOpen(false)}
+          />
         )}
-      >
-        <Sidebar collapsed={collapsed} onToggle={toggle} />
-      </div>
 
-      {/* Main area */}
-      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-        <Header onMenuClick={() => setMobileOpen((v) => !v)} />
-        <main className="flex-1 overflow-y-auto p-6 bg-gray-950">
-          {children}
-        </main>
-      </div>
+        {/* Sidebar — always visible on lg+, drawer on mobile */}
+        <div
+          className={cn(
+            'fixed inset-y-0 left-0 z-40 lg:static lg:z-auto transition-transform duration-300',
+            mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
+          )}
+        >
+          <Sidebar collapsed={collapsed} onToggle={toggle} />
+        </div>
 
-      {/* Global payment modal — opens from any page */}
-      <PaymentModalWatcher />
-    </div>
+        {/* Main area */}
+        <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+          <Header onMenuClick={() => setMobileOpen((v) => !v)} />
+          <main className="flex-1 overflow-y-auto p-6 bg-background">
+            {children}
+          </main>
+        </div>
+
+        {/* Global payment modal — opens from any page */}
+        <PaymentModalWatcher />
+      </div>
+    </ThemeProvider>
   );
 }

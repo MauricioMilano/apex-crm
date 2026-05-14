@@ -26,8 +26,8 @@ import { cn } from '@/lib/utils';
 
 const STATUS_STYLES: Record<string, string> = {
   active: 'bg-green-100 text-green-700 border-green-200',
-  cancelled: 'bg-red-100 text-red-700 border-red-200',
-  expired: 'bg-gray-100 text-gray-600 border-gray-200',
+  cancelled: 'bg-destructive/10 text-destructive border-destructive/30',
+  expired: 'bg-muted text-muted-foreground border-border',
 };
 
 interface SubscriptionWithPlan {
@@ -98,18 +98,18 @@ export default function ClientPortalSubscriptionsPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">My Subscriptions</h1>
-        <p className="text-gray-500 mt-1">Manage your active and past subscription plans.</p>
+        <h1 className="text-2xl font-bold text-foreground">My Subscriptions</h1>
+        <p className="text-muted-foreground mt-1">Manage your active and past subscription plans.</p>
       </div>
 
       {loading ? (
-        <p className="text-gray-400 text-center py-12">Loading subscriptions...</p>
+        <p className="text-muted-foreground text-center py-12">Loading subscriptions...</p>
       ) : subscriptions.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <CreditCard className="h-10 w-10 mx-auto mb-3 text-gray-300" />
-            <p className="font-medium text-gray-500">No subscriptions yet</p>
-            <p className="text-sm text-gray-400 mt-1">
+            <CreditCard className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+            <p className="font-medium text-muted-foreground">No subscriptions yet</p>
+            <p className="text-sm text-muted-foreground mt-1">
               Ask your provider to assign a plan to get started.
             </p>
             <Button
@@ -137,8 +137,8 @@ export default function ClientPortalSubscriptionsPage() {
                     <div className="flex-1 min-w-0">
                       {/* Header */}
                       <div className="flex items-center gap-2 mb-2">
-                        <CreditCard className="h-5 w-5 text-blue-600 shrink-0" />
-                        <h3 className="font-semibold text-gray-900">
+                        <CreditCard className="h-5 w-5 text-primary shrink-0" />
+                        <h3 className="font-semibold text-foreground">
                           {sub.plan?.name ?? 'Unknown Plan'}
                         </h3>
                         <Badge className={cn('text-xs border', STATUS_STYLES[sub.status] ?? '')}>
@@ -147,18 +147,18 @@ export default function ClientPortalSubscriptionsPage() {
                       </div>
 
                       {/* Details grid */}
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm text-gray-600 mb-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm text-muted-foreground mb-3">
                         <span className="flex items-center gap-1.5">
-                          <DollarSign className="h-3.5 w-3.5 text-gray-400" />
+                          <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
                           ${sub.plan ? Number(sub.plan.price).toFixed(2) : '-'} / {sub.plan?.billingPeriod ?? '-'}
                         </span>
                         <span className="flex items-center gap-1.5">
-                          <CalendarDays className="h-3.5 w-3.5 text-gray-400" />
+                          <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
                           {formatDate(sub.currentPeriodStart)} –{' '}
                           {formatDate(sub.currentPeriodEnd)}
                         </span>
                         {sub.endDate && (
-                          <span className="flex items-center gap-1.5 text-red-500">
+                          <span className="flex items-center gap-1.5 text-destructive">
                             Ended {formatDate(sub.endDate)}
                           </span>
                         )}
@@ -168,10 +168,10 @@ export default function ClientPortalSubscriptionsPage() {
                       {isActive && maxPerPeriod && (
                         <div className="space-y-1 max-w-md">
                           <div className="flex justify-between text-xs">
-                            <span className="text-gray-500">Period usage</span>
+                            <span className="text-muted-foreground">Period usage</span>
                             <span className={cn(
                               'font-medium',
-                              usagePercent >= 80 ? 'text-red-500' : 'text-gray-700',
+                              usagePercent >= 80 ? 'text-destructive' : 'text-foreground/80',
                             )}>
                               {sub.appointmentsUsed} / {maxPerPeriod} appointments
                             </span>
@@ -187,7 +187,7 @@ export default function ClientPortalSubscriptionsPage() {
                       )}
 
                       {isActive && !maxPerPeriod && (
-                        <p className="text-xs text-gray-400">
+                        <p className="text-xs text-muted-foreground">
                           Unlimited appointments this period
                         </p>
                       )}
@@ -195,21 +195,21 @@ export default function ClientPortalSubscriptionsPage() {
                       {/* Expandable services */}
                       <button
                         onClick={() => setExpandedId(expandedId === sub.id ? null : sub.id)}
-                        className="text-xs text-blue-600 hover:text-blue-700 mt-2"
+                        className="text-xs text-primary hover:text-primary mt-2"
                       >
                         {expandedId === sub.id ? 'Hide details' : 'Show details'}
                       </button>
 
                       {expandedId === sub.id && sub.plan && (
-                        <div className="mt-3 p-3 bg-gray-50 rounded-lg text-sm text-gray-600">
-                          <p className="font-medium text-gray-700 mb-1">Plan Details</p>
+                        <div className="mt-3 p-3 bg-muted rounded-lg text-sm text-muted-foreground">
+                          <p className="font-medium text-foreground/80 mb-1">Plan Details</p>
                           {sub.plan.description && (
-                            <p className="text-xs text-gray-500 mb-2">{sub.plan.description}</p>
+                            <p className="text-xs text-muted-foreground mb-2">{sub.plan.description}</p>
                           )}
-                          <p>Billing: <span className="text-gray-800 capitalize font-medium">{sub.plan.billingPeriod}</span></p>
+                          <p>Billing: <span className="text-foreground capitalize font-medium">{sub.plan.billingPeriod}</span></p>
                           <p>
                             Limit:{' '}
-                            <span className="text-gray-800 font-medium">
+                            <span className="text-foreground font-medium">
                               {sub.plan.maxApptsPerPeriod
                                 ? `${sub.appointmentsUsed} of ${sub.plan.maxApptsPerPeriod} used`
                                 : 'Unlimited'}
@@ -225,7 +225,7 @@ export default function ClientPortalSubscriptionsPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => setCancelId(sub.id)}
-                        className="text-red-500 border-red-200 hover:bg-red-50 shrink-0"
+                        className="text-destructive border-destructive/30 hover:bg-destructive/10 shrink-0"
                       >
                         <XCircle className="h-3.5 w-3.5 mr-1.5" />
                         Cancel
@@ -250,7 +250,7 @@ export default function ClientPortalSubscriptionsPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Keep Active</AlertDialogCancel>
-            <AlertDialogAction onClick={handleCancel} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogAction onClick={handleCancel} className="bg-destructive hover:bg-destructive/90">
               Cancel Subscription
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -238,11 +238,11 @@ export function KanbanBoard({ onNewLead: _onNewLead }: KanbanBoardProps) {
 
   const SortIcon = ({ col }: { col: SortKey }) => {
     if (sortKey !== col)
-      return <ChevronUp className="h-3 w-3 text-gray-600 ml-1" />;
+      return <ChevronUp className="h-3 w-3 text-muted-foreground ml-1" />;
     return sortDir === 'asc' ? (
-      <ChevronUp className="h-3 w-3 text-blue-400 ml-1" />
+      <ChevronUp className="h-3 w-3 text-primary ml-1" />
     ) : (
-      <ChevronDown className="h-3 w-3 text-blue-400 ml-1" />
+      <ChevronDown className="h-3 w-3 text-primary ml-1" />
     );
   };
 
@@ -252,22 +252,22 @@ export function KanbanBoard({ onNewLead: _onNewLead }: KanbanBoardProps) {
       <div className="flex items-center gap-3 flex-wrap mb-4">
         {/* Search */}
         <div className="relative flex-1 min-w-48">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/80" />
           <Input
             placeholder="Search by name or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-8 bg-gray-900 border-gray-700 text-gray-100 placeholder:text-gray-500 h-9"
+            className="pl-8 bg-card border-border text-foreground placeholder:text-muted-foreground h-9"
           />
         </div>
 
         {/* Assignee filter */}
         <Select value={filterAssignee} onValueChange={setFilterAssignee}>
-          <SelectTrigger className="w-40 bg-gray-900 border-gray-700 text-gray-300 h-9">
-            <Filter className="h-3.5 w-3.5 mr-1.5 text-gray-500" />
+          <SelectTrigger className="w-40 bg-card border-border text-muted-foreground h-9">
+            <Filter className="h-3.5 w-3.5 mr-1.5 text-muted-foreground/80" />
             <SelectValue placeholder="Assignee" />
           </SelectTrigger>
-          <SelectContent className="bg-gray-800 border-gray-700">
+          <SelectContent className="bg-muted border-border">
             <SelectItem value="all">All Assignees</SelectItem>
             <SelectItem value="unassigned">Unassigned</SelectItem>
             {(users ?? [])
@@ -282,10 +282,10 @@ export function KanbanBoard({ onNewLead: _onNewLead }: KanbanBoardProps) {
 
         {/* Source filter */}
         <Select value={filterSource} onValueChange={setFilterSource}>
-          <SelectTrigger className="w-36 bg-gray-900 border-gray-700 text-gray-300 h-9">
+          <SelectTrigger className="w-36 bg-card border-border text-muted-foreground h-9">
             <SelectValue placeholder="Source" />
           </SelectTrigger>
-          <SelectContent className="bg-gray-800 border-gray-700">
+          <SelectContent className="bg-muted border-border">
             <SelectItem value="all">All Sources</SelectItem>
             <SelectItem value="form">Form</SelectItem>
             <SelectItem value="manual">Manual</SelectItem>
@@ -295,14 +295,14 @@ export function KanbanBoard({ onNewLead: _onNewLead }: KanbanBoardProps) {
         </Select>
 
         {/* View toggle */}
-        <div className="flex items-center gap-1 bg-gray-900 border border-gray-700 rounded-md p-1">
+        <div className="flex items-center gap-1 bg-card border border-border rounded-md p-1">
           <button
             onClick={() => setViewMode('kanban')}
             className={cn(
               'p-1.5 rounded transition-colors',
               viewMode === 'kanban'
-                ? 'bg-gray-700 text-gray-100'
-                : 'text-gray-500 hover:text-gray-300',
+                ? 'bg-accent text-foreground'
+                : 'text-muted-foreground/80 hover:text-muted-foreground',
             )}
           >
             <LayoutGrid className="h-4 w-4" />
@@ -312,8 +312,8 @@ export function KanbanBoard({ onNewLead: _onNewLead }: KanbanBoardProps) {
             className={cn(
               'p-1.5 rounded transition-colors',
               viewMode === 'list'
-                ? 'bg-gray-700 text-gray-100'
-                : 'text-gray-500 hover:text-gray-300',
+                ? 'bg-accent text-foreground'
+                : 'text-muted-foreground/80 hover:text-muted-foreground',
             )}
           >
             <List className="h-4 w-4" />
@@ -344,12 +344,12 @@ export function KanbanBoard({ onNewLead: _onNewLead }: KanbanBoardProps) {
 
       {/* List view */}
       {viewMode === 'list' && (
-        <div className="flex-1 overflow-auto rounded-lg border border-gray-800">
+        <div className="flex-1 overflow-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-gray-800 hover:bg-transparent">
+              <TableRow className="border-border hover:bg-transparent">
                 <TableHead
-                  className="text-gray-400 cursor-pointer select-none"
+                  className="text-muted-foreground cursor-pointer select-none"
                   onClick={() => toggleSort('name')}
                 >
                   <div className="flex items-center">
@@ -357,9 +357,9 @@ export function KanbanBoard({ onNewLead: _onNewLead }: KanbanBoardProps) {
                     <SortIcon col="name" />
                   </div>
                 </TableHead>
-                <TableHead className="text-gray-400">Contact</TableHead>
+                <TableHead className="text-muted-foreground">Contact</TableHead>
                 <TableHead
-                  className="text-gray-400 cursor-pointer select-none"
+                  className="text-muted-foreground cursor-pointer select-none"
                   onClick={() => toggleSort('status')}
                 >
                   <div className="flex items-center">
@@ -368,7 +368,7 @@ export function KanbanBoard({ onNewLead: _onNewLead }: KanbanBoardProps) {
                   </div>
                 </TableHead>
                 <TableHead
-                  className="text-gray-400 cursor-pointer select-none"
+                  className="text-muted-foreground cursor-pointer select-none"
                   onClick={() => toggleSort('source')}
                 >
                   <div className="flex items-center">
@@ -376,9 +376,9 @@ export function KanbanBoard({ onNewLead: _onNewLead }: KanbanBoardProps) {
                     <SortIcon col="source" />
                   </div>
                 </TableHead>
-                <TableHead className="text-gray-400">Assigned To</TableHead>
+                <TableHead className="text-muted-foreground">Assigned To</TableHead>
                 <TableHead
-                  className="text-gray-400 cursor-pointer select-none"
+                  className="text-muted-foreground cursor-pointer select-none"
                   onClick={() => toggleSort('value')}
                 >
                   <div className="flex items-center">
@@ -386,15 +386,15 @@ export function KanbanBoard({ onNewLead: _onNewLead }: KanbanBoardProps) {
                     <SortIcon col="value" />
                   </div>
                 </TableHead>
-                <TableHead className="text-gray-400">Tags</TableHead>
+                <TableHead className="text-muted-foreground">Tags</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {sortedLeads.length === 0 && (
-                <TableRow className="border-gray-800">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={7}
-                    className="text-center text-gray-500 py-12"
+                    className="text-center text-muted-foreground/80 py-12"
                   >
                     No leads found
                   </TableCell>
@@ -410,18 +410,18 @@ export function KanbanBoard({ onNewLead: _onNewLead }: KanbanBoardProps) {
                 return (
                   <TableRow
                     key={lead.id}
-                    className="border-gray-800 hover:bg-gray-900/50 cursor-pointer"
+                    className="border-border hover:bg-card/50 cursor-pointer"
                     onClick={() => handleClickLead(lead)}
                   >
-                    <TableCell className="font-medium text-gray-100">
+                    <TableCell className="font-medium text-foreground">
                       {lead.firstName} {lead.lastName}
                       {lead.company && (
-                        <p className="text-xs text-gray-500 font-normal">
+                        <p className="text-xs text-muted-foreground/80 font-normal">
                           {lead.company}
                         </p>
                       )}
                     </TableCell>
-                    <TableCell className="text-gray-400 text-sm">
+                    <TableCell className="text-muted-foreground text-sm">
                       {lead.email && (
                         <p className="truncate max-w-40">{lead.email}</p>
                       )}
@@ -461,17 +461,17 @@ export function KanbanBoard({ onNewLead: _onNewLead }: KanbanBoardProps) {
                       {assignedUser ? (
                         <div className="flex items-center gap-2">
                           <Avatar className="h-6 w-6">
-                            <AvatarFallback className="text-[10px] bg-blue-600 text-white">
+                            <AvatarFallback className="text-[10px] bg-primary text-primary-foreground">
                               {assignedUser.firstName?.[0] ?? ''}
                               {assignedUser.lastName?.[0] ?? ''}
                             </AvatarFallback>
                           </Avatar>
-                          <span className="text-sm text-gray-300">
+                          <span className="text-sm text-muted-foreground">
                             {assignedUser.firstName} {assignedUser.lastName}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-xs text-gray-600">
+                        <span className="text-xs text-muted-foreground">
                           Unassigned
                         </span>
                       )}
@@ -487,13 +487,13 @@ export function KanbanBoard({ onNewLead: _onNewLead }: KanbanBoardProps) {
                           <Badge
                             key={tag}
                             variant="outline"
-                            className="text-xs px-1.5 py-0 h-5 bg-gray-700/50 text-gray-400 border-gray-600"
+                            className="text-xs px-1.5 py-0 h-5 bg-muted/50 text-muted-foreground border-border"
                           >
                             {tag}
                           </Badge>
                         ))}
                         {(lead.tags ?? []).length > 2 && (
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-muted-foreground/80">
                             +{(lead.tags ?? []).length - 2}
                           </span>
                         )}
@@ -509,9 +509,9 @@ export function KanbanBoard({ onNewLead: _onNewLead }: KanbanBoardProps) {
 
       {/* Lead form dialog */}
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
-        <DialogContent className="bg-gray-900 border-gray-700 max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-card border-border max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-gray-100">
+            <DialogTitle className="text-foreground">
               {editingLead ? 'Edit Lead' : 'New Lead'}
             </DialogTitle>
           </DialogHeader>
@@ -531,23 +531,23 @@ export function KanbanBoard({ onNewLead: _onNewLead }: KanbanBoardProps) {
         open={deleteTarget !== null}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
       >
-        <AlertDialogContent className="bg-gray-900 border-gray-700">
+        <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-gray-100">
+            <AlertDialogTitle className="text-foreground">
               Delete Lead
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-400">
+            <AlertDialogDescription className="text-muted-foreground">
               Are you sure you want to delete this lead? This action cannot be
               undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-gray-700 text-gray-300 hover:bg-gray-800">
+            <AlertDialogCancel className="border-border text-muted-foreground hover:bg-accent">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
-              className="bg-red-600 hover:bg-red-500 text-white"
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
             >
               Delete
             </AlertDialogAction>

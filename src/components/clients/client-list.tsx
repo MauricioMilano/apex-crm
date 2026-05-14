@@ -278,7 +278,7 @@ export function ClientList({
                         <div className="flex items-center gap-2">
                           <Avatar className="h-7 w-7">
                             <AvatarFallback
-                              className={`${getAvatarColor(fullName)} text-white text-xs`}
+                              className={`${getAvatarColor(fullName)} text-foreground text-xs`}
                             >
                               {initials}
                             </AvatarFallback>

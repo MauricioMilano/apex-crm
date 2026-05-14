@@ -119,55 +119,55 @@ export default function TeamPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-100">Team</h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-foreground">Team</h1>
+          <p className="text-muted-foreground text-sm mt-1">
             Manage your team members and their working hours.
           </p>
         </div>
-        <Button onClick={() => setInviteOpen(true)} className="bg-blue-600 hover:bg-blue-700">
+        <Button onClick={() => setInviteOpen(true)} className="bg-primary hover:bg-primary/90">
           <Plus className="h-4 w-4 mr-2" />
           Add Member
         </Button>
       </div>
 
-      <div className="rounded-lg border border-gray-800 overflow-hidden">
+      <div className="rounded-lg border border-border overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="border-gray-800 hover:bg-transparent">
-              <TableHead className="text-gray-400">Name</TableHead>
-              <TableHead className="text-gray-400">Email</TableHead>
-              <TableHead className="text-gray-400">Role</TableHead>
-              <TableHead className="text-gray-400">Status</TableHead>
-              <TableHead className="text-gray-400 w-32">Actions</TableHead>
+            <TableRow className="border-border hover:bg-transparent">
+              <TableHead className="text-muted-foreground">Name</TableHead>
+              <TableHead className="text-muted-foreground">Email</TableHead>
+              <TableHead className="text-muted-foreground">Role</TableHead>
+              <TableHead className="text-muted-foreground">Status</TableHead>
+              <TableHead className="text-muted-foreground w-32">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {teamMembers.length === 0 && (
-              <TableRow className="border-gray-800">
-                <TableCell colSpan={5} className="text-center text-gray-500 py-10">
+              <TableRow className="border-border">
+                <TableCell colSpan={5} className="text-center text-muted-foreground/80 py-10">
                   No team members yet.
                 </TableCell>
               </TableRow>
             )}
             {teamMembers.map((user) => (
               <>
-                <TableRow key={user.id} className="border-gray-800 hover:bg-gray-800/50">
-                  <TableCell className="text-gray-100 font-medium">
+                <TableRow key={user.id} className="border-border hover:bg-accent/50">
+                  <TableCell className="text-foreground font-medium">
                     {user.firstName} {user.lastName}
                   </TableCell>
-                  <TableCell className="text-gray-400">{user.email}</TableCell>
+                  <TableCell className="text-muted-foreground">{user.email}</TableCell>
                   <TableCell>
                     {editingRole === user.id ? (
                       <Select
                         value={user.role}
                         onValueChange={(v) => handleRoleChange(user.id, v as UserRole)}
                       >
-                        <SelectTrigger className="bg-gray-800 border-gray-700 text-gray-100 h-8 w-32">
+                        <SelectTrigger className="bg-muted border-border text-foreground h-8 w-32">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="bg-gray-800 border-gray-700">
-                          <SelectItem value="admin" className="text-gray-100 focus:bg-gray-700">Admin</SelectItem>
-                          <SelectItem value="employee" className="text-gray-100 focus:bg-gray-700">Employee</SelectItem>
+                        <SelectContent className="bg-muted border-border">
+                          <SelectItem value="admin" className="text-foreground focus:bg-accent">Admin</SelectItem>
+                          <SelectItem value="employee" className="text-foreground focus:bg-accent">Employee</SelectItem>
                         </SelectContent>
                       </Select>
                     ) : (
@@ -180,12 +180,12 @@ export default function TeamPage() {
                           className={
                             user.role === 'admin'
                               ? 'border-purple-500/50 text-purple-400'
-                              : 'border-blue-500/50 text-blue-400'
+                              : 'border-primary/50 text-primary'
                           }
                         >
                           {user.role}
                         </Badge>
-                        <Pencil className="h-3 w-3 text-gray-600 group-hover:text-gray-400" />
+                        <Pencil className="h-3 w-3 text-muted-foreground group-hover:text-muted-foreground" />
                       </button>
                     )}
                   </TableCell>
@@ -193,7 +193,7 @@ export default function TeamPage() {
                     <Switch
                       checked={user.isActive}
                       onCheckedChange={() => handleToggleActive(user)}
-                      className="data-[state=checked]:bg-blue-600"
+                      className="data-[state=checked]:bg-primary"
                     />
                   </TableCell>
                   <TableCell>
@@ -201,7 +201,7 @@ export default function TeamPage() {
                       <Button
                         size="icon"
                         variant="ghost"
-                        className="h-8 w-8 text-gray-400 hover:text-red-400"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive/80"
                         onClick={() => setDeleteId(user.id)}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -217,62 +217,62 @@ export default function TeamPage() {
 
       {/* Invite Dialog */}
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
-        <DialogContent className="bg-gray-900 border-gray-800 text-gray-100 max-w-md">
+        <DialogContent className="bg-card border-border text-foreground max-w-md">
           <DialogHeader>
             <DialogTitle>Add Team Member</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-gray-300">First Name</Label>
+                <Label className="text-muted-foreground">First Name</Label>
                 <Input
                   value={invite.firstName}
                   onChange={(e) => setInvite((f) => ({ ...f, firstName: e.target.value }))}
-                  className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500"
+                  className="bg-muted border-border text-foreground focus:border-primary"
                   placeholder="Jane"
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-gray-300">Last Name</Label>
+                <Label className="text-muted-foreground">Last Name</Label>
                 <Input
                   value={invite.lastName}
                   onChange={(e) => setInvite((f) => ({ ...f, lastName: e.target.value }))}
-                  className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500"
+                  className="bg-muted border-border text-foreground focus:border-primary"
                   placeholder="Doe"
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-gray-300">Email *</Label>
+              <Label className="text-muted-foreground">Email *</Label>
               <Input
                 type="email"
                 value={invite.email}
                 onChange={(e) => setInvite((f) => ({ ...f, email: e.target.value }))}
-                className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500"
+                className="bg-muted border-border text-foreground focus:border-primary"
                 placeholder="jane@example.com"
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-gray-300">Role</Label>
+              <Label className="text-muted-foreground">Role</Label>
               <Select
                 value={invite.role}
                 onValueChange={(v) => setInvite((f) => ({ ...f, role: v as UserRole }))}
               >
-                <SelectTrigger className="bg-gray-800 border-gray-700 text-gray-100">
+                <SelectTrigger className="bg-muted border-border text-foreground">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700">
-                  <SelectItem value="admin" className="text-gray-100 focus:bg-gray-700">Admin</SelectItem>
-                  <SelectItem value="employee" className="text-gray-100 focus:bg-gray-700">Employee</SelectItem>
+                <SelectContent className="bg-muted border-border">
+                  <SelectItem value="admin" className="text-foreground focus:bg-accent">Admin</SelectItem>
+                  <SelectItem value="employee" className="text-foreground focus:bg-accent">Employee</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setInviteOpen(false)} className="text-gray-400">
+            <Button variant="ghost" onClick={() => setInviteOpen(false)} className="text-muted-foreground">
               Cancel
             </Button>
-            <Button onClick={handleInvite} className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={handleInvite} className="bg-primary hover:bg-primary/90">
               Add Member
             </Button>
           </DialogFooter>
@@ -281,20 +281,20 @@ export default function TeamPage() {
 
       {/* Delete confirmation */}
       <AlertDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
-        <AlertDialogContent className="bg-gray-900 border-gray-800 text-gray-100">
+        <AlertDialogContent className="bg-card border-border text-foreground">
           <AlertDialogHeader>
             <AlertDialogTitle>Remove Team Member</AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-400">
+            <AlertDialogDescription className="text-muted-foreground">
               This will permanently remove this team member. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700">
+            <AlertDialogCancel className="bg-muted border-border text-muted-foreground hover:bg-accent">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
             >
               Remove
             </AlertDialogAction>

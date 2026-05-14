@@ -250,11 +250,11 @@ export default function ReportsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Financial Reports</h1>
+        <h1 className="text-2xl font-bold text-foreground">Financial Reports</h1>
         <Button
           onClick={handleExportCSV}
           variant="outline"
-          className="border-gray-700 text-gray-300 hover:bg-gray-800 gap-2"
+          className="border-border text-foreground/90 hover:bg-accent gap-2"
         >
           <Download className="h-4 w-4" />
           Export CSV
@@ -262,11 +262,11 @@ export default function ReportsPage() {
       </div>
 
       {/* Filters */}
-      <Card className="bg-gray-900 border-gray-800">
+      <Card className="bg-card border-border">
         <CardContent className="pt-4">
           <div className="flex flex-wrap items-end gap-4">
             <div className="space-y-1">
-              <Label className="text-gray-400 text-xs">From</Label>
+              <Label className="text-muted-foreground text-xs">From</Label>
               <Input
                 type="date"
                 value={dateFrom}
@@ -274,11 +274,11 @@ export default function ReportsPage() {
                   setDateFrom(e.target.value);
                   setPage(0);
                 }}
-                className="bg-gray-800 border-gray-700 text-white"
+                className="bg-muted border-border text-foreground"
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-gray-400 text-xs">To</Label>
+              <Label className="text-muted-foreground text-xs">To</Label>
               <Input
                 type="date"
                 value={dateTo}
@@ -286,11 +286,11 @@ export default function ReportsPage() {
                   setDateTo(e.target.value);
                   setPage(0);
                 }}
-                className="bg-gray-800 border-gray-700 text-white"
+                className="bg-muted border-border text-foreground"
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-gray-400 text-xs">Type</Label>
+              <Label className="text-muted-foreground text-xs">Type</Label>
               <Select
                 value={typeFilter}
                 onValueChange={(v) => {
@@ -298,10 +298,10 @@ export default function ReportsPage() {
                   setPage(0);
                 }}
               >
-                <SelectTrigger className="bg-gray-800 border-gray-700 text-white w-40">
+                <SelectTrigger className="bg-muted border-border text-foreground w-40">
                   <SelectValue placeholder="All types" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectContent className="bg-muted border-border">
                   <SelectItem value="all">All types</SelectItem>
                   <SelectItem value="appointment">Appointments</SelectItem>
                   <SelectItem value="subscription">Subscriptions</SelectItem>
@@ -309,7 +309,7 @@ export default function ReportsPage() {
               </Select>
             </div>
             <div className="space-y-1">
-              <Label className="text-gray-400 text-xs">Payment Method</Label>
+              <Label className="text-muted-foreground text-xs">Payment Method</Label>
               <Select
                 value={methodFilter}
                 onValueChange={(v) => {
@@ -317,10 +317,10 @@ export default function ReportsPage() {
                   setPage(0);
                 }}
               >
-                <SelectTrigger className="bg-gray-800 border-gray-700 text-white w-40">
+                <SelectTrigger className="bg-muted border-border text-foreground w-40">
                   <SelectValue placeholder="All methods" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectContent className="bg-muted border-border">
                   <SelectItem value="all">All methods</SelectItem>
                   {paymentMethods.filter((m) => m.isActive).map((m) => (
                     <SelectItem key={m.id} value={m.id}>
@@ -336,9 +336,9 @@ export default function ReportsPage() {
 
       {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-card border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Total Revenue
             </CardTitle>
             <div className="p-2 rounded-lg bg-yellow-500/20 text-yellow-400">
@@ -346,31 +346,31 @@ export default function ReportsPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">
+            <div className="text-2xl font-bold text-foreground">
               {loading ? '...' : formatCurrency(totalRevenue)}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-card border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Payments
             </CardTitle>
-            <div className="p-2 rounded-lg bg-blue-500/20 text-blue-400">
+            <div className="p-2 rounded-lg bg-primary/20 text-primary">
               <CreditCard className="h-4 w-4" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">
+            <div className="text-2xl font-bold text-foreground">
               {loading ? '...' : totalPaymentsCount}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-card border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Average Payment
             </CardTitle>
             <div className="p-2 rounded-lg bg-purple-500/20 text-purple-400">
@@ -378,20 +378,20 @@ export default function ReportsPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">
+            <div className="text-2xl font-bold text-foreground">
               {loading ? '...' : formatCurrency(averagePayment)}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-card border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               vs Previous Period
             </CardTitle>
             <div className={cn(
               'p-2 rounded-lg',
-              revenueTrend >= 0 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400',
+              revenueTrend >= 0 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-destructive/20 text-destructive/80',
             )}>
               {revenueTrend >= 0
                 ? <TrendingUp className="h-4 w-4" />
@@ -400,7 +400,7 @@ export default function ReportsPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">
+            <div className="text-2xl font-bold text-foreground">
               {loading ? '...' : `${revenueTrend >= 0 ? '+' : ''}${revenueTrend.toFixed(1)}%`}
             </div>
           </CardContent>
@@ -410,13 +410,13 @@ export default function ReportsPage() {
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Monthly chart */}
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-card border-border">
           <CardHeader>
-            <CardTitle className="text-white text-base">Revenue Over Time</CardTitle>
+            <CardTitle className="text-foreground text-base">Revenue Over Time</CardTitle>
           </CardHeader>
           <CardContent>
             {chartData.length === 0 ? (
-              <p className="text-gray-500 text-sm text-center py-8">No payment data available.</p>
+              <p className="text-muted-foreground text-sm text-center py-8">No payment data available.</p>
             ) : (
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
@@ -453,16 +453,16 @@ export default function ReportsPage() {
         </Card>
 
         {/* Distribution by method (pie chart) */}
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-card border-border">
           <CardHeader>
-            <CardTitle className="text-white text-base flex items-center gap-2">
-              <PieChart className="h-4 w-4 text-gray-400" />
+            <CardTitle className="text-foreground text-base flex items-center gap-2">
+              <PieChart className="h-4 w-4 text-muted-foreground" />
               Revenue by Payment Method
             </CardTitle>
           </CardHeader>
           <CardContent>
             {methodDistribution.length === 0 ? (
-              <p className="text-gray-500 text-sm text-center py-8">No payment data available.</p>
+              <p className="text-muted-foreground text-sm text-center py-8">No payment data available.</p>
             ) : (
               <div className="h-72 flex items-center">
                 <ResponsiveContainer width="100%" height="100%">
@@ -504,41 +504,41 @@ export default function ReportsPage() {
       </div>
 
       {/* Installments Receivable */}
-      <Card className="bg-gray-900 border-gray-800">
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-white text-base">Installments Receivable</CardTitle>
+          <CardTitle className="text-foreground text-base">Installments Receivable</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {receivables.length === 0 ? (
-            <p className="text-gray-500 text-sm text-center py-8">No installment receivables.</p>
+            <p className="text-muted-foreground text-sm text-center py-8">No installment receivables.</p>
           ) : (
             <Table>
               <TableHeader>
-                <TableRow className="border-gray-800 hover:bg-transparent">
-                  <TableHead className="text-gray-500 text-xs">Date</TableHead>
-                  <TableHead className="text-gray-500 text-xs">Method</TableHead>
-                  <TableHead className="text-gray-500 text-xs">Total</TableHead>
-                  <TableHead className="text-gray-500 text-xs">Per Installment</TableHead>
-                  <TableHead className="text-gray-500 text-xs">Remaining</TableHead>
-                  <TableHead className="text-gray-500 text-xs">Projected Receivable</TableHead>
+                <TableRow className="border-border hover:bg-transparent">
+                  <TableHead className="text-muted-foreground text-xs">Date</TableHead>
+                  <TableHead className="text-muted-foreground text-xs">Method</TableHead>
+                  <TableHead className="text-muted-foreground text-xs">Total</TableHead>
+                  <TableHead className="text-muted-foreground text-xs">Per Installment</TableHead>
+                  <TableHead className="text-muted-foreground text-xs">Remaining</TableHead>
+                  <TableHead className="text-muted-foreground text-xs">Projected Receivable</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {receivables.map((r) => (
-                  <TableRow key={r.id} className="border-gray-800 hover:bg-gray-800/50">
-                    <TableCell className="py-3 text-sm text-gray-300">
+                  <TableRow key={r.id} className="border-border hover:bg-accent/50">
+                    <TableCell className="py-3 text-sm text-foreground/90">
                       {format(parseISO(r.paidAt), 'MMM d, yyyy')}
                     </TableCell>
-                    <TableCell className="py-3 text-sm text-gray-300">
+                    <TableCell className="py-3 text-sm text-foreground/90">
                       {r.methodName}
                     </TableCell>
-                    <TableCell className="py-3 text-sm text-white font-medium">
+                    <TableCell className="py-3 text-sm text-foreground font-medium">
                       {formatCurrency(r.amount)}
                     </TableCell>
-                    <TableCell className="py-3 text-sm text-gray-300">
+                    <TableCell className="py-3 text-sm text-foreground/90">
                       {formatCurrency(r.perInstallment)}
                     </TableCell>
-                    <TableCell className="py-3 text-sm text-gray-300">
+                    <TableCell className="py-3 text-sm text-foreground/90">
                       {r.remaining}/{r.installments}
                     </TableCell>
                     <TableCell className="py-3 text-sm text-yellow-400 font-medium">
@@ -553,52 +553,52 @@ export default function ReportsPage() {
       </Card>
 
       {/* Payment table */}
-      <Card className="bg-gray-900 border-gray-800">
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-white text-base">Payment History</CardTitle>
+          <CardTitle className="text-foreground text-base">Payment History</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow className="border-gray-800 hover:bg-transparent">
-                <TableHead className="text-gray-500 text-xs">Date</TableHead>
-                <TableHead className="text-gray-500 text-xs">Description</TableHead>
-                <TableHead className="text-gray-500 text-xs">Method</TableHead>
-                <TableHead className="text-gray-500 text-xs">Type</TableHead>
-                <TableHead className="text-gray-500 text-xs">Amount</TableHead>
-                <TableHead className="text-gray-500 text-xs">Status</TableHead>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground text-xs">Date</TableHead>
+                <TableHead className="text-muted-foreground text-xs">Description</TableHead>
+                <TableHead className="text-muted-foreground text-xs">Method</TableHead>
+                <TableHead className="text-muted-foreground text-xs">Type</TableHead>
+                <TableHead className="text-muted-foreground text-xs">Amount</TableHead>
+                <TableHead className="text-muted-foreground text-xs">Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-gray-600 py-6">
+                  <TableCell colSpan={6} className="text-center text-muted-foreground py-6">
                     Loading...
                   </TableCell>
                 </TableRow>
               ) : pagePayments.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-gray-600 py-6">
+                  <TableCell colSpan={6} className="text-center text-muted-foreground py-6">
                     No payments found.
                   </TableCell>
                 </TableRow>
               ) : (
                 pagePayments.map((p) => (
-                  <TableRow key={p.id} className="border-gray-800 hover:bg-gray-800/50">
-                    <TableCell className="py-3 text-sm text-gray-300">
+                  <TableRow key={p.id} className="border-border hover:bg-accent/50">
+                    <TableCell className="py-3 text-sm text-foreground/90">
                       {format(parseISO(p.paidAt), 'MMM d, yyyy')}
                     </TableCell>
-                    <TableCell className="py-3 text-sm text-white">
+                    <TableCell className="py-3 text-sm text-foreground">
                       {p.description || `${p.referenceType} payment`}
                     </TableCell>
-                    <TableCell className="py-3 text-sm text-gray-400">
+                    <TableCell className="py-3 text-sm text-muted-foreground">
                       {getMethodName(p) || '—'}
                     </TableCell>
                     <TableCell className="py-3">
                       <span className={cn(
                         'text-xs px-2 py-0.5 rounded-full',
                         p.referenceType === 'appointment'
-                          ? 'bg-blue-500/20 text-blue-400'
+                          ? 'bg-primary/20 text-primary'
                           : 'bg-emerald-500/20 text-emerald-400',
                       )}>
                         {p.referenceType}
@@ -606,7 +606,7 @@ export default function ReportsPage() {
                     </TableCell>
                     <TableCell className={cn(
                       'py-3 text-sm font-medium',
-                      p.amount < 0 ? 'text-red-400' : 'text-gray-100',
+                      p.amount < 0 ? 'text-destructive/80' : 'text-foreground',
                     )}>
                       {p.amount < 0 ? '-' : ''}{formatCurrency(Math.abs(p.amount))}
                     </TableCell>
@@ -614,10 +614,10 @@ export default function ReportsPage() {
                       <span className={cn(
                         'text-xs px-2 py-0.5 rounded-full',
                         p.status === 'completed' && 'bg-green-500/20 text-green-400',
-                        p.status === 'refunded' && 'bg-red-500/20 text-red-400',
+                        p.status === 'refunded' && 'bg-destructive/20 text-destructive/80',
                         p.status === 'adjusted' && 'bg-gray-500/20 text-gray-400',
                         p.status === 'pending' && 'bg-yellow-500/20 text-yellow-400',
-                        p.status === 'failed' && 'bg-red-500/20 text-red-400',
+                        p.status === 'failed' && 'bg-destructive/20 text-destructive/80',
                       )}>
                         {p.status}
                       </span>
@@ -630,8 +630,8 @@ export default function ReportsPage() {
 
           {/* Pagination */}
           {pageCount > 1 && (
-            <div className="flex items-center justify-between px-4 py-3 border-t border-gray-800">
-              <span className="text-sm text-gray-500">
+            <div className="flex items-center justify-between px-4 py-3 border-t border-border">
+              <span className="text-sm text-muted-foreground">
                 Page {page + 1} of {pageCount}
               </span>
               <div className="flex gap-2">
@@ -640,7 +640,7 @@ export default function ReportsPage() {
                   size="sm"
                   disabled={page === 0}
                   onClick={() => setPage((p) => p - 1)}
-                  className="border-gray-700 text-gray-300"
+                  className="border-border text-foreground/90"
                 >
                   Previous
                 </Button>
@@ -649,7 +649,7 @@ export default function ReportsPage() {
                   size="sm"
                   disabled={page >= pageCount - 1}
                   onClick={() => setPage((p) => p + 1)}
-                  className="border-gray-700 text-gray-300"
+                  className="border-border text-foreground/90"
                 >
                   Next
                 </Button>

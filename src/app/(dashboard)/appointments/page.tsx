@@ -62,9 +62,9 @@ import {
 
 const STATUS_CONFIG: Record<AppointmentStatus, { label: string; className: string }> = {
   pending: { label: 'Pending', className: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
-  confirmed: { label: 'Confirmed', className: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
+  confirmed: { label: 'Confirmed', className: 'bg-primary/20 text-primary border-primary/30' },
   completed: { label: 'Completed', className: 'bg-green-500/20 text-green-400 border-green-500/30' },
-  cancelled: { label: 'Cancelled', className: 'bg-red-500/20 text-red-400 border-red-500/30' },
+  cancelled: { label: 'Cancelled', className: 'bg-destructive/20 text-destructive/80 border-destructive/30' },
   no_show: { label: 'No Show', className: 'bg-gray-500/20 text-gray-400 border-gray-500/30' },
 };
 
@@ -155,9 +155,9 @@ export default function AppointmentsPage() {
   }
 
   function sortIcon(key: SortKey) {
-    if (sortKey !== key) return <span className="ml-1 text-gray-700">↕</span>;
+    if (sortKey !== key) return <span className="ml-1 text-foreground/80">↕</span>;
     return (
-      <span className="ml-1 text-blue-400">{sortDir === 'asc' ? '↑' : '↓'}</span>
+      <span className="ml-1 text-primary">{sortDir === 'asc' ? '↑' : '↓'}</span>
     );
   }
 
@@ -165,10 +165,10 @@ export default function AppointmentsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-2xl font-bold text-white">Appointments</h1>
+        <h1 className="text-2xl font-bold text-foreground">Appointments</h1>
         <Button
           onClick={() => setNewApptOpen(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground"
         >
           <Plus className="h-4 w-4 mr-2" />
           New Appointment
@@ -177,38 +177,38 @@ export default function AppointmentsPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="bg-gray-900 border-gray-700">
+        <Card className="bg-card border-border">
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center shrink-0">
-              <Calendar className="h-5 w-5 text-blue-400" />
+            <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
+              <Calendar className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">{todayCount}</p>
-              <p className="text-sm text-gray-400">Today</p>
+              <p className="text-2xl font-bold text-foreground">{todayCount}</p>
+              <p className="text-sm text-muted-foreground">Today</p>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-900 border-gray-700">
+        <Card className="bg-card border-border">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center shrink-0">
               <Clock className="h-5 w-5 text-purple-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">{weekCount}</p>
-              <p className="text-sm text-gray-400">This Week</p>
+              <p className="text-2xl font-bold text-foreground">{weekCount}</p>
+              <p className="text-sm text-muted-foreground">This Week</p>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-900 border-gray-700">
+        <Card className="bg-card border-border">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-yellow-500/20 flex items-center justify-center shrink-0">
               <AlertCircle className="h-5 w-5 text-yellow-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-white">{pendingCount}</p>
-              <p className="text-sm text-gray-400">Pending Confirmation</p>
+              <p className="text-2xl font-bold text-foreground">{pendingCount}</p>
+              <p className="text-sm text-muted-foreground">Pending Confirmation</p>
             </div>
           </CardContent>
         </Card>
@@ -217,15 +217,15 @@ export default function AppointmentsPage() {
       {/* Filters */}
       <div className="flex gap-3 flex-wrap">
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-48 bg-gray-900 border-gray-700 text-gray-300">
+          <SelectTrigger className="w-48 bg-card border-border text-foreground/90">
             <SelectValue placeholder="All Statuses" />
           </SelectTrigger>
-          <SelectContent className="bg-gray-900 border-gray-700">
-            <SelectItem value="all" className="text-gray-300">
+          <SelectContent className="bg-card border-border">
+            <SelectItem value="all" className="text-foreground/90">
               All Statuses
             </SelectItem>
             {Object.entries(STATUS_CONFIG).map(([k, v]) => (
-              <SelectItem key={k} value={k} className="text-gray-300">
+              <SelectItem key={k} value={k} className="text-foreground/90">
                 {v.label}
               </SelectItem>
             ))}
@@ -233,15 +233,15 @@ export default function AppointmentsPage() {
         </Select>
 
         <Select value={employeeFilter} onValueChange={setEmployeeFilter}>
-          <SelectTrigger className="w-48 bg-gray-900 border-gray-700 text-gray-300">
+          <SelectTrigger className="w-48 bg-card border-border text-foreground/90">
             <SelectValue placeholder="All Employees" />
           </SelectTrigger>
-          <SelectContent className="bg-gray-900 border-gray-700">
-            <SelectItem value="all" className="text-gray-300">
+          <SelectContent className="bg-card border-border">
+            <SelectItem value="all" className="text-foreground/90">
               All Employees
             </SelectItem>
             {employees.map(e => (
-              <SelectItem key={e.id} value={e.id} className="text-gray-300">
+              <SelectItem key={e.id} value={e.id} className="text-foreground/90">
                 {e.firstName} {e.lastName}
               </SelectItem>
             ))}
@@ -250,43 +250,43 @@ export default function AppointmentsPage() {
       </div>
 
       {/* Table */}
-      <Card className="bg-gray-900 border-gray-700">
+      <Card className="bg-card border-border">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="border-gray-700 hover:bg-transparent">
+              <TableRow className="border-border hover:bg-transparent">
                 <TableHead
-                  className="text-gray-400 cursor-pointer hover:text-white select-none"
+                  className="text-muted-foreground cursor-pointer hover:text-foreground select-none"
                   onClick={() => toggleSort('startTime')}
                 >
                   Date {sortIcon('startTime')}
                 </TableHead>
                 <TableHead
-                  className="text-gray-400 cursor-pointer hover:text-white select-none"
+                  className="text-muted-foreground cursor-pointer hover:text-foreground select-none"
                   onClick={() => toggleSort('clientName')}
                 >
                   Client {sortIcon('clientName')}
                 </TableHead>
                 <TableHead
-                  className="text-gray-400 cursor-pointer hover:text-white select-none"
+                  className="text-muted-foreground cursor-pointer hover:text-foreground select-none"
                   onClick={() => toggleSort('serviceName')}
                 >
                   Service {sortIcon('serviceName')}
                 </TableHead>
                 <TableHead
-                  className="text-gray-400 cursor-pointer hover:text-white select-none"
+                  className="text-muted-foreground cursor-pointer hover:text-foreground select-none"
                   onClick={() => toggleSort('employeeName')}
                 >
                   Employee {sortIcon('employeeName')}
                 </TableHead>
-                <TableHead className="text-gray-400">Duration</TableHead>
+                <TableHead className="text-muted-foreground">Duration</TableHead>
                 <TableHead
-                  className="text-gray-400 cursor-pointer hover:text-white select-none"
+                  className="text-muted-foreground cursor-pointer hover:text-foreground select-none"
                   onClick={() => toggleSort('status')}
                 >
                   Status {sortIcon('status')}
                 </TableHead>
-                <TableHead className="text-gray-400 text-right">Actions</TableHead>
+                <TableHead className="text-muted-foreground text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -294,7 +294,7 @@ export default function AppointmentsPage() {
                 <TableRow>
                   <TableCell
                     colSpan={7}
-                    className="text-center text-gray-500 py-12"
+                    className="text-center text-muted-foreground py-12"
                   >
                     No appointments found
                   </TableCell>
@@ -313,28 +313,28 @@ export default function AppointmentsPage() {
                 return (
                   <TableRow
                     key={appt.id}
-                    className="border-gray-700 hover:bg-gray-800/50"
+                    className="border-border hover:bg-accent/50"
                   >
-                    <TableCell className="text-gray-300">
+                    <TableCell className="text-foreground/90">
                       <p>{formatDate(start)}</p>
-                      <p className="text-xs text-gray-500">{formatTime(start)}</p>
+                      <p className="text-xs text-muted-foreground">{formatTime(start)}</p>
                     </TableCell>
-                    <TableCell className="text-gray-300">
+                    <TableCell className="text-foreground/90">
                       {client
                         ? `${client.firstName} ${client.lastName}`
                         : lead
                         ? `${lead.firstName} ${lead.lastName} (Lead)`
                         : '—'}
                     </TableCell>
-                    <TableCell className="text-gray-300">
+                    <TableCell className="text-foreground/90">
                       {service?.name ?? '—'}
                     </TableCell>
-                    <TableCell className="text-gray-300">
+                    <TableCell className="text-foreground/90">
                       {employee
                         ? `${employee.firstName} ${employee.lastName}`
                         : '—'}
                     </TableCell>
-                    <TableCell className="text-gray-300">{duration}m</TableCell>
+                    <TableCell className="text-foreground/90">{duration}m</TableCell>
                     <TableCell>
                       <Badge
                         variant="outline"
@@ -349,7 +349,7 @@ export default function AppointmentsPage() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-7 w-7 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-500/20"
+                            className="h-7 w-7 p-0 text-primary hover:text-primary/80 hover:bg-primary/20"
                             title="Confirm"
                             onClick={() =>
                               void updateAppointment(appt.id, { status: 'confirmed' })
@@ -376,7 +376,7 @@ export default function AppointmentsPage() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-7 w-7 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/20"
+                            className="h-7 w-7 p-0 text-destructive/80 hover:text-destructive/60 hover:bg-destructive/20"
                             title="Cancel"
                             onClick={() =>
                               void updateAppointment(appt.id, { status: 'cancelled' })
@@ -388,7 +388,7 @@ export default function AppointmentsPage() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-7 w-7 p-0 text-gray-400 hover:text-white"
+                          className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
                           title="View Details"
                           onClick={() =>
                             router.push(`/appointments/${appt.id}`)
@@ -399,7 +399,7 @@ export default function AppointmentsPage() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-7 w-7 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/20"
+                          className="h-7 w-7 p-0 text-destructive/80 hover:text-destructive/60 hover:bg-destructive/20"
                           title="Delete"
                           onClick={() => setDeleteId(appt.id)}
                         >
@@ -417,9 +417,9 @@ export default function AppointmentsPage() {
 
       {/* New Appointment Dialog */}
       <Dialog open={newApptOpen} onOpenChange={setNewApptOpen}>
-        <DialogContent className="max-w-2xl bg-gray-950 border-gray-700 max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl bg-background border-border max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-white">New Appointment</DialogTitle>
+            <DialogTitle className="text-foreground">New Appointment</DialogTitle>
           </DialogHeader>
           <BookingFlow
             onComplete={() => setNewApptOpen(false)}
@@ -430,22 +430,22 @@ export default function AppointmentsPage() {
 
       {/* Delete confirmation */}
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent className="bg-gray-900 border-gray-700">
+        <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">
+            <AlertDialogTitle className="text-foreground">
               Delete Appointment
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-400">
+            <AlertDialogDescription className="text-muted-foreground">
               This action cannot be undone. The appointment will be permanently
               deleted.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-gray-700 text-gray-300 hover:bg-gray-800">
+            <AlertDialogCancel className="border-border text-foreground/90 hover:bg-accent">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
               onClick={() => {
                 if (deleteId) {
                   void deleteAppointment(deleteId);

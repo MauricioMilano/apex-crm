@@ -122,12 +122,12 @@ export function LeadForm({
             name="firstName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-300">First Name</FormLabel>
+                <FormLabel className="text-muted-foreground">First Name</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="John"
                     {...field}
-                    className="bg-gray-800 border-gray-700 text-gray-100 placeholder:text-gray-500"
+                    className="bg-muted border-border text-foreground placeholder:text-muted-foreground"
                   />
                 </FormControl>
                 <FormMessage />
@@ -139,12 +139,12 @@ export function LeadForm({
             name="lastName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-300">Last Name</FormLabel>
+                <FormLabel className="text-muted-foreground">Last Name</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="Doe"
                     {...field}
-                    className="bg-gray-800 border-gray-700 text-gray-100 placeholder:text-gray-500"
+                    className="bg-muted border-border text-foreground placeholder:text-muted-foreground"
                   />
                 </FormControl>
                 <FormMessage />
@@ -160,13 +160,13 @@ export function LeadForm({
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-300">Email</FormLabel>
+                <FormLabel className="text-muted-foreground">Email</FormLabel>
                 <FormControl>
                   <Input
                     type="email"
                     placeholder="john@example.com"
                     {...field}
-                    className="bg-gray-800 border-gray-700 text-gray-100 placeholder:text-gray-500"
+                    className="bg-muted border-border text-foreground placeholder:text-muted-foreground"
                   />
                 </FormControl>
                 <FormMessage />
@@ -178,12 +178,12 @@ export function LeadForm({
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-300">Phone</FormLabel>
+                <FormLabel className="text-muted-foreground">Phone</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="+1 (555) 000-0000"
                     {...field}
-                    className="bg-gray-800 border-gray-700 text-gray-100 placeholder:text-gray-500"
+                    className="bg-muted border-border text-foreground placeholder:text-muted-foreground"
                   />
                 </FormControl>
                 <FormMessage />
@@ -199,12 +199,12 @@ export function LeadForm({
             name="company"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-300">Company</FormLabel>
+                <FormLabel className="text-muted-foreground">Company</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="Acme Inc."
                     {...field}
-                    className="bg-gray-800 border-gray-700 text-gray-100 placeholder:text-gray-500"
+                    className="bg-muted border-border text-foreground placeholder:text-muted-foreground"
                   />
                 </FormControl>
                 <FormMessage />
@@ -216,13 +216,13 @@ export function LeadForm({
             name="value"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-300">Deal Value ($)</FormLabel>
+                <FormLabel className="text-muted-foreground">Deal Value ($)</FormLabel>
                 <FormControl>
                   <Input
                     type="number"
                     placeholder="0"
                     {...field}
-                    className="bg-gray-800 border-gray-700 text-gray-100 placeholder:text-gray-500"
+                    className="bg-muted border-border text-foreground placeholder:text-muted-foreground"
                   />
                 </FormControl>
                 <FormMessage />
@@ -238,17 +238,17 @@ export function LeadForm({
             name="source"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-300">Source</FormLabel>
+                <FormLabel className="text-muted-foreground">Source</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   value={field.value ?? ''}
                 >
                   <FormControl>
-                    <SelectTrigger className="bg-gray-800 border-gray-700 text-gray-100">
+                    <SelectTrigger className="bg-muted border-border text-foreground">
                       <SelectValue placeholder="Select source" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent className="bg-gray-800 border-gray-700">
+                  <SelectContent className="bg-muted border-border">
                     <SelectItem value="form">Form</SelectItem>
                     <SelectItem value="manual">Manual</SelectItem>
                     <SelectItem value="import">Import</SelectItem>
@@ -264,14 +264,14 @@ export function LeadForm({
             name="statusId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-300">Status</FormLabel>
+                <FormLabel className="text-muted-foreground">Status</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
-                    <SelectTrigger className="bg-gray-800 border-gray-700 text-gray-100">
+                    <SelectTrigger className="bg-muted border-border text-foreground">
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent className="bg-gray-800 border-gray-700">
+                  <SelectContent className="bg-muted border-border">
                     {leadStatuses.map((s) => (
                       <SelectItem key={s.id} value={s.id}>
                         {s.name}
@@ -291,17 +291,17 @@ export function LeadForm({
           name="assignedTo"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-gray-300">Assigned To</FormLabel>
+              <FormLabel className="text-muted-foreground">Assigned To</FormLabel>
               <Select
                 onValueChange={(v) => field.onChange(v === 'unassigned' ? undefined : v)}
                 value={field.value ?? 'unassigned'}
               >
                 <FormControl>
-                  <SelectTrigger className="bg-gray-800 border-gray-700 text-gray-100">
+                  <SelectTrigger className="bg-muted border-border text-foreground">
                     <SelectValue placeholder="Unassigned" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectContent className="bg-muted border-border">
                   <SelectItem value="unassigned">Unassigned</SelectItem>
                   {users
                     .filter((u) => u.isActive)
@@ -323,14 +323,14 @@ export function LeadForm({
           name="tags"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-gray-300">
+              <FormLabel className="text-muted-foreground">
                 Tags (comma-separated)
               </FormLabel>
               <FormControl>
                 <Input
                   placeholder="hot lead, enterprise, Q2"
                   {...field}
-                  className="bg-gray-800 border-gray-700 text-gray-100 placeholder:text-gray-500"
+                  className="bg-muted border-border text-foreground placeholder:text-muted-foreground"
                 />
               </FormControl>
               <FormMessage />
@@ -344,13 +344,13 @@ export function LeadForm({
           name="notes"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-gray-300">Notes</FormLabel>
+              <FormLabel className="text-muted-foreground">Notes</FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Add notes about this lead..."
                   {...field}
                   rows={3}
-                  className="bg-gray-800 border-gray-700 text-gray-100 placeholder:text-gray-500 resize-none"
+                  className="bg-muted border-border text-foreground placeholder:text-muted-foreground resize-none"
                 />
               </FormControl>
               <FormMessage />
@@ -364,13 +364,13 @@ export function LeadForm({
             type="button"
             variant="outline"
             onClick={onCancel}
-            className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-gray-100"
+            className="border-border text-muted-foreground hover:bg-accent hover:text-foreground"
           >
             Cancel
           </Button>
           <Button
             type="submit"
-            className="bg-blue-600 hover:bg-blue-500 text-white"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             {lead ? 'Save Changes' : 'Create Lead'}
           </Button>

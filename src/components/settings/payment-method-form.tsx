@@ -54,13 +54,13 @@ export function PaymentMethodForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-gray-900 border-gray-800 text-gray-100 max-w-sm">
+      <DialogContent className="bg-card border-border text-foreground max-w-sm">
         <DialogHeader>
           <DialogTitle>{initial ? "Edit Payment Method" : "Add Payment Method"}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-2">
           <div className="space-y-2">
-            <Label className="text-gray-300">Name *</Label>
+            <Label className="text-muted-foreground">Name *</Label>
             <Input
               value={name}
               onChange={(e) => {
@@ -69,44 +69,44 @@ export function PaymentMethodForm({
                   setCode(e.target.value.toLowerCase().replace(/\s+/g, "_"));
                 }
               }}
-              className="bg-gray-800 border-gray-700 text-gray-100"
+              className="bg-muted border-border text-foreground"
               placeholder="e.g. Cartão de Crédito"
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-gray-300">Code *</Label>
+            <Label className="text-muted-foreground">Code *</Label>
             <Input
               value={code}
               onChange={(e) => setCode(e.target.value.toLowerCase().replace(/\s+/g, "_"))}
-              className="bg-gray-800 border-gray-700 text-gray-100 font-mono"
+              className="bg-muted border-border text-foreground font-mono"
               placeholder="e.g. credit"
               disabled={!!initial}
             />
-            <p className="text-xs text-gray-500">Machine-readable identifier. Cannot be changed after creation.</p>
+            <p className="text-xs text-muted-foreground/80">Machine-readable identifier. Cannot be changed after creation.</p>
           </div>
           <div className="flex items-center gap-3">
             <Switch
               id="requiresDocs"
               checked={requiresDocs}
               onCheckedChange={setRequiresDocs}
-              className="data-[state=checked]:bg-blue-600"
+              className="data-[state=checked]:bg-primary"
             />
-            <Label htmlFor="requiresDocs" className="text-gray-300 cursor-pointer">
+            <Label htmlFor="requiresDocs" className="text-muted-foreground cursor-pointer">
               Requires Documentation
             </Label>
           </div>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-muted-foreground/80">
             When enabled, the system will prompt for additional details like installments and card last four digits.
           </p>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-gray-400">
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-muted-foreground">
             Cancel
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={!name.trim() || !code.trim()}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-primary hover:bg-primary/90"
           >
             {initial ? "Save Changes" : "Create"}
           </Button>

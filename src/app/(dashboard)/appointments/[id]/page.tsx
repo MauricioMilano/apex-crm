@@ -50,9 +50,9 @@ import {
 
 const STATUS_CONFIG: Record<AppointmentStatus, { label: string; className: string }> = {
   pending: { label: 'Pending', className: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
-  confirmed: { label: 'Confirmed', className: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
+  confirmed: { label: 'Confirmed', className: 'bg-primary/20 text-primary border-primary/30' },
   completed: { label: 'Completed', className: 'bg-green-500/20 text-green-400 border-green-500/30' },
-  cancelled: { label: 'Cancelled', className: 'bg-red-500/20 text-red-400 border-red-500/30' },
+  cancelled: { label: 'Cancelled', className: 'bg-destructive/20 text-destructive/80 border-destructive/30' },
   no_show: { label: 'No Show', className: 'bg-gray-500/20 text-gray-400 border-gray-500/30' },
 };
 
@@ -208,11 +208,11 @@ export default function AppointmentDetailPage() {
   if (!appt) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <AlertCircle className="h-12 w-12 text-gray-600 mb-3" />
-        <p className="text-gray-400 text-lg mb-4">{fetchingAppt ? 'Loading appointment...' : 'Appointment not found'}</p>
+        <AlertCircle className="h-12 w-12 text-muted-foreground mb-3" />
+        <p className="text-muted-foreground text-lg mb-4">{fetchingAppt ? 'Loading appointment...' : 'Appointment not found'}</p>
         <Button
           variant="ghost"
-          className="text-gray-400 hover:text-white"
+          className="text-muted-foreground hover:text-foreground"
           onClick={() => router.push('/appointments')}
         >
           <ChevronLeft className="h-4 w-4 mr-1" /> Go Back
@@ -276,13 +276,13 @@ export default function AppointmentDetailPage() {
             variant="ghost"
             size="sm"
             onClick={() => router.push('/appointments')}
-            className="text-gray-400 hover:text-white"
+            className="text-muted-foreground hover:text-foreground"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-xl font-bold text-white">Appointment Details</h1>
-            <p className="text-xs text-gray-500">{appt.id}</p>
+            <h1 className="text-xl font-bold text-foreground">Appointment Details</h1>
+            <p className="text-xs text-muted-foreground">{appt.id}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -292,7 +292,7 @@ export default function AppointmentDetailPage() {
           <Button
             variant="outline"
             size="sm"
-            className="border-red-500/50 text-red-400 hover:bg-red-500/20"
+            className="border-destructive/50 text-destructive/80 hover:bg-destructive/20"
             onClick={() => setDeleteOpen(true)}
           >
             <Trash2 className="h-4 w-4 mr-1" /> Delete
@@ -304,40 +304,40 @@ export default function AppointmentDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           {/* Appointment Info */}
-          <Card className="bg-gray-900 border-gray-700">
+          <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-white text-base">Appointment Info</CardTitle>
+          <CardTitle className="text-foreground text-base">Appointment Info</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-4">
             <div className="flex items-start gap-2 text-sm">
-              <Calendar className="h-4 w-4 text-gray-400 mt-0.5 shrink-0" />
+              <Calendar className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
               <div>
-                <p className="text-gray-400 text-xs">Date</p>
-                <p className="text-white">{formatDate(start)}</p>
+                <p className="text-muted-foreground text-xs">Date</p>
+                <p className="text-foreground">{formatDate(start)}</p>
               </div>
             </div>
             <div className="flex items-start gap-2 text-sm">
-              <Clock className="h-4 w-4 text-gray-400 mt-0.5 shrink-0" />
+              <Clock className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
               <div>
-                <p className="text-gray-400 text-xs">Time</p>
-                <p className="text-white">
+                <p className="text-muted-foreground text-xs">Time</p>
+                <p className="text-foreground">
                   {formatTime(start)} – {formatTime(end)}
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-2 text-sm">
-              <Clock className="h-4 w-4 text-gray-400 mt-0.5 shrink-0" />
+              <Clock className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
               <div>
-                <p className="text-gray-400 text-xs">Duration</p>
-                <p className="text-white">{duration} minutes</p>
+                <p className="text-muted-foreground text-xs">Duration</p>
+                <p className="text-foreground">{duration} minutes</p>
               </div>
             </div>
             <div className="flex items-start gap-2 text-sm">
-              <Building2 className="h-4 w-4 text-gray-400 mt-0.5 shrink-0" />
+              <Building2 className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
               <div>
-                <p className="text-gray-400 text-xs">Created</p>
-                <p className="text-white">
+                <p className="text-muted-foreground text-xs">Created</p>
+                <p className="text-foreground">
                   {formatDate(appt.createdAt)}
                 </p>
               </div>
@@ -345,7 +345,7 @@ export default function AppointmentDetailPage() {
           </div>
 
           {appt.cancelReason && (
-            <div className="mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-300">
+            <div className="mt-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive/60">
               <span className="font-medium">Cancel reason:</span> {appt.cancelReason}
             </div>
           )}
@@ -354,37 +354,37 @@ export default function AppointmentDetailPage() {
 
           {/* Client */}
           {client && (
-            <Card className="bg-gray-900 border-gray-700">
+            <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle className="text-white text-base flex items-center gap-2">
-                  <User className="h-4 w-4 text-gray-400" /> Client
+                <CardTitle className="text-foreground text-base flex items-center gap-2">
+                  <User className="h-4 w-4 text-muted-foreground" /> Client
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium text-sm shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-foreground font-medium text-sm shrink-0">
                     {client.firstName?.[0] ?? ''}
                     {client.lastName?.[0] ?? ''}
                   </div>
                   <div className="flex-1 min-w-0">
                     <Link
                       href={`/clients/${client.id}`}
-                      className="text-white font-medium hover:text-blue-400 transition-colors"
+                      className="text-foreground font-medium hover:text-primary transition-colors"
                     >
                       {client.firstName} {client.lastName}
                     </Link>
                     {client.company && (
-                      <p className="text-sm text-gray-400">{client.company}</p>
+                      <p className="text-sm text-muted-foreground">{client.company}</p>
                     )}
                     {client.email && (
-                      <p className="text-sm text-gray-500">{client.email}</p>
+                      <p className="text-sm text-muted-foreground">{client.email}</p>
                     )}
                   </div>
                   <Link href={`/clients/${client.id}`}>
                     <Button
                       variant="outline"
                       size="sm"
-                      className="border-gray-700 text-gray-400 hover:text-white shrink-0"
+                      className="border-border text-muted-foreground hover:text-foreground shrink-0"
                     >
                       View Client
                     </Button>
@@ -396,20 +396,20 @@ export default function AppointmentDetailPage() {
 
           {/* Service */}
           {service && (
-            <Card className="bg-gray-900 border-gray-700">
+            <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle className="text-white text-base flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-gray-400" /> Service
+                <CardTitle className="text-foreground text-base flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-muted-foreground" /> Service
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-white font-medium">{service.name}</p>
+                    <p className="text-foreground font-medium">{service.name}</p>
                     {service.description && (
-                      <p className="text-sm text-gray-400 mt-1">{service.description}</p>
+                      <p className="text-sm text-muted-foreground mt-1">{service.description}</p>
                     )}
-                    <p className="text-sm text-gray-500 mt-1">{service.duration} min</p>
+                    <p className="text-sm text-muted-foreground mt-1">{service.duration} min</p>
                   </div>
                   <Badge
                     variant="outline"
@@ -426,25 +426,25 @@ export default function AppointmentDetailPage() {
         <div className="space-y-6">
           {/* Employee */}
           {employee && (
-            <Card className="bg-gray-900 border-gray-700">
+            <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle className="text-white text-base flex items-center gap-2">
-                  <User className="h-4 w-4 text-gray-400" /> Employee
+                <CardTitle className="text-foreground text-base flex items-center gap-2">
+                  <User className="h-4 w-4 text-muted-foreground" /> Employee
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center text-white font-medium text-sm shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center text-foreground font-medium text-sm shrink-0">
                     {employee.firstName?.[0] ?? ''}
                     {employee.lastName?.[0] ?? ''}
                   </div>
                   <div>
-                    <p className="text-white font-medium">
+                    <p className="text-foreground font-medium">
                       {employee.firstName} {employee.lastName}
                     </p>
-                    <p className="text-sm text-gray-400 capitalize">{employee.role}</p>
+                    <p className="text-sm text-muted-foreground capitalize">{employee.role}</p>
                     {employee.email && (
-                      <p className="text-sm text-gray-500">{employee.email}</p>
+                      <p className="text-sm text-muted-foreground">{employee.email}</p>
                     )}
                   </div>
                 </div>
@@ -453,14 +453,14 @@ export default function AppointmentDetailPage() {
           )}
 
           {/* Status Management */}
-          <Card className="bg-gray-900 border-gray-700">
+          <Card className="bg-card border-border">
             <CardHeader>
-              <CardTitle className="text-white text-base">Status Management</CardTitle>
+              <CardTitle className="text-foreground text-base">Status Management</CardTitle>
             </CardHeader>
             <CardContent>
               <StatusSelect value={appt.status} onChange={handleStatusChange} allowed={allowedStatuses} disabled={!canManage} />
               {!canManage && (
-                <p className="text-sm text-gray-500 mt-3">
+                <p className="text-sm text-muted-foreground mt-3">
                   This appointment is {statusCfg.label.toLowerCase()}. No further
                   status changes available.
                 </p>
@@ -469,9 +469,9 @@ export default function AppointmentDetailPage() {
           </Card>
 
           {/* Payments */}
-          <Card className="bg-gray-900 border-gray-700">
+          <Card className="bg-card border-border">
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-white text-base flex items-center gap-2">
+              <CardTitle className="text-foreground text-base flex items-center gap-2">
                 <DollarSign className="h-4 w-4 text-yellow-400" />
                 Payments
               </CardTitle>
@@ -482,7 +482,7 @@ export default function AppointmentDetailPage() {
                   if (!appt) return;
                   triggerPaymentModal(appt.id, service?.price ?? 0);
                 }}
-                className="border-gray-700 text-gray-300 hover:text-white"
+                className="border-border text-foreground/90 hover:text-foreground"
               >
                 <Plus className="h-3.5 w-3.5 mr-1" />
                 Record
@@ -490,7 +490,7 @@ export default function AppointmentDetailPage() {
             </CardHeader>
             <CardContent>
               {appointmentPayments.length === 0 ? (
-                <p className="text-sm text-gray-500 text-center py-4">
+                <p className="text-sm text-muted-foreground text-center py-4">
                   No payments recorded
                 </p>
               ) : (
@@ -500,7 +500,7 @@ export default function AppointmentDetailPage() {
                     return (
                       <div
                         key={p.id}
-                        className="flex items-center justify-between p-2 rounded-lg bg-gray-800/50"
+                        className="flex items-center justify-between p-2 rounded-lg bg-muted/50"
                       >
                         <div className="flex items-center gap-2">
                           <span className={cn(
@@ -508,25 +508,25 @@ export default function AppointmentDetailPage() {
                             p.status === 'completed' && 'bg-green-500/20 text-green-400',
                             p.status === 'pending' && 'bg-yellow-500/20 text-yellow-400',
                             p.status === 'adjusted' && 'bg-gray-500/20 text-gray-400',
-                            p.status === 'refunded' && 'bg-red-500/20 text-red-400',
+                            p.status === 'refunded' && 'bg-destructive/20 text-destructive/80',
                           )}>
                             {p.status}
                           </span>
                           {methodName && (
-                            <span className="text-xs text-gray-500">{methodName}</span>
+                            <span className="text-xs text-muted-foreground">{methodName}</span>
                           )}
                           {p.installments > 1 && (
-                            <span className="text-xs text-gray-600">{p.installments}x</span>
+                            <span className="text-xs text-muted-foreground">{p.installments}x</span>
                           )}
                           {p.description && (
-                            <span className="text-xs text-gray-400 truncate max-w-[100px]">
+                            <span className="text-xs text-muted-foreground truncate max-w-[100px]">
                               {p.description}
                             </span>
                           )}
                         </div>
                         <span className={cn(
                           'text-sm font-medium',
-                          p.amount < 0 ? 'text-red-400' : 'text-gray-100',
+                          p.amount < 0 ? 'text-destructive/80' : 'text-foreground',
                         )}>
                           {p.amount < 0 ? '-' : ''}${Math.abs(p.amount).toFixed(2)}
                         </span>
@@ -540,14 +540,14 @@ export default function AppointmentDetailPage() {
 
           {/* Reschedule */}
           {canManage && (
-            <Card className="bg-gray-900 border-gray-700">
+            <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle className="text-white text-base flex items-center justify-between">
+                <CardTitle className="text-foreground text-base flex items-center justify-between">
                   Reschedule
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-blue-400 hover:text-blue-300 text-sm"
+                    className="text-primary hover:text-primary/80 text-sm"
                     onClick={() => setRescheduleOpen(v => !v)}
                   >
                     {rescheduleOpen ? 'Hide' : 'Pick New Time'}
@@ -566,25 +566,25 @@ export default function AppointmentDetailPage() {
                           setNewTime(null);
                         }}
                         disabled={{ before: new Date() }}
-                        className="rounded-lg border border-gray-700 bg-gray-800"
+                        className="rounded-lg border border-border bg-muted"
                       />
                     </div>
                     {newDate && (
                       <div className="flex-1">
-                        <p className="text-sm text-gray-400 mb-3">
+                        <p className="text-sm text-muted-foreground mb-3">
                           Time slots for{' '}
-                          <span className="text-white">{formatDate(newDate)}</span>
+                          <span className="text-foreground">{formatDate(newDate)}</span>
                         </p>
                         {rescheduleSlotsLoading ? (
                           <div className="flex items-center justify-center py-12">
-                            <Loader2 className="h-6 w-6 text-blue-400 animate-spin" />
+                            <Loader2 className="h-6 w-6 text-primary animate-spin" />
                           </div>
                         ) : !rescheduleDayCoverage ? (
-                          <div className="text-center py-12 text-gray-500 text-sm">
+                          <div className="text-center py-12 text-muted-foreground text-sm">
                             No available slots on this day. Pick another date.
                           </div>
                         ) : rescheduleSlots.length === 0 ? (
-                          <div className="text-center py-12 text-gray-500 text-sm">
+                          <div className="text-center py-12 text-muted-foreground text-sm">
                             No available slots for this date.
                           </div>
                         ) : (
@@ -596,8 +596,8 @@ export default function AppointmentDetailPage() {
                                 className={cn(
                                   'py-2 px-2 rounded-lg text-sm font-medium transition-all',
                                   newTime === slot.time
-                                    ? 'bg-blue-500 text-white'
-                                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700',
+                                    ? 'bg-primary text-foreground'
+                                    : 'bg-muted text-foreground/90 hover:bg-accent border border-border',
                                 )}
                               >
                                 {formatSlotLabel(slot.time)}
@@ -611,7 +611,7 @@ export default function AppointmentDetailPage() {
                   <Button
                     onClick={handleReschedule}
                     disabled={!newDate || !newTime}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
                   >
                     <Calendar className="h-4 w-4 mr-1" /> Confirm Reschedule
                   </Button>
@@ -621,22 +621,22 @@ export default function AppointmentDetailPage() {
           )}
 
           {/* Notes */}
-          <Card className="bg-gray-900 border-gray-700">
+          <Card className="bg-card border-border">
             <CardHeader>
-              <CardTitle className="text-white text-base">Notes</CardTitle>
+              <CardTitle className="text-foreground text-base">Notes</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <Textarea
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
                 placeholder="Add notes about this appointment..."
-                className="bg-gray-800 border-gray-700 text-white resize-none"
+                className="bg-muted border-border text-foreground resize-none"
                 rows={4}
               />
               <Button
                 onClick={handleSaveNotes}
                 variant="outline"
-                className="border-gray-700 text-gray-300 hover:text-white"
+                className="border-border text-foreground/90 hover:text-foreground"
               >
                 {notesSaved ? (
                   <>
@@ -653,22 +653,22 @@ export default function AppointmentDetailPage() {
           </div>
         </div>
         <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent className="bg-gray-900 border-gray-700">
+        <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">
+            <AlertDialogTitle className="text-foreground">
               Delete Appointment
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-400">
+            <AlertDialogDescription className="text-muted-foreground">
               This action cannot be undone. The appointment will be permanently
               deleted.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-gray-700 text-gray-300 hover:bg-gray-800">
+            <AlertDialogCancel className="border-border text-foreground/90 hover:bg-accent">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
               onClick={handleDelete}
             >
               Delete

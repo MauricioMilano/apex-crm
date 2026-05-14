@@ -64,13 +64,13 @@ export function LeadCard({
         onDragStart(e, lead.id);
       }}
       onClick={() => onClick(lead)}
-      className="bg-gray-800 border border-gray-700 rounded-lg p-3 cursor-pointer hover:border-gray-600 transition-colors group select-none"
+      className="bg-muted border border-border rounded-lg p-3 cursor-pointer hover:border-border transition-colors group select-none"
     >
       {/* Header row */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-1.5 min-w-0">
-          <GripVertical className="h-4 w-4 text-gray-600 shrink-0 cursor-grab active:cursor-grabbing" />
-          <span className="font-medium text-sm text-gray-100 truncate">
+          <GripVertical className="h-4 w-4 text-muted-foreground shrink-0 cursor-grab active:cursor-grabbing" />
+          <span className="font-medium text-sm text-foreground truncate">
             {lead.firstName} {lead.lastName}
           </span>
         </div>
@@ -79,32 +79,32 @@ export function LeadCard({
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-gray-100 shrink-0"
+              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground shrink-0"
             >
               <MoreHorizontal className="h-3.5 w-3.5" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            className="bg-gray-800 border-gray-700"
+            className="bg-muted border-border"
             onClick={(e) => e.stopPropagation()}
           >
             <DropdownMenuItem
-              className="text-gray-300 hover:text-gray-100 cursor-pointer focus:bg-gray-700 focus:text-gray-100"
+              className="text-muted-foreground hover:text-foreground cursor-pointer focus:bg-accent focus:text-foreground"
               onSelect={() => onEdit(lead)}
             >
               <Edit className="h-3.5 w-3.5 mr-2" />
               Edit
             </DropdownMenuItem>
             <DropdownMenuItem
-              className="text-gray-300 hover:text-gray-100 cursor-pointer focus:bg-gray-700 focus:text-gray-100"
+              className="text-muted-foreground hover:text-foreground cursor-pointer focus:bg-accent focus:text-foreground"
               onSelect={() => onAssign(lead)}
             >
               <UserPlus className="h-3.5 w-3.5 mr-2" />
               Assign
             </DropdownMenuItem>
             <DropdownMenuItem
-              className="text-red-400 hover:text-red-300 cursor-pointer focus:bg-gray-700 focus:text-red-300"
+              className="text-destructive/80 hover:text-destructive/60 cursor-pointer focus:bg-accent focus:text-destructive/60"
               onSelect={() => onDelete(lead.id)}
             >
               <Trash2 className="h-3.5 w-3.5 mr-2" />
@@ -118,19 +118,19 @@ export function LeadCard({
       {(lead.email || lead.phone || lead.company) && (
         <div className="mt-2 space-y-1">
           {lead.email && (
-            <div className="flex items-center gap-1.5 text-xs text-gray-400">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Mail className="h-3 w-3 shrink-0" />
               <span className="truncate">{lead.email}</span>
             </div>
           )}
           {lead.phone && (
-            <div className="flex items-center gap-1.5 text-xs text-gray-400">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Phone className="h-3 w-3 shrink-0" />
               <span>{lead.phone}</span>
             </div>
           )}
           {lead.company && (
-            <div className="flex items-center gap-1.5 text-xs text-gray-400">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Building2 className="h-3 w-3 shrink-0" />
               <span className="truncate">{lead.company}</span>
             </div>
@@ -157,20 +157,20 @@ export function LeadCard({
             <Badge
               key={tag}
               variant="outline"
-              className="text-xs px-1.5 py-0 h-5 bg-gray-700/50 text-gray-400 border-gray-600"
+              className="text-xs px-1.5 py-0 h-5 bg-muted/50 text-muted-foreground border-border"
             >
               {tag}
             </Badge>
           ))}
           {(lead.tags ?? []).length > 2 && (
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-muted-foreground/80">
               +{(lead.tags ?? []).length - 2}
             </span>
           )}
         </div>
         {assignedUser && (
           <Avatar className="h-5 w-5 shrink-0">
-            <AvatarFallback className="text-[9px] bg-blue-600 text-white">
+            <AvatarFallback className="text-[9px] bg-primary text-primary-foreground">
               {initials}
             </AvatarFallback>
           </Avatar>

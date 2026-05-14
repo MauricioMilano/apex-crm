@@ -132,13 +132,13 @@ export function ConfirmPaymentModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-gray-900 border-gray-700">
+      <DialogContent className="sm:max-w-md bg-card border-border">
         <DialogHeader>
-          <DialogTitle className="text-white flex items-center gap-2">
+          <DialogTitle className="text-foreground flex items-center gap-2">
             <DollarSign className="h-5 w-5 text-yellow-400" />
             Confirm Payment
           </DialogTitle>
-          <DialogDescription className="text-gray-400">
+          <DialogDescription className="text-muted-foreground">
             Record payment for this completed appointment.
           </DialogDescription>
         </DialogHeader>
@@ -146,9 +146,9 @@ export function ConfirmPaymentModal({
         <div className="space-y-4 py-2">
           {/* Amount */}
           <div className="space-y-1">
-            <Label className="text-gray-400 text-xs">Amount</Label>
+            <Label className="text-muted-foreground text-xs">Amount</Label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
                 $
               </span>
               <Input
@@ -157,26 +157,26 @@ export function ConfirmPaymentModal({
                 min="0"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="bg-gray-800 border-gray-700 text-white pl-7"
+                className="bg-muted border-border text-foreground pl-7"
               />
             </div>
           </div>
 
           {/* Payment Method */}
           <div className="space-y-1">
-            <Label className="text-gray-400 text-xs">Payment Method</Label>
+            <Label className="text-muted-foreground text-xs">Payment Method</Label>
             <Select value={methodId} onValueChange={setMethodId}>
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+              <SelectTrigger className="bg-muted border-border text-foreground">
                 <SelectValue placeholder="Select method" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700">
+              <SelectContent className="bg-muted border-border">
                 {paymentMethods
                   .filter((m) => m.isActive)
                   .map((m) => (
                     <SelectItem
                       key={m.id}
                       value={m.id}
-                      className="text-gray-200"
+                      className="text-foreground/90"
                     >
                       <span className="flex items-center gap-2">
                         <CreditCard className="h-3.5 w-3.5" />
@@ -191,22 +191,22 @@ export function ConfirmPaymentModal({
           {/* Installments (only for credit / requiresDocs methods) */}
           {isCredit && (
             <div className="space-y-1">
-              <Label className="text-gray-400 text-xs">
+              <Label className="text-muted-foreground text-xs">
                 Installments
               </Label>
               <Select
                 value={String(installments)}
                 onValueChange={(v) => setInstallments(Number(v))}
               >
-                <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                <SelectTrigger className="bg-muted border-border text-foreground">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700 max-h-60">
+                <SelectContent className="bg-muted border-border max-h-60">
                   {installmentOptions.map((opt) => (
                     <SelectItem
                       key={opt.value}
                       value={String(opt.value)}
-                      className="text-gray-200"
+                      className="text-foreground/90"
                     >
                       {opt.label}
                     </SelectItem>
@@ -214,7 +214,7 @@ export function ConfirmPaymentModal({
                 </SelectContent>
               </Select>
               {numericAmount > 0 && installments > 1 && (
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-muted-foreground/80 mt-1">
                   Total: {formatCurrency(numericAmount)} &middot;{" "}
                   {installments}x of{" "}
                   {formatCurrency(numericAmount / installments)} each
@@ -226,8 +226,8 @@ export function ConfirmPaymentModal({
           {/* Card Last Four (optional) */}
           {isCredit && (
             <div className="space-y-1">
-              <Label className="text-gray-400 text-xs">
-                Last 4 digits <span className="text-gray-600">(optional)</span>
+              <Label className="text-muted-foreground text-xs">
+                Last 4 digits <span className="text-muted-foreground">(optional)</span>
               </Label>
               <Input
                 type="text"
@@ -237,21 +237,21 @@ export function ConfirmPaymentModal({
                   setCardLastFour(e.target.value.replace(/\D/g, "").slice(0, 4))
                 }
                 placeholder="1234"
-                className="bg-gray-800 border-gray-700 text-white w-24"
+                className="bg-muted border-border text-foreground w-24"
               />
             </div>
           )}
 
           {/* Description (optional) */}
           <div className="space-y-1">
-            <Label className="text-gray-400 text-xs">
-              Description <span className="text-gray-600">(optional)</span>
+            <Label className="text-muted-foreground text-xs">
+              Description <span className="text-muted-foreground">(optional)</span>
             </Label>
             <Input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Payment for service"
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-muted border-border text-foreground"
             />
           </div>
         </div>
@@ -260,7 +260,7 @@ export function ConfirmPaymentModal({
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            className="border-gray-700 text-gray-300"
+            className="border-border text-muted-foreground"
           >
             Cancel
           </Button>
@@ -271,7 +271,7 @@ export function ConfirmPaymentModal({
               !methodId ||
               numericAmount <= 0
             }
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             {submitting ? "Saving..." : "Confirm Payment"}
           </Button>

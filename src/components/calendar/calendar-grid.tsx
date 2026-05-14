@@ -47,10 +47,10 @@ const STATUS_COLORS: Record<
   { bg: string; border: string; text: string }
 > = {
   pending: { bg: 'bg-yellow-500/20', border: 'border-yellow-500/50', text: 'text-yellow-300' },
-  confirmed: { bg: 'bg-blue-500/20', border: 'border-blue-500/50', text: 'text-blue-300' },
+  confirmed: { bg: 'bg-primary/20', border: 'border-primary/50', text: 'text-primary/80' },
   completed: { bg: 'bg-green-500/20', border: 'border-green-500/50', text: 'text-green-300' },
-  cancelled: { bg: 'bg-red-500/20', border: 'border-red-500/50', text: 'text-red-300' },
-  no_show: { bg: 'bg-gray-500/20', border: 'border-gray-500/50', text: 'text-gray-300' },
+  cancelled: { bg: 'bg-destructive/20', border: 'border-destructive/50', text: 'text-destructive/60' },
+  no_show: { bg: 'bg-gray-500/20', border: 'border-gray-500/50', text: 'text-muted-foreground' },
 };
 
 interface CalendarGridProps {
@@ -182,7 +182,7 @@ export function CalendarGrid({ onAppointmentClick }: CalendarGridProps) {
             variant="outline"
             size="icon"
             onClick={() => setCurrentWeekStart(w => subWeeks(w, 1))}
-            className="border-gray-700 text-gray-400 hover:text-white h-8 w-8"
+            className="border-border text-muted-foreground hover:text-foreground h-8 w-8"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -190,7 +190,7 @@ export function CalendarGrid({ onAppointmentClick }: CalendarGridProps) {
             variant="outline"
             size="sm"
             onClick={() => setCurrentWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }))}
-            className="border-gray-700 text-gray-400 hover:text-white"
+            className="border-border text-muted-foreground hover:text-foreground"
           >
             Today
           </Button>
@@ -198,26 +198,26 @@ export function CalendarGrid({ onAppointmentClick }: CalendarGridProps) {
             variant="outline"
             size="icon"
             onClick={() => setCurrentWeekStart(w => addWeeks(w, 1))}
-            className="border-gray-700 text-gray-400 hover:text-white h-8 w-8"
+            className="border-border text-muted-foreground hover:text-foreground h-8 w-8"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <span className="text-white font-medium ml-1 text-sm">
+          <span className="text-foreground font-medium ml-1 text-sm">
             {formatDate(currentWeekStart)} –{' '}
             {formatDate(endOfWeek(currentWeekStart, { weekStartsOn: 1 }))}
           </span>
         </div>
 
         <Select value={selectedEmployeeId} onValueChange={setSelectedEmployeeId}>
-          <SelectTrigger className="w-48 bg-gray-900 border-gray-700 text-gray-300 h-8 text-sm">
+          <SelectTrigger className="w-48 bg-card border-border text-muted-foreground h-8 text-sm">
             <SelectValue placeholder="All Employees" />
           </SelectTrigger>
-          <SelectContent className="bg-gray-900 border-gray-700">
-            <SelectItem value="all" className="text-gray-300">
+          <SelectContent className="bg-card border-border">
+            <SelectItem value="all" className="text-muted-foreground">
               All Employees
             </SelectItem>
             {employees.map(e => (
-              <SelectItem key={e.id} value={e.id} className="text-gray-300">
+              <SelectItem key={e.id} value={e.id} className="text-muted-foreground">
                 {e.firstName} {e.lastName}
               </SelectItem>
             ))}
@@ -226,9 +226,9 @@ export function CalendarGrid({ onAppointmentClick }: CalendarGridProps) {
       </div>
 
       {/* Grid */}
-      <div className="flex-1 overflow-auto rounded-lg border border-gray-800 bg-gray-950">
+      <div className="flex-1 overflow-auto rounded-lg border border-border bg-background">
         {/* Day-header row */}
-        <div className="flex sticky top-0 z-20 bg-gray-950 border-b border-gray-800">
+        <div className="flex sticky top-0 z-20 bg-background border-b border-border">
           <div className="w-14 shrink-0" />
           {weekDays.map(day => {
             const schedule = getDaySchedule(day);
@@ -237,16 +237,16 @@ export function CalendarGrid({ onAppointmentClick }: CalendarGridProps) {
               <div
                 key={day.toISOString()}
                 className={cn(
-                  'flex-1 py-2 text-center border-l border-gray-800',
-                  isToday(day) && 'bg-blue-500/10',
+                  'flex-1 py-2 text-center border-l border-border',
+                  isToday(day) && 'bg-primary/10',
                   isClosed && 'opacity-50',
                 )}
               >
-                <p className="text-xs text-gray-500">{formatDate(day)}</p>
+                <p className="text-xs text-muted-foreground/80">{formatDate(day)}</p>
                 <p
                   className={cn(
                     'text-sm font-semibold',
-                    isToday(day) ? 'text-blue-400' : 'text-gray-300',
+                    isToday(day) ? 'text-primary' : 'text-muted-foreground',
                   )}
                 >
                   {isClosed ? 'Closed' : formatDate(day)}
@@ -267,7 +267,7 @@ export function CalendarGrid({ onAppointmentClick }: CalendarGridProps) {
                 <div
                   key={hour}
                   style={{ height: `${HOUR_HEIGHT}px` }}
-                  className="text-right pr-2 text-xs text-gray-600 flex items-start pt-1"
+                  className="text-right pr-2 text-xs text-muted-foreground flex items-start pt-1"
                 >
                   {formatTime(d)}
                 </div>
@@ -284,20 +284,20 @@ export function CalendarGrid({ onAppointmentClick }: CalendarGridProps) {
               <div
                 key={day.toISOString()}
                 className={cn(
-                  'flex-1 border-l border-gray-800 relative',
-                  isToday(day) && 'bg-blue-500/5',
+                  'flex-1 border-l border-border relative',
+                  isToday(day) && 'bg-primary/5',
                 )}
                 style={{ height: `${totalHours * HOUR_HEIGHT}px` }}
               >
                 {hoursLoading && (
-                  <div className="absolute inset-0 z-20 flex items-center justify-center bg-gray-950/50">
-                    <span className="text-xs text-gray-500">Loading...</span>
+                  <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/50">
+                    <span className="text-xs text-muted-foreground/80">Loading...</span>
                   </div>
                 )}
 
                 {isClosed ? (
                   <div className="absolute inset-0 z-10 flex items-center justify-center">
-                    <span className="text-sm text-gray-600 font-medium">Closed</span>
+                    <span className="text-sm text-muted-foreground font-medium">Closed</span>
                   </div>
                 ) : (
                   <>
@@ -305,7 +305,7 @@ export function CalendarGrid({ onAppointmentClick }: CalendarGridProps) {
                     {hours.map(hour => (
                       <div
                         key={hour}
-                        className="absolute w-full border-t border-gray-800/40 cursor-pointer hover:bg-gray-800/30 transition-colors"
+                        className="absolute w-full border-t border-border/40 cursor-pointer hover:bg-accent/30 transition-colors"
                         style={{
                           top: `${(hour - hourRange.start) * HOUR_HEIGHT}px`,
                           height: `${HOUR_HEIGHT}px`,
@@ -349,7 +349,7 @@ export function CalendarGrid({ onAppointmentClick }: CalendarGridProps) {
                             </button>
                           </PopoverTrigger>
                           <PopoverContent
-                            className="w-72 bg-gray-900 border-gray-700 p-4"
+                            className="w-72 bg-card border-border p-4"
                             side="right"
                             align="start"
                           >
@@ -374,9 +374,9 @@ export function CalendarGrid({ onAppointmentClick }: CalendarGridProps) {
 
       {/* Booking Flow Dialog */}
       <Dialog open={bookingOpen} onOpenChange={setBookingOpen}>
-        <DialogContent className="max-w-2xl bg-gray-950 border-gray-700 max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl bg-background border-border max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-white">Book Appointment</DialogTitle>
+            <DialogTitle className="text-foreground">Book Appointment</DialogTitle>
           </DialogHeader>
           <BookingFlow
             initialDate={bookingDate}
@@ -420,20 +420,20 @@ function AppointmentPopover({
   return (
     <div className="space-y-3">
       <div>
-        <p className="font-semibold text-white">
+        <p className="font-semibold text-foreground">
           {client 
             ? `${client.firstName} ${client.lastName}` 
             : lead 
             ? `${lead.firstName} ${lead.lastName} (Lead)` 
             : 'Unknown'}
         </p>
-        <p className="text-sm text-gray-400">{service?.name}</p>
-        <p className="text-xs text-gray-500 mt-0.5">
+        <p className="text-sm text-muted-foreground">{service?.name}</p>
+        <p className="text-xs text-muted-foreground/80 mt-0.5">
           Status: {STATUS_LABEL[appointment.status]}
         </p>
       </div>
 
-      <div className="text-sm text-gray-400 space-y-1">
+      <div className="text-sm text-muted-foreground space-y-1">
         <p className="flex items-center gap-1.5">
           <Clock className="h-3.5 w-3.5" />
           {formatTime(appointment.startTime)} – {formatTime(appointment.endTime)}
@@ -448,7 +448,7 @@ function AppointmentPopover({
         {appointment.status === 'pending' && (
           <Button
             size="sm"
-            className="h-7 text-xs bg-blue-600 hover:bg-blue-700"
+            className="h-7 text-xs bg-primary hover:bg-primary/90"
             onClick={() => onStatusChange('confirmed')}
           >
             <CheckCircle className="h-3 w-3 mr-1" /> Confirm
@@ -467,7 +467,7 @@ function AppointmentPopover({
           <Button
             size="sm"
             variant="outline"
-            className="h-7 text-xs border-red-500/50 text-red-400 hover:bg-red-500/20"
+            className="h-7 text-xs border-destructive/50 text-destructive/80 hover:bg-destructive/20"
             onClick={() => onStatusChange('cancelled')}
           >
             <XCircle className="h-3 w-3 mr-1" /> Cancel
@@ -478,7 +478,7 @@ function AppointmentPopover({
       <Button
         variant="ghost"
         size="sm"
-        className="w-full h-7 text-xs text-gray-400 hover:text-white"
+        className="w-full h-7 text-xs text-muted-foreground hover:text-foreground"
         onClick={onViewDetail}
       >
         View Details →

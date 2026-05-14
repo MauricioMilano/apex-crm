@@ -60,15 +60,15 @@ export default function ClientPortalLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 to-primary/10 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="h-14 w-14 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <Building2 className="h-8 w-8 text-white" />
+          <div className="h-14 w-14 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <Building2 className="h-8 w-8 text-primary-foreground" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">ApexCRM</h1>
-          <p className="text-gray-500 mt-1">Client Portal</p>
+          <h1 className="text-2xl font-bold text-foreground">ApexCRM</h1>
+          <p className="text-muted-foreground mt-1">Client Portal</p>
         </div>
 
         <Card className="shadow-xl border-0">
@@ -87,7 +87,7 @@ export default function ClientPortalLoginPage() {
                       <FormLabel>Email</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Mail className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                          <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                           <Input
                             {...field}
                             type="email"
@@ -109,7 +109,7 @@ export default function ClientPortalLoginPage() {
                       <FormLabel>Password</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Lock className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                          <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                           <Input
                             {...field}
                             type="password"
@@ -130,13 +130,13 @@ export default function ClientPortalLoginPage() {
               </form>
             </Form>
 
-            <p className="text-center text-xs text-gray-400 mt-4">
+            <p className="text-center text-xs text-muted-foreground mt-4">
               Demo: client@example.com / Password123!
             </p>
-            <p className="text-center text-sm text-gray-500 mt-4">
+            <p className="text-center text-sm text-muted-foreground mt-4">
               <Link
                 href="/portal/register"
-                className="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-700 font-medium"
+                className="inline-flex items-center gap-1.5 text-primary hover:text-primary font-medium"
               >
                 <UserPlus className="h-3.5 w-3.5" />
                 Don&apos;t have an account? Register
@@ -148,7 +148,7 @@ export default function ClientPortalLoginPage() {
         <p className="text-center mt-6">
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground/80 transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Back to main site

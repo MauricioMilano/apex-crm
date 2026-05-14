@@ -39,7 +39,7 @@ const categoryLabels: Record<string, string> = {
 }
 
 const categoryColors: Record<string, string> = {
-  appointment: "text-blue-400 bg-blue-600/15",
+  appointment: "text-primary bg-primary/15",
   lead: "text-green-400 bg-green-600/15",
   client: "text-purple-400 bg-purple-600/15",
   subscription: "text-amber-400 bg-amber-600/15",
@@ -58,7 +58,7 @@ export function TemplateList({ templates, onEdit }: TemplateListProps) {
 
   if (templates.length === 0) {
     return (
-      <div className="text-center py-12 text-gray-500">
+      <div className="text-center py-12 text-muted-foreground/80">
         <FileText className="h-12 w-12 mx-auto mb-3 opacity-50" />
         <p>No email templates found.</p>
       </div>
@@ -69,7 +69,7 @@ export function TemplateList({ templates, onEdit }: TemplateListProps) {
     <div className="space-y-6">
       {Object.entries(grouped).map(([category, items]) => {
         const Icon = categoryIcons[category] ?? FileText
-        const colorClass = categoryColors[category] ?? "text-gray-400 bg-gray-800"
+        const colorClass = categoryColors[category] ?? "text-muted-foreground bg-muted"
 
         return (
           <div key={category}>
@@ -77,7 +77,7 @@ export function TemplateList({ templates, onEdit }: TemplateListProps) {
               <div className={`rounded-lg p-1.5 ${colorClass}`}>
                 <Icon className="h-4 w-4" />
               </div>
-              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
                 {categoryLabels[category] ?? category}
               </h3>
             </div>
@@ -85,13 +85,13 @@ export function TemplateList({ templates, onEdit }: TemplateListProps) {
               {items.map((template) => (
                 <Card
                   key={template.id}
-                  className="bg-gray-900 border-gray-800 hover:border-gray-700 transition-colors"
+                  className="bg-card border-border hover:border-border transition-colors"
                 >
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex-1 min-w-0 mr-4">
                         <div className="flex items-center gap-2">
-                          <h4 className="font-medium text-gray-100 capitalize">
+                          <h4 className="font-medium text-foreground capitalize">
                             {template.name.replace(/-/g, " ")}
                           </h4>
                           {template.isCustomized && (
@@ -100,17 +100,17 @@ export function TemplateList({ templates, onEdit }: TemplateListProps) {
                             </Badge>
                           )}
                         </div>
-                        <p className="text-sm text-gray-500 mt-1 truncate max-w-xl">
+                        <p className="text-sm text-muted-foreground/80 mt-1 truncate max-w-xl">
                           {template.subject}
                         </p>
-                        <p className="text-xs text-gray-600 mt-1">
+                        <p className="text-xs text-muted-foreground mt-1">
                           Updated {formatDate(template.updatedAt)}
                         </p>
                       </div>
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="text-gray-400 hover:text-gray-100 shrink-0"
+                        className="text-muted-foreground hover:text-foreground shrink-0"
                         onClick={() => onEdit(template.name)}
                       >
                         <Pencil className="h-3.5 w-3.5 mr-1.5" />

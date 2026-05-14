@@ -121,24 +121,24 @@ export default function ClientPortalProfilePage() {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
-        <p className="text-gray-500 mt-1">Manage your account details and preferences.</p>
+        <h1 className="text-2xl font-bold text-foreground">Profile</h1>
+        <p className="text-muted-foreground mt-1">Manage your account details and preferences.</p>
       </div>
 
       {/* Avatar / summary card */}
       <Card>
         <CardContent className="pt-6">
           <div className="flex items-center gap-4">
-            <div className="h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 text-2xl font-bold shrink-0">
+            <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-primary text-2xl font-bold shrink-0">
               {(currentUser?.firstName?.[0] ?? '?').toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-lg font-semibold text-gray-900">
+              <h2 className="text-lg font-semibold text-foreground">
                 {currentUser?.firstName} {currentUser?.lastName}
               </h2>
-              <p className="text-sm text-gray-500 truncate">{currentUser?.email}</p>
+              <p className="text-sm text-muted-foreground truncate">{currentUser?.email}</p>
               {client && (
-                <p className="text-xs text-gray-400 mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   Client since {formatDate(client.createdAt)}
                 </p>
               )}
@@ -152,7 +152,7 @@ export default function ClientPortalProfilePage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <User className="h-4 w-4 text-gray-500" />
+            <User className="h-4 w-4 text-muted-foreground" />
             Personal Information
           </CardTitle>
           <CardDescription>Update your name, email, and phone number.</CardDescription>
@@ -197,7 +197,7 @@ export default function ClientPortalProfilePage() {
                     <FormLabel>Email</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Mail className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                        <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input
                           {...field}
                           type="email"
@@ -219,7 +219,7 @@ export default function ClientPortalProfilePage() {
                     <FormLabel>Phone Number</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Phone className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                        <Phone className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input
                           {...field}
                           type="tel"
@@ -253,7 +253,7 @@ export default function ClientPortalProfilePage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <Lock className="h-4 w-4 text-gray-500" />
+            <Lock className="h-4 w-4 text-muted-foreground" />
             Change Password
           </CardTitle>
           <CardDescription>Update your account password.</CardDescription>
@@ -332,7 +332,7 @@ export default function ClientPortalProfilePage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <Bell className="h-4 w-4 text-gray-500" />
+            <Bell className="h-4 w-4 text-muted-foreground" />
             Notification Preferences
           </CardTitle>
           <CardDescription>Choose how you want to be notified.</CardDescription>
@@ -341,7 +341,7 @@ export default function ClientPortalProfilePage() {
           <div className="flex items-center justify-between">
             <div>
               <Label className="text-sm font-medium">Email Notifications</Label>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Receive booking confirmations via email
               </p>
             </div>
@@ -353,7 +353,7 @@ export default function ClientPortalProfilePage() {
           <div className="flex items-center justify-between">
             <div>
               <Label className="text-sm font-medium">SMS Reminders</Label>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Get text reminders before appointments
               </p>
             </div>
@@ -365,7 +365,7 @@ export default function ClientPortalProfilePage() {
           <div className="flex items-center justify-between">
             <div>
               <Label className="text-sm font-medium">24h Appointment Reminders</Label>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Reminder sent 24 hours before your appointment
               </p>
             </div>
@@ -395,9 +395,9 @@ export default function ClientPortalProfilePage() {
       </Card>
 
       {/* Danger zone */}
-      <Card className="border-red-200">
+      <Card className="border-destructive/30">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base text-red-600">
+          <CardTitle className="flex items-center gap-2 text-base text-destructive">
             <Trash2 className="h-4 w-4" />
             Delete Account
           </CardTitle>
@@ -406,11 +406,11 @@ export default function ClientPortalProfilePage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-sm text-muted-foreground mb-4">
             To delete your account, please contact our support team at{' '}
             <a
               href="mailto:support@apex.com"
-              className="text-blue-600 hover:underline"
+              className="text-primary hover:underline"
             >
               support@apex.com
             </a>
@@ -419,7 +419,7 @@ export default function ClientPortalProfilePage() {
           <Button
             variant="outline"
             disabled
-            className="text-red-500 border-red-200 cursor-not-allowed opacity-60"
+            className="text-destructive border-destructive/30 cursor-not-allowed opacity-60"
           >
             <Trash2 className="h-4 w-4 mr-2" />
             Contact support to delete your account

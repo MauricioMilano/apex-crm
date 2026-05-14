@@ -26,9 +26,9 @@ type View = 'week' | 'month' | 'day';
 
 const STATUS_BADGE: Record<AppointmentStatus, string> = {
   pending: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
-  confirmed: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+  confirmed: 'bg-primary/20 text-primary/80 border-primary/30',
   completed: 'bg-green-500/20 text-green-300 border-green-500/30',
-  cancelled: 'bg-red-500/20 text-red-300 border-red-500/30',
+  cancelled: 'bg-destructive/20 text-destructive/60 border-destructive/30',
   no_show: 'bg-gray-500/20 text-gray-300 border-gray-500/30',
 };
 
@@ -72,10 +72,10 @@ export default function CalendarPage() {
     <div className="flex flex-col h-full space-y-4">
       {/* Page header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-2xl font-bold text-white">Calendar</h1>
+        <h1 className="text-2xl font-bold text-foreground">Calendar</h1>
 
         {/* View switcher */}
-        <div className="flex rounded-lg border border-gray-700 overflow-hidden">
+        <div className="flex rounded-lg border border-border overflow-hidden">
           {(['week', 'month', 'day'] as View[]).map(v => (
             <button
               key={v}
@@ -83,8 +83,8 @@ export default function CalendarPage() {
               className={cn(
                 'px-4 py-2 text-sm capitalize transition-colors',
                 view === v
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-900 text-gray-400 hover:text-white hover:bg-gray-800',
+                  ? 'bg-primary text-foreground'
+                  : 'bg-card text-muted-foreground hover:text-foreground hover:bg-accent',
               )}
             >
               {v}
@@ -106,14 +106,14 @@ export default function CalendarPage() {
       {view === 'month' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-white">
+            <h2 className="text-lg font-semibold text-foreground">
               {format(currentDate, 'MMMM yyyy')}
             </h2>
             <div className="flex gap-2">
               <Button
                 variant="outline"
                 size="icon"
-                className="border-gray-700 text-gray-400 hover:text-white h-8 w-8"
+                className="border-border text-muted-foreground hover:text-foreground h-8 w-8"
                 onClick={() => shiftDate(-1)}
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -121,7 +121,7 @@ export default function CalendarPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="border-gray-700 text-gray-400 hover:text-white"
+                className="border-border text-muted-foreground hover:text-foreground"
                 onClick={() => setCurrentDate(new Date())}
               >
                 Today
@@ -129,7 +129,7 @@ export default function CalendarPage() {
               <Button
                 variant="outline"
                 size="icon"
-                className="border-gray-700 text-gray-400 hover:text-white h-8 w-8"
+                className="border-border text-muted-foreground hover:text-foreground h-8 w-8"
                 onClick={() => shiftDate(1)}
               >
                 <ChevronRight className="h-4 w-4" />
@@ -137,13 +137,13 @@ export default function CalendarPage() {
             </div>
           </div>
 
-          <div className="rounded-lg border border-gray-800 overflow-hidden">
+          <div className="rounded-lg border border-border overflow-hidden">
             {/* Weekday headers */}
-            <div className="grid grid-cols-7 bg-gray-900 border-b border-gray-800">
+            <div className="grid grid-cols-7 bg-card border-b border-border">
               {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => (
                 <div
                   key={d}
-                  className="py-2 text-center text-xs text-gray-500 font-medium uppercase tracking-wide"
+                  className="py-2 text-center text-xs text-muted-foreground font-medium uppercase tracking-wide"
                 >
                   {d}
                 </div>
@@ -159,17 +159,17 @@ export default function CalendarPage() {
                   <div
                     key={day.toISOString()}
                     className={cn(
-                      'border-b border-r border-gray-800 min-h-[96px] p-1.5',
+                      'border-b border-r border-border min-h-[96px] p-1.5',
                       !inMonth && 'opacity-40',
-                      isToday(day) && 'bg-blue-500/5',
+                      isToday(day) && 'bg-primary/5',
                     )}
                   >
                     <div
                       className={cn(
                         'w-6 h-6 flex items-center justify-center rounded-full text-xs font-medium mb-1',
                         isToday(day)
-                          ? 'bg-blue-500 text-white'
-                          : 'text-gray-400',
+                          ? 'bg-primary text-foreground'
+                          : 'text-muted-foreground',
                       )}
                     >
                       {formatDate(day)}
@@ -194,7 +194,7 @@ export default function CalendarPage() {
                         );
                       })}
                       {appts.length > 3 && (
-                        <p className="text-[10px] text-gray-500 pl-1">
+                        <p className="text-[10px] text-muted-foreground pl-1">
                           +{appts.length - 3} more
                         </p>
                       )}
@@ -211,17 +211,17 @@ export default function CalendarPage() {
       {view === 'day' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-white">
+            <h2 className="text-lg font-semibold text-foreground">
               {formatDate(currentDate)}
               {isToday(currentDate) && (
-                <span className="ml-2 text-sm text-blue-400 font-normal">Today</span>
+                <span className="ml-2 text-sm text-primary font-normal">Today</span>
               )}
             </h2>
             <div className="flex gap-2">
               <Button
                 variant="outline"
                 size="icon"
-                className="border-gray-700 text-gray-400 hover:text-white h-8 w-8"
+                className="border-border text-muted-foreground hover:text-foreground h-8 w-8"
                 onClick={() => shiftDate(-1)}
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -229,7 +229,7 @@ export default function CalendarPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="border-gray-700 text-gray-400 hover:text-white"
+                className="border-border text-muted-foreground hover:text-foreground"
                 onClick={() => setCurrentDate(new Date())}
               >
                 Today
@@ -237,7 +237,7 @@ export default function CalendarPage() {
               <Button
                 variant="outline"
                 size="icon"
-                className="border-gray-700 text-gray-400 hover:text-white h-8 w-8"
+                className="border-border text-muted-foreground hover:text-foreground h-8 w-8"
                 onClick={() => shiftDate(1)}
               >
                 <ChevronRight className="h-4 w-4" />
@@ -246,7 +246,7 @@ export default function CalendarPage() {
           </div>
 
           {todayAppointments.length === 0 ? (
-            <div className="text-center py-16 text-gray-500">
+            <div className="text-center py-16 text-muted-foreground">
               No appointments scheduled for this day.
             </div>
           ) : (
@@ -264,7 +264,7 @@ export default function CalendarPage() {
                     onClick={() => router.push(`/appointments/${a.id}`)}
                   >
                     <div className="flex items-center justify-between">
-                      <p className="font-medium text-white">
+                      <p className="font-medium text-foreground">
                         {client
                           ? `${client.firstName} ${client.lastName}`
                           : 'Unknown Client'}

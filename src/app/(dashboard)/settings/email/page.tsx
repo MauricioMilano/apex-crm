@@ -41,8 +41,8 @@ export default function EmailSettingsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-100">Email Settings</h1>
-        <p className="text-gray-400 text-sm mt-1">
+        <h1 className="text-2xl font-bold text-foreground">Email Settings</h1>
+        <p className="text-muted-foreground text-sm mt-1">
           Configure SMTP and manage email templates.
         </p>
       </div>
@@ -52,9 +52,9 @@ export default function EmailSettingsPage() {
 
       {/* Email Templates */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-100 mb-4">Email Templates</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-4">Email Templates</h2>
         {loading ? (
-          <div className="text-center py-12 text-gray-500">Loading templates...</div>
+          <div className="text-center py-12 text-muted-foreground/80">Loading templates...</div>
         ) : (
           <TemplateList templates={templates} onEdit={handleEditTemplate} />
         )}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCRM } from '@/contexts/crm-context';
 import {
   getOrgDefaultWorkingHours,
@@ -81,11 +81,11 @@ function HoursEditor({
                   updateDay(day, { isWorking: !!v })
                 }
                 disabled={saving}
-                className="border-gray-600 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
               />
               <Label
                 htmlFor={`hours-${day}`}
-                className="text-gray-300 text-sm cursor-pointer"
+                className="text-muted-foreground text-sm cursor-pointer"
               >
                 {DAY_LABELS[day]}
               </Label>
@@ -99,9 +99,9 @@ function HoursEditor({
                     updateDay(day, { startTime: e.target.value })
                   }
                   disabled={saving}
-                  className="bg-gray-800 border-gray-700 text-gray-100 h-7 w-28 text-sm"
+                  className="bg-muted border-border text-foreground h-7 w-28 text-sm"
                 />
-                <span className="text-gray-500 text-sm">to</span>
+                <span className="text-muted-foreground/80 text-sm">to</span>
                 <Input
                   type="time"
                   value={schedule.endTime}
@@ -109,11 +109,11 @@ function HoursEditor({
                     updateDay(day, { endTime: e.target.value })
                   }
                   disabled={saving}
-                  className="bg-gray-800 border-gray-700 text-gray-100 h-7 w-28 text-sm"
+                  className="bg-muted border-border text-foreground h-7 w-28 text-sm"
                 />
               </div>
             ) : (
-              <span className="text-gray-600 text-sm">Day off</span>
+              <span className="text-muted-foreground text-sm">Day off</span>
             )}
           </div>
         );
@@ -214,28 +214,28 @@ export default function BusinessHoursPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-100">Business Hours</h1>
-        <p className="text-gray-400 text-sm mt-1">
+        <h1 className="text-2xl font-bold text-foreground">Business Hours</h1>
+        <p className="text-muted-foreground text-sm mt-1">
           Configure your organization-wide default hours and manage per-employee schedules.
         </p>
       </div>
 
       {/* ── Organization default hours ── */}
-      <Card className="bg-gray-900 border-gray-700">
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-white text-base flex items-center gap-2">
-            <Building2 className="h-4 w-4 text-gray-400" />
+          <CardTitle className="text-foreground text-base flex items-center gap-2">
+            <Building2 className="h-4 w-4 text-muted-foreground" />
             Organization Default Hours
           </CardTitle>
         </CardHeader>
         <CardContent>
           {orgLoading ? (
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-5 w-5 text-blue-400 animate-spin" />
+              <Loader2 className="h-5 w-5 text-primary animate-spin" />
             </div>
           ) : (
             <div className="space-y-4">
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-muted-foreground">
                 These hours apply to all employees who don&apos;t have custom schedules configured.
               </p>
               <HoursEditor
@@ -246,7 +246,7 @@ export default function BusinessHoursPage() {
               <Button
                 onClick={handleSaveOrg}
                 disabled={orgSaving}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground"
               >
                 {orgSaving ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -261,39 +261,39 @@ export default function BusinessHoursPage() {
       </Card>
 
       {/* ── Per-employee hours ── */}
-      <Card className="bg-gray-900 border-gray-700">
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-white text-base flex items-center gap-2">
-            <Users className="h-4 w-4 text-gray-400" />
+          <CardTitle className="text-foreground text-base flex items-center gap-2">
+            <Users className="h-4 w-4 text-muted-foreground" />
             Employee Schedules
           </CardTitle>
         </CardHeader>
         <CardContent>
           {teamMembers.length === 0 ? (
-            <p className="text-gray-500 text-sm text-center py-6">
+            <p className="text-muted-foreground/80 text-sm text-center py-6">
               No team members found.
             </p>
           ) : (
-            <div className="rounded-lg border border-gray-800 overflow-hidden">
+            <div className="rounded-lg border border-border overflow-hidden">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-gray-800 hover:bg-transparent">
-                    <TableHead className="text-gray-400">Name</TableHead>
-                    <TableHead className="text-gray-400">Email</TableHead>
-                    <TableHead className="text-gray-400 w-40">Schedule</TableHead>
-                    <TableHead className="text-gray-400 w-40">Actions</TableHead>
+                  <TableRow className="border-border hover:bg-transparent">
+                    <TableHead className="text-muted-foreground">Name</TableHead>
+                    <TableHead className="text-muted-foreground">Email</TableHead>
+                    <TableHead className="text-muted-foreground w-40">Schedule</TableHead>
+                    <TableHead className="text-muted-foreground w-40">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {teamMembers.map((user) => (
-                    <>
-                      <TableRow key={user.id} className="border-gray-800 hover:bg-gray-800/50">
-                        <TableCell className="text-gray-100 font-medium">
+                    <React.Fragment key={user.id}>
+                      <TableRow className="border-border hover:bg-accent/50">
+                        <TableCell className="text-foreground font-medium">
                           {user.firstName} {user.lastName}
                         </TableCell>
-                        <TableCell className="text-gray-400">{user.email}</TableCell>
+                        <TableCell className="text-muted-foreground">{user.email}</TableCell>
                         <TableCell>
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-muted-foreground/80">
                             {expandedId === user.id ? 'Editing...' : 'Click to edit'}
                           </span>
                         </TableCell>
@@ -301,7 +301,7 @@ export default function BusinessHoursPage() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-8 px-2 text-gray-400 hover:text-gray-100 text-xs"
+                            className="h-8 px-2 text-muted-foreground hover:text-foreground text-xs"
                             onClick={() => openEmployee(user.id)}
                           >
                             {expandedId === user.id ? (
@@ -317,16 +317,16 @@ export default function BusinessHoursPage() {
                         </TableCell>
                       </TableRow>
                       {expandedId === user.id && (
-                        <TableRow key={`${user.id}-hours`} className="border-gray-800 bg-gray-900/50">
+                        <TableRow key={`${user.id}-hours`} className="border-border bg-card/50">
                           <TableCell colSpan={4} className="p-4">
                             {empLoading ? (
                               <div className="flex items-center justify-center py-6">
-                                <Loader2 className="h-5 w-5 text-blue-400 animate-spin" />
+                                <Loader2 className="h-5 w-5 text-primary animate-spin" />
                               </div>
                             ) : (
                               <div className="space-y-4">
-                                <p className="text-sm text-gray-400">
-                                  Custom hours for <span className="text-white font-medium">{user.firstName} {user.lastName}</span>.
+                                <p className="text-sm text-muted-foreground">
+                                  Custom hours for <span className="text-foreground font-medium">{user.firstName} {user.lastName}</span>.
                                   Leave all days unchecked to inherit org defaults.
                                 </p>
                                 <HoursEditor
@@ -337,7 +337,7 @@ export default function BusinessHoursPage() {
                                 <Button
                                   onClick={() => handleSaveEmployee(user.id)}
                                   disabled={empSaving}
-                                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
                                 >
                                   {empSaving ? (
                                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -351,7 +351,7 @@ export default function BusinessHoursPage() {
                           </TableCell>
                         </TableRow>
                       )}
-                    </>
+                    </React.Fragment>
                   ))}
                 </TableBody>
               </Table>

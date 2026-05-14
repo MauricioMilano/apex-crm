@@ -9,15 +9,15 @@ interface TemplatePreviewProps {
 
 export function TemplatePreview({ subject, bodyHtml }: TemplatePreviewProps) {
   return (
-    <Card className="bg-gray-900 border-gray-800">
+    <Card className="bg-card border-border">
       <CardHeader className="pb-3">
-        <CardTitle className="text-gray-100 text-sm flex items-center gap-2">
-          <span className="text-gray-400 font-normal">Subject:</span>
+        <CardTitle className="text-foreground text-sm flex items-center gap-2">
+          <span className="text-muted-foreground font-normal">Subject:</span>
           <span className="font-medium">{subject || "(no subject)"}</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="border-t border-gray-800">
+        <div className="border-t border-border">
           <iframe
             srcDoc={bodyHtml}
             title="Email preview"

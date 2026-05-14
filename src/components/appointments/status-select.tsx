@@ -30,14 +30,14 @@ export default function StatusSelect({ value, onChange, allowed, disabled }: Pro
 
   return (
     <div className="flex flex-col">
-      <label className="text-sm text-gray-400 mb-1">Status</label>
+      <label className="text-sm text-muted-foreground mb-1">Status</label>
       <Select value={value} onValueChange={(v) => onChange(v as AppointmentStatus)}>
-        <SelectTrigger className="w-full bg-gray-900 border-gray-700 text-white h-9 text-sm" disabled={disabled}>
+        <SelectTrigger className="w-full bg-card border-border text-foreground h-9 text-sm" disabled={disabled}>
           <SelectValue />
         </SelectTrigger>
-        <SelectContent className="bg-gray-900 border-gray-700">
+        <SelectContent className="bg-card border-border">
           {opts.map((s) => (
-            <SelectItem key={s} value={s} className="text-gray-300">
+            <SelectItem key={s} value={s} className="text-muted-foreground">
               {OPTIONS[s]}
             </SelectItem>
           ))}

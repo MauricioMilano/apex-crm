@@ -14,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { useAuth } from '@/contexts/auth-context';
 
 const ROUTE_TITLES: Record<string, string> = {
@@ -49,19 +50,19 @@ export function Header({ onMenuClick }: HeaderProps) {
   };
 
   return (
-    <header className="h-16 bg-gray-950 border-b border-gray-800 flex items-center gap-4 px-4 shrink-0">
+    <header className="h-16 bg-background border-b border-border flex items-center gap-4 px-4 shrink-0">
       {/* Mobile menu toggle */}
       <Button
         variant="ghost"
         size="icon"
         onClick={onMenuClick}
-        className="text-gray-400 hover:text-gray-100 hover:bg-gray-800 lg:hidden"
+        className="text-muted-foreground hover:text-foreground hover:bg-accent lg:hidden"
       >
         <Menu className="h-5 w-5" />
       </Button>
 
       {/* Page title */}
-      <h1 className="text-lg font-semibold text-white hidden sm:block">
+      <h1 className="text-lg font-semibold text-foreground hidden sm:block">
         {pageTitle}
       </h1>
 
@@ -70,10 +71,10 @@ export function Header({ onMenuClick }: HeaderProps) {
 
       {/* Search */}
       <div className="relative hidden md:block">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/80" />
         <Input
           placeholder="Search..."
-          className="pl-9 w-64 bg-gray-900 border-gray-700 text-gray-300 placeholder:text-gray-600 focus-visible:ring-blue-600 h-9"
+          className="pl-9 w-64 bg-card border-border text-muted-foreground placeholder:text-muted-foreground/60 focus-visible:ring-primary h-9"
         />
       </div>
 
@@ -81,15 +82,18 @@ export function Header({ onMenuClick }: HeaderProps) {
       <Button
         variant="ghost"
         size="icon"
-        className="relative text-gray-400 hover:text-gray-100 hover:bg-gray-800"
+        className="relative text-muted-foreground hover:text-foreground hover:bg-accent"
       >
         <Bell className="h-5 w-5" />
         {notificationCount > 0 && (
-          <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px] bg-blue-600 hover:bg-blue-600 border-0">
+          <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px] bg-primary hover:bg-primary border-0">
             {notificationCount}
           </Badge>
         )}
       </Button>
+
+      {/* Theme toggle */}
+      <ThemeToggle />
 
       {/* User menu */}
       <DropdownMenu>
@@ -97,13 +101,13 @@ export function Header({ onMenuClick }: HeaderProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-full hover:bg-gray-800"
+            className="rounded-full hover:bg-accent"
           >
             <Avatar className="h-8 w-8">
               {currentUser?.avatar && (
                 <AvatarImage src={currentUser.avatar} />
               )}
-              <AvatarFallback className="bg-blue-600 text-white text-xs font-semibold">
+              <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
                 {initials}
               </AvatarFallback>
             </Avatar>
@@ -111,34 +115,34 @@ export function Header({ onMenuClick }: HeaderProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
-          className="w-48 bg-gray-900 border-gray-800 text-gray-300"
+          className="w-48 bg-card border-border text-muted-foreground"
         >
           <div className="px-3 py-2">
-            <p className="text-sm font-medium text-white">
+            <p className="text-sm font-medium text-foreground">
               {currentUser
                 ? `${currentUser.firstName} ${currentUser.lastName}`
                 : 'User'}
             </p>
-            <p className="text-xs text-gray-500 truncate">
+            <p className="text-xs text-muted-foreground/80 truncate">
               {currentUser?.email}
             </p>
           </div>
-          <DropdownMenuSeparator className="bg-gray-800" />
+          <DropdownMenuSeparator className="bg-muted" />
           <DropdownMenuItem
-            className="gap-2 cursor-pointer hover:bg-gray-800 focus:bg-gray-800"
+            className="gap-2 cursor-pointer hover:bg-accent focus:bg-accent"
             onClick={() => router.push('/settings/profile')}
           >
             <User className="h-4 w-4" />
             Profile
           </DropdownMenuItem>
           <DropdownMenuItem
-            className="gap-2 cursor-pointer hover:bg-gray-800 focus:bg-gray-800"
+            className="gap-2 cursor-pointer hover:bg-accent focus:bg-accent"
             onClick={() => router.push('/settings')}
           >
             <Settings className="h-4 w-4" />
             Settings
           </DropdownMenuItem>
-          <DropdownMenuSeparator className="bg-gray-800" />
+          <DropdownMenuSeparator className="bg-muted" />
           <DropdownMenuItem
             className="gap-2 cursor-pointer text-red-400 hover:bg-red-400/10 focus:bg-red-400/10 focus:text-red-400"
             onClick={handleLogout}

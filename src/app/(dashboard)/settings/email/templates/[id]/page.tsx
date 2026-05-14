@@ -63,7 +63,7 @@ export default function TemplateEditorPage() {
 
   if (loading) {
     return (
-      <div className="text-center py-16 text-gray-500">
+      <div className="text-center py-16 text-muted-foreground/80">
         Loading template...
       </div>
     )
@@ -76,7 +76,7 @@ export default function TemplateEditorPage() {
           variant="ghost"
           size="sm"
           onClick={() => router.push("/settings/email")}
-          className="text-gray-400 hover:text-gray-100"
+          className="text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4 mr-1" />
           Back

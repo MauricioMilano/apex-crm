@@ -78,17 +78,17 @@ export function TemplateEditor({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-gray-100 capitalize">
+          <h2 className="text-lg font-semibold text-foreground capitalize">
             {name.replace(/-/g, " ")}
           </h2>
-          <p className="text-sm text-gray-500 capitalize">{category} template</p>
+          <p className="text-sm text-muted-foreground/80 capitalize">{category} template</p>
         </div>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => setShowPreview(!showPreview)}
-            className="border-gray-700 text-gray-300 hover:text-gray-100 hover:bg-gray-800"
+            className="border-border text-muted-foreground hover:text-foreground hover:bg-accent"
           >
             <Eye className="h-4 w-4 mr-1.5" />
             {showPreview ? "Hide Preview" : "Show Preview"}
@@ -96,7 +96,7 @@ export function TemplateEditor({
           <Button
             onClick={handleSave}
             disabled={saving}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-primary hover:bg-primary/90"
           >
             {saving ? (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -112,22 +112,22 @@ export function TemplateEditor({
         {/* Editor */}
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label className="text-gray-300">Subject</Label>
+            <Label className="text-muted-foreground">Subject</Label>
             <Input
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500 font-mono text-sm"
+              className="bg-muted border-border text-foreground focus:border-primary font-mono text-sm"
               placeholder="Email subject with {{var}} placeholders"
             />
           </div>
 
           <div className="space-y-2">
-            <Label className="text-gray-300">HTML Body</Label>
+            <Label className="text-muted-foreground">HTML Body</Label>
             <div className="relative">
               <textarea
                 value={bodyHtml}
                 onChange={(e) => setBodyHtml(e.target.value)}
-                className="w-full bg-gray-800 border border-gray-700 text-gray-100 rounded-lg p-4 font-mono text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none resize-y"
+                className="w-full bg-muted border border-border text-foreground rounded-lg p-4 font-mono text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none resize-y"
                 style={{ minHeight: "450px" }}
                 placeholder="<html>Email body with {{var}} placeholders...</html>"
                 spellCheck={false}
@@ -135,9 +135,9 @@ export function TemplateEditor({
             </div>
           </div>
 
-          <div className="text-xs text-gray-500 bg-gray-800 rounded-lg p-3">
-            <p className="font-medium text-gray-400 mb-1">Available Variables:</p>
-            <code className="text-blue-400">
+          <div className="text-xs text-muted-foreground/80 bg-muted rounded-lg p-3">
+            <p className="font-medium text-muted-foreground mb-1">Available Variables:</p>
+            <code className="text-primary">
               {Object.keys(sampleVars).map((v) => `{{${v}}}`).join(", ")}
             </code>
           </div>

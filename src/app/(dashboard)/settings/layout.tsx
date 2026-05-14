@@ -22,7 +22,7 @@ export default function SettingsLayout({
       {/* Settings sidebar */}
       <aside className="w-56 shrink-0">
         <div className="sticky top-0">
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 px-3">
+          <p className="text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider mb-3 px-3">
             Settings
           </p>
           <nav className="flex flex-col gap-0.5">
@@ -39,8 +39,8 @@ export default function SettingsLayout({
                   className={cn(
                     'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
                     isActive
-                      ? 'bg-blue-600/20 text-blue-400'
-                      : 'text-gray-400 hover:text-gray-100 hover:bg-gray-800',
+                      ? 'bg-primary/20 text-primary'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent',
                   )}
                 >
                   {IconComponent && <IconComponent className="h-4 w-4 shrink-0" />}

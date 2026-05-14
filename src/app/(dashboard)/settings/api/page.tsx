@@ -132,12 +132,12 @@ export default function ApiKeysPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-100">API Keys</h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-foreground">API Keys</h1>
+          <p className="text-muted-foreground text-sm mt-1">
             Manage API keys for programmatic access.
           </p>
         </div>
-        <Button onClick={() => setCreateOpen(true)} className="bg-blue-600 hover:bg-blue-700">
+        <Button onClick={() => setCreateOpen(true)} className="bg-primary hover:bg-primary/90">
           <Plus className="h-4 w-4 mr-2" />
           Create Key
         </Button>
@@ -150,7 +150,7 @@ export default function ApiKeysPage() {
             API key created — copy it now, it won&apos;t be shown again.
           </p>
           <div className="flex items-center gap-2 mt-2">
-            <code className="flex-1 text-xs text-green-300 font-mono bg-gray-900 rounded px-3 py-2 break-all">
+            <code className="flex-1 text-xs text-green-300 font-mono bg-card rounded px-3 py-2 break-all">
               {newKeyValue}
             </code>
             <Button
@@ -164,38 +164,38 @@ export default function ApiKeysPage() {
           </div>
           <button
             onClick={() => setNewKeyValue(null)}
-            className="text-xs text-gray-500 hover:text-gray-400 mt-2"
+            className="text-xs text-muted-foreground/80 hover:text-muted-foreground mt-2"
           >
             Dismiss
           </button>
         </div>
       )}
 
-      <div className="rounded-lg border border-gray-800 overflow-hidden">
+      <div className="rounded-lg border border-border overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="border-gray-800 hover:bg-transparent">
-              <TableHead className="text-gray-400">Name</TableHead>
-              <TableHead className="text-gray-400">Key</TableHead>
-              <TableHead className="text-gray-400">Permissions</TableHead>
-              <TableHead className="text-gray-400">Created</TableHead>
-              <TableHead className="text-gray-400">Last Used</TableHead>
-              <TableHead className="text-gray-400 w-16">Actions</TableHead>
+            <TableRow className="border-border hover:bg-transparent">
+              <TableHead className="text-muted-foreground">Name</TableHead>
+              <TableHead className="text-muted-foreground">Key</TableHead>
+              <TableHead className="text-muted-foreground">Permissions</TableHead>
+              <TableHead className="text-muted-foreground">Created</TableHead>
+              <TableHead className="text-muted-foreground">Last Used</TableHead>
+              <TableHead className="text-muted-foreground w-16">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {apiKeys.length === 0 && (
-              <TableRow className="border-gray-800">
-                <TableCell colSpan={6} className="text-center text-gray-500 py-10">
+              <TableRow className="border-border">
+                <TableCell colSpan={6} className="text-center text-muted-foreground/80 py-10">
                   No API keys yet.
                 </TableCell>
               </TableRow>
             )}
             {apiKeys.map((k) => (
-              <TableRow key={k.id} className="border-gray-800 hover:bg-gray-800/50">
-                <TableCell className="text-gray-100 font-medium">{k.name}</TableCell>
+              <TableRow key={k.id} className="border-border hover:bg-accent/50">
+                <TableCell className="text-foreground font-medium">{k.name}</TableCell>
                 <TableCell>
-                  <code className="text-gray-400 text-xs font-mono">{k.key}</code>
+                  <code className="text-muted-foreground text-xs font-mono">{k.key}</code>
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-1">
@@ -203,26 +203,26 @@ export default function ApiKeysPage() {
                       <Badge
                         key={p}
                         variant="outline"
-                        className="text-xs border-gray-700 text-gray-400"
+                        className="text-xs border-border text-muted-foreground"
                       >
                         {p}
                       </Badge>
                     ))}
                   </div>
                 </TableCell>
-                <TableCell className="text-gray-400 text-sm">
+                <TableCell className="text-muted-foreground text-sm">
                   {formatDate(k.createdAt)}
                 </TableCell>
-                <TableCell className="text-gray-400 text-sm">
+                <TableCell className="text-muted-foreground text-sm">
                   {k.lastUsed
                     ? formatDate(k.lastUsed)
-                    : <span className="text-gray-600">Never</span>}
+                    : <span className="text-muted-foreground">Never</span>}
                 </TableCell>
                 <TableCell>
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="h-8 px-2 text-gray-400 hover:text-red-400 text-xs"
+                    className="h-8 px-2 text-muted-foreground hover:text-destructive/80 text-xs"
                     onClick={() => setRevokeId(k.id)}
                   >
                     <Trash2 className="h-3.5 w-3.5 mr-1" />
@@ -237,31 +237,31 @@ export default function ApiKeysPage() {
 
       {/* Create Dialog */}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent className="bg-gray-900 border-gray-800 text-gray-100 max-w-md">
+        <DialogContent className="bg-card border-border text-foreground max-w-md">
           <DialogHeader>
             <DialogTitle>Create API Key</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label className="text-gray-300">Key Name *</Label>
+              <Label className="text-muted-foreground">Key Name *</Label>
               <Input
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500"
+                className="bg-muted border-border text-foreground focus:border-primary"
                 placeholder="My Integration"
               />
             </div>
             <div className="space-y-3">
-              <Label className="text-gray-300">Permissions *</Label>
+              <Label className="text-muted-foreground">Permissions *</Label>
               <div className="grid grid-cols-2 gap-2">
                 {ALL_PERMISSIONS.map((p) => (
                   <label key={p.value} className="flex items-center gap-2 cursor-pointer group">
                     <Checkbox
                       checked={form.permissions.includes(p.value)}
                       onCheckedChange={() => togglePermission(p.value)}
-                      className="border-gray-600 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                      className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                     />
-                    <span className="text-gray-300 text-sm group-hover:text-gray-100">
+                    <span className="text-muted-foreground text-sm group-hover:text-foreground">
                       {p.label}
                     </span>
                   </label>
@@ -270,10 +270,10 @@ export default function ApiKeysPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setCreateOpen(false)} className="text-gray-400">
+            <Button variant="ghost" onClick={() => setCreateOpen(false)} className="text-muted-foreground">
               Cancel
             </Button>
-            <Button onClick={handleCreate} className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={handleCreate} className="bg-primary hover:bg-primary/90">
               Create Key
             </Button>
           </DialogFooter>
@@ -282,21 +282,21 @@ export default function ApiKeysPage() {
 
       {/* Revoke confirmation */}
       <AlertDialog open={!!revokeId} onOpenChange={(o) => !o && setRevokeId(null)}>
-        <AlertDialogContent className="bg-gray-900 border-gray-800 text-gray-100">
+        <AlertDialogContent className="bg-card border-border text-foreground">
           <AlertDialogHeader>
             <AlertDialogTitle>Revoke API Key</AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-400">
+            <AlertDialogDescription className="text-muted-foreground">
               This will permanently revoke this API key. Any integrations using it will stop
               working. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700">
+            <AlertDialogCancel className="bg-muted border-border text-muted-foreground hover:bg-accent">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleRevoke}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
             >
               Revoke Key
             </AlertDialogAction>

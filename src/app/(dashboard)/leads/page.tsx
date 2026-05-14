@@ -16,7 +16,7 @@ import { Lead } from '@/types';
 import { Plus, Users2, TrendingUp } from 'lucide-react';
 
 const STATUS_DOT_COLORS: Record<string, string> = {
-  blue: 'bg-blue-500',
+  blue: 'bg-primary',
   yellow: 'bg-yellow-500',
   green: 'bg-green-500',
   purple: 'bg-purple-500',
@@ -54,14 +54,14 @@ export default function LeadsPage() {
       {/* Page header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-100">Lead Pipeline</h1>
-          <p className="text-sm text-gray-400 mt-0.5">
+          <h1 className="text-2xl font-bold text-foreground">Lead Pipeline</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
             Track and manage your leads through the sales pipeline
           </p>
         </div>
         <Button
           onClick={() => setNewLeadOpen(true)}
-          className="bg-blue-600 hover:bg-blue-500 text-white"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground"
         >
           <Plus className="h-4 w-4 mr-2" />
           New Lead
@@ -71,21 +71,21 @@ export default function LeadsPage() {
       {/* Stats bar */}
       <div className="flex items-center gap-4 flex-wrap">
         {/* Total */}
-        <div className="flex items-center gap-2.5 bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5">
-          <Users2 className="h-4 w-4 text-blue-400" />
+        <div className="flex items-center gap-2.5 bg-card border border-border rounded-lg px-4 py-2.5">
+          <Users2 className="h-4 w-4 text-primary" />
           <div>
-            <p className="text-xs text-gray-500">Total Leads</p>
-            <p className="text-lg font-bold text-gray-100 leading-tight">
+            <p className="text-xs text-muted-foreground">Total Leads</p>
+            <p className="text-lg font-bold text-foreground leading-tight">
               {leads.length}
             </p>
           </div>
         </div>
 
         {/* Total value */}
-        <div className="flex items-center gap-2.5 bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5">
+        <div className="flex items-center gap-2.5 bg-card border border-border rounded-lg px-4 py-2.5">
           <TrendingUp className="h-4 w-4 text-emerald-400" />
           <div>
-            <p className="text-xs text-gray-500">Pipeline Value</p>
+            <p className="text-xs text-muted-foreground">Pipeline Value</p>
             <p className="text-lg font-bold text-emerald-400 leading-tight">
               {formatCurrency(totalValue)}
             </p>
@@ -99,14 +99,14 @@ export default function LeadsPage() {
           return (
             <div
               key={status.id}
-              className="flex items-center gap-2 bg-gray-900 border border-gray-800 rounded-lg px-3 py-2.5"
+              className="flex items-center gap-2 bg-card border border-border rounded-lg px-3 py-2.5"
             >
               <div className={`h-2 w-2 rounded-full ${dot}`} />
               <div>
-                <p className="text-xs text-gray-500 truncate max-w-24">
+                <p className="text-xs text-muted-foreground truncate max-w-24">
                   {status.name}
                 </p>
-                <p className="text-base font-semibold text-gray-200 leading-tight">
+                <p className="text-base font-semibold text-foreground/90 leading-tight">
                   {count}
                 </p>
               </div>
@@ -122,9 +122,9 @@ export default function LeadsPage() {
 
       {/* New lead dialog */}
       <Dialog open={newLeadOpen} onOpenChange={setNewLeadOpen}>
-        <DialogContent className="bg-gray-900 border-gray-700 max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-card border-border max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-gray-100">New Lead</DialogTitle>
+            <DialogTitle className="text-foreground">New Lead</DialogTitle>
           </DialogHeader>
           <LeadForm
             leadStatuses={sortedStatuses}

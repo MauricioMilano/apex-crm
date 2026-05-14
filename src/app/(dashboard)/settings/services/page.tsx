@@ -142,71 +142,71 @@ export default function ServicesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-100">Services</h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-foreground">Services</h1>
+          <p className="text-muted-foreground text-sm mt-1">
             Manage the services you offer to clients.
           </p>
         </div>
-        <Button onClick={openAdd} className="bg-blue-600 hover:bg-blue-700">
+        <Button onClick={openAdd} className="bg-primary hover:bg-primary/90">
           <Plus className="h-4 w-4 mr-2" />
           Add Service
         </Button>
       </div>
 
-      <div className="rounded-lg border border-gray-800 overflow-hidden">
+      <div className="rounded-lg border border-border overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="border-gray-800 hover:bg-transparent">
-              <TableHead className="text-gray-400">Name</TableHead>
-              <TableHead className="text-gray-400">Duration</TableHead>
-              <TableHead className="text-gray-400">Price</TableHead>
-              <TableHead className="text-gray-400">Status</TableHead>
-              <TableHead className="text-gray-400 w-20">Actions</TableHead>
+            <TableRow className="border-border hover:bg-transparent">
+              <TableHead className="text-muted-foreground">Name</TableHead>
+              <TableHead className="text-muted-foreground">Duration</TableHead>
+              <TableHead className="text-muted-foreground">Price</TableHead>
+              <TableHead className="text-muted-foreground">Status</TableHead>
+              <TableHead className="text-muted-foreground w-20">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {services.length === 0 && (
-              <TableRow className="border-gray-800">
-                <TableCell colSpan={5} className="text-center text-gray-500 py-10">
+              <TableRow className="border-border">
+                <TableCell colSpan={5} className="text-center text-muted-foreground/80 py-10">
                   No services yet. Add one to get started.
                 </TableCell>
               </TableRow>
             )}
             {services.map((svc) => (
-              <TableRow key={svc.id} className="border-gray-800 hover:bg-gray-800/50">
+              <TableRow key={svc.id} className="border-border hover:bg-accent/50">
                 <TableCell>
                   <div>
-                    <p className="text-gray-100 font-medium">{svc.name}</p>
+                    <p className="text-foreground font-medium">{svc.name}</p>
                     {svc.description && (
-                      <p className="text-gray-500 text-xs mt-0.5 truncate max-w-xs">
+                      <p className="text-muted-foreground/80 text-xs mt-0.5 truncate max-w-xs">
                         {svc.description}
                       </p>
                     )}
                   </div>
                 </TableCell>
-                <TableCell className="text-gray-300">{svc.duration} min</TableCell>
-                <TableCell className="text-gray-300">${formatServicePrice(svc.price)}</TableCell>
+                <TableCell className="text-muted-foreground">{svc.duration} min</TableCell>
+                <TableCell className="text-muted-foreground">${formatServicePrice(svc.price)}</TableCell>
                 <TableCell>
                   <Switch
                     checked={svc.isActive}
                     onCheckedChange={() => toggleActive(svc)}
-                    className="data-[state=checked]:bg-blue-600"
-                  />
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-8 w-8 text-gray-400 hover:text-gray-100"
-                      onClick={() => openEdit(svc)}
+                     className="data-[state=checked]:bg-primary"
+                   />
+                 </TableCell>
+                 <TableCell>
+                   <div className="flex items-center gap-1">
+                     <Button
+                       size="icon"
+                       variant="ghost"
+                       className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                       onClick={() => openEdit(svc)}
                     >
                       <Pencil className="h-3.5 w-3.5" />
                     </Button>
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-8 w-8 text-gray-400 hover:text-red-400"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive/80"
                       onClick={() => setDeleteId(svc.id)}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -221,33 +221,33 @@ export default function ServicesPage() {
 
       {/* Add/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="bg-gray-900 border-gray-800 text-gray-100 max-w-md">
+        <DialogContent className="bg-card border-border text-foreground max-w-md">
           <DialogHeader>
             <DialogTitle>{editing ? 'Edit Service' : 'Add Service'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label className="text-gray-300">Name *</Label>
+              <Label className="text-muted-foreground">Name *</Label>
               <Input
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500"
+                className="bg-muted border-border text-foreground focus:border-primary"
                 placeholder="e.g. Hair Cut"
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-gray-300">Description</Label>
+              <Label className="text-muted-foreground">Description</Label>
               <Textarea
                 value={form.description}
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500 resize-none"
+                className="bg-muted border-border text-foreground focus:border-primary resize-none"
                 placeholder="Optional description"
                 rows={2}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-gray-300">Duration (minutes)</Label>
+                <Label className="text-muted-foreground">Duration (minutes)</Label>
                 <Input
                   type="number"
                   min={1}
@@ -255,11 +255,11 @@ export default function ServicesPage() {
                   onChange={(e) =>
                     setForm((f) => ({ ...f, duration: Math.max(1, Number(e.target.value)) }))
                   }
-                  className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500"
+                  className="bg-muted border-border text-foreground focus:border-primary"
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-gray-300">Price ($)</Label>
+                <Label className="text-muted-foreground">Price ($)</Label>
                 <Input
                   type="number"
                   min={0}
@@ -268,12 +268,12 @@ export default function ServicesPage() {
                   onChange={(e) =>
                     setForm((f) => ({ ...f, price: Math.max(0, Number(e.target.value)) }))
                   }
-                  className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500"
+                  className="bg-muted border-border text-foreground focus:border-primary"
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-gray-300">Interest Rate (% per month)</Label>
+              <Label className="text-muted-foreground">Interest Rate (% per month)</Label>
               <Input
                 type="number"
                 min={0}
@@ -283,22 +283,22 @@ export default function ServicesPage() {
                   setForm((f) => ({ ...f, interestRate: e.target.value }))
                 }
                 placeholder="Leave empty to use org default"
-                className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500"
+                className="bg-muted border-border text-foreground focus:border-primary"
               />
-              <p className="text-xs text-gray-500">Used for installment calculations. Overrides organization default.</p>
+              <p className="text-xs text-muted-foreground/80">Used for installment calculations. Overrides organization default.</p>
             </div>
             <div className="flex items-center gap-3">
               <Switch
                 id="requiresPrepayment"
                 checked={form.requiresPrepayment}
                 onCheckedChange={(v) => setForm((f) => ({ ...f, requiresPrepayment: v }))}
-                className="data-[state=checked]:bg-blue-600"
+                className="data-[state=checked]:bg-primary"
               />
-              <Label htmlFor="requiresPrepayment" className="text-gray-300 cursor-pointer">
+              <Label htmlFor="requiresPrepayment" className="text-muted-foreground cursor-pointer">
                 Requires Prepayment
               </Label>
             </div>
-            <div className="text-xs text-gray-500 -mt-2">
+            <div className="text-xs text-muted-foreground/80 -mt-2">
               When enabled, the booking flow will ask for payment method and installments.
             </div>
             <div className="flex items-center gap-3">
@@ -306,18 +306,18 @@ export default function ServicesPage() {
                 id="isActive"
                 checked={form.isActive}
                 onCheckedChange={(v) => setForm((f) => ({ ...f, isActive: v }))}
-                className="data-[state=checked]:bg-blue-600"
+                className="data-[state=checked]:bg-primary"
               />
-              <Label htmlFor="isActive" className="text-gray-300 cursor-pointer">
+              <Label htmlFor="isActive" className="text-muted-foreground cursor-pointer">
                 Active
               </Label>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setDialogOpen(false)} className="text-gray-400">
+            <Button variant="ghost" onClick={() => setDialogOpen(false)} className="text-muted-foreground">
               Cancel
             </Button>
-            <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={handleSave} className="bg-primary hover:bg-primary/90">
               {editing ? 'Save Changes' : 'Create Service'}
             </Button>
           </DialogFooter>
@@ -326,20 +326,20 @@ export default function ServicesPage() {
 
       {/* Delete confirmation */}
       <AlertDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
-        <AlertDialogContent className="bg-gray-900 border-gray-800 text-gray-100">
+        <AlertDialogContent className="bg-card border-border text-foreground">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Service</AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-400">
+            <AlertDialogDescription className="text-muted-foreground">
               This will permanently delete the service. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700">
+            <AlertDialogCancel className="bg-muted border-border text-muted-foreground hover:bg-accent">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
             >
               Delete
             </AlertDialogAction>

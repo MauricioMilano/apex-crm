@@ -143,56 +143,56 @@ export default function GeneralSettingsPage() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="text-2xl font-bold text-gray-100">General Settings</h1>
-        <p className="text-gray-400 text-sm mt-1">
+        <h1 className="text-2xl font-bold text-foreground">General Settings</h1>
+        <p className="text-muted-foreground text-sm mt-1">
           Configure your organization preferences.
         </p>
       </div>
 
-      <Card className="bg-gray-900 border-gray-800">
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-gray-100">Organization</CardTitle>
-          <CardDescription className="text-gray-400">
+          <CardTitle className="text-foreground">Organization</CardTitle>
+          <CardDescription className="text-muted-foreground">
             Basic information about your organization.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label className="text-gray-300">Organization Name</Label>
+            <Label className="text-muted-foreground">Organization Name</Label>
             <Input
               value={settings.orgName}
               onChange={(e) =>
                 setSettings((s) => ({ ...s, orgName: e.target.value }))
               }
-              className="bg-gray-800 border-gray-700 text-gray-100 focus:border-blue-500"
+              className="bg-muted border-border text-foreground focus:border-primary"
               placeholder="Your Organization"
             />
           </div>
         </CardContent>
       </Card>
 
-      <Card className="bg-gray-900 border-gray-800">
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-gray-100">Locale &amp; Format</CardTitle>
-          <CardDescription className="text-gray-400">
+          <CardTitle className="text-foreground">Locale &amp; Format</CardTitle>
+          <CardDescription className="text-muted-foreground">
             Regional preferences for dates, times, currency and language.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label className="text-gray-300">Timezone</Label>
+            <Label className="text-muted-foreground">Timezone</Label>
             <Select
               value={settings.timezone}
               onValueChange={(v) =>
                 setSettings((s) => ({ ...s, timezone: v }))
               }
             >
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-gray-100">
+              <SelectTrigger className="bg-muted border-border text-foreground">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700">
+              <SelectContent className="bg-muted border-border">
                 {TIMEZONES.map((tz) => (
-                  <SelectItem key={tz} value={tz} className="text-gray-100 focus:bg-gray-700">
+                  <SelectItem key={tz} value={tz} className="text-foreground focus:bg-accent">
                     {tz}
                   </SelectItem>
                 ))}
@@ -201,19 +201,19 @@ export default function GeneralSettingsPage() {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-gray-300">Date Format</Label>
+            <Label className="text-muted-foreground">Date Format</Label>
             <Select
               value={settings.dateFormat}
               onValueChange={(v) =>
                 setSettings((s) => ({ ...s, dateFormat: v }))
               }
             >
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-gray-100">
+              <SelectTrigger className="bg-muted border-border text-foreground">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700">
+              <SelectContent className="bg-muted border-border">
                 {DATE_FORMATS.map((f) => (
-                  <SelectItem key={f.value} value={f.value} className="text-gray-100 focus:bg-gray-700">
+                  <SelectItem key={f.value} value={f.value} className="text-foreground focus:bg-accent">
                     {f.label}
                   </SelectItem>
                 ))}
@@ -222,37 +222,37 @@ export default function GeneralSettingsPage() {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-gray-300">Time Format</Label>
+            <Label className="text-muted-foreground">Time Format</Label>
             <Select
               value={settings.timeFormat}
               onValueChange={(v) =>
                 setSettings((s) => ({ ...s, timeFormat: v as '12h' | '24h' }))
               }
             >
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-gray-100">
+              <SelectTrigger className="bg-muted border-border text-foreground">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700">
-                <SelectItem value="12h" className="text-gray-100 focus:bg-gray-700">12-hour (AM/PM)</SelectItem>
-                <SelectItem value="24h" className="text-gray-100 focus:bg-gray-700">24-hour</SelectItem>
+              <SelectContent className="bg-muted border-border">
+                <SelectItem value="12h" className="text-foreground focus:bg-accent">12-hour (AM/PM)</SelectItem>
+                <SelectItem value="24h" className="text-foreground focus:bg-accent">24-hour</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label className="text-gray-300">Currency</Label>
+            <Label className="text-muted-foreground">Currency</Label>
             <Select
               value={settings.currency}
               onValueChange={(v) =>
                 setSettings((s) => ({ ...s, currency: v }))
               }
             >
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-gray-100">
+              <SelectTrigger className="bg-muted border-border text-foreground">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700">
+              <SelectContent className="bg-muted border-border">
                 {CURRENCIES.map((c) => (
-                  <SelectItem key={c.value} value={c.value} className="text-gray-100 focus:bg-gray-700">
+                  <SelectItem key={c.value} value={c.value} className="text-foreground focus:bg-accent">
                     {c.label}
                   </SelectItem>
                 ))}
@@ -261,19 +261,19 @@ export default function GeneralSettingsPage() {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-gray-300">Language / Locale</Label>
+            <Label className="text-muted-foreground">Language / Locale</Label>
             <Select
               value={settings.locale}
               onValueChange={(v) =>
                 setSettings((s) => ({ ...s, locale: v }))
               }
             >
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-gray-100">
+              <SelectTrigger className="bg-muted border-border text-foreground">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700">
+              <SelectContent className="bg-muted border-border">
                 {LOCALES.map((l) => (
-                  <SelectItem key={l.value} value={l.value} className="text-gray-100 focus:bg-gray-700">
+                  <SelectItem key={l.value} value={l.value} className="text-foreground focus:bg-accent">
                     {l.label}
                   </SelectItem>
                 ))}
@@ -284,7 +284,7 @@ export default function GeneralSettingsPage() {
       </Card>
 
       <div className="flex justify-end">
-        <Button onClick={handleSave} disabled={loading} className="bg-blue-600 hover:bg-blue-700">
+        <Button onClick={handleSave} disabled={loading} className="bg-primary hover:bg-primary/90">
           <Save className="h-4 w-4 mr-2" />
           {loading ? 'Loading...' : 'Save Changes'}
         </Button>
