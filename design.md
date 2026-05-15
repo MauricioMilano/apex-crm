@@ -301,6 +301,77 @@ Sizes: `h-10 w-10` (card), `h-8 w-8` (sidebar), `h-7 w-7` (table), `h-6 w-6` (le
 </div>
 ```
 
+### 3.8 Detail/Edit Page Pattern
+
+For detail views, edit forms, and creation pages — a header with back-navigation on the left and action buttons on the right.
+
+```
+┌─────────────────────────────────────────────┐
+│  Header Row                                  │
+│  ┌───────────────────────────────────────┐  │
+│  │  ← Back        Page Title  [Save][✕] │  │
+│  └───────────────────────────────────────┘  │
+│                                              │
+│  Content (form / details)                    │
+│  ┌─────────────────────────────────────────┐│
+│  │  Card                                 ││
+│  │  ┌───────────────────────────────────┐ ││
+│  │  │ Fields / detail rows             │ ││
+│  │  └───────────────────────────────────┘ ││
+│  └─────────────────────────────────────────┘│
+│                                              │
+│  Bottom Action Bar (optional)                │
+│  ┌─────────────────────────────────────────┐│
+│  │  [Delete]              [Cancel] [Save]  ││
+│  └─────────────────────────────────────────┘│
+└─────────────────────────────────────────────┘
+```
+
+**Header Row:**
+
+```
+← Back:  variant="ghost" size="sm", ArrowLeft h-4 w-4 mr-1
+Title:   text-xl font-semibold (detail) or text-2xl (top-level)
+Spacer:  flex-1
+Actions: flex items-center gap-2
+```
+
+```tsx
+<div className="flex items-center justify-between mb-6">
+  <div className="flex items-center gap-2">
+    <Button variant="ghost" size="sm" onClick={() => router.back()}>
+      <ArrowLeft className="h-4 w-4 mr-1" />
+      Back
+    </Button>
+    <h1 className="text-xl font-semibold">Page Title</h1>
+  </div>
+  <div className="flex items-center gap-2">
+    {/* action buttons */}
+  </div>
+</div>
+```
+
+**Bottom Action Bar** (when save is outside the card):
+
+```tsx
+<div className="flex items-center justify-between pt-6 border-t mt-6">
+  <Button variant="destructive" size="sm">Delete</Button>
+  <div className="flex items-center gap-2">
+    <Button variant="outline">Cancel</Button>
+    <Button>Save</Button>
+  </div>
+</div>
+```
+
+**Mobile behavior:**
+
+| Element | `< sm` | `sm+` |
+|---|---|---|
+| Back label | Hidden (icon-only) | Visible |
+| Page title | `text-lg` | `text-xl` |
+| Right actions | Icon-only / collapsed | Full labels |
+| Bottom bar | Stacks vertically | Inline |
+
 ---
 
 ## 4. Spacing System

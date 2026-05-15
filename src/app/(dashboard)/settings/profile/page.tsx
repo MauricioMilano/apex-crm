@@ -347,7 +347,7 @@ export default function InternalProfilePage() {
       </Card>
 
       {/* Danger Zone */}
-      <Card className="border-red-900/50 bg-card">
+      <Card className="border-destructive/50 bg-card">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base text-destructive/80">
             <Trash2 className="h-4 w-4" />
@@ -368,7 +368,7 @@ export default function InternalProfilePage() {
           <Button
             variant="outline"
             disabled
-            className="text-destructive/80 border-red-900/50 cursor-not-allowed opacity-60"
+            className="text-destructive/80 border-destructive/50 cursor-not-allowed opacity-60"
           >
             <Trash2 className="h-4 w-4 mr-2" />
             Contact support to delete your account

@@ -144,7 +144,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           </DropdownMenuItem>
           <DropdownMenuSeparator className="bg-muted" />
           <DropdownMenuItem
-            className="gap-2 cursor-pointer text-red-400 hover:bg-red-400/10 focus:bg-red-400/10 focus:text-red-400"
+            className="gap-2 cursor-pointer text-destructive hover:bg-destructive/10 focus:bg-destructive/10 focus:text-destructive"
             onClick={handleLogout}
           >
             <LogOut className="h-4 w-4" />

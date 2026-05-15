@@ -2,12 +2,11 @@
 
 import { use } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { useCRM } from '@/contexts/crm-context';
 import { FormBuilder } from '@/components/forms/form-builder';
 import { Form } from '@/types';
+import { PageHeader } from '@/components/ui/page-header';
 import { toast } from 'sonner';
-import { ChevronRight, FileText } from 'lucide-react';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -28,17 +27,8 @@ export default function FormBuilderPage({ params }: PageProps) {
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] -m-6">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-1.5 px-6 py-3 border-b border-border text-sm text-muted-foreground shrink-0">
-        <FileText className="h-4 w-4" />
-        <Link
-          href="/forms"
-          className="hover:text-foreground/90 transition-colors"
-        >
-          Forms
-        </Link>
-        <ChevronRight className="h-3.5 w-3.5" />
-        <span className="text-foreground/90 truncate max-w-xs">{formName}</span>
+      <div className="px-6 py-3 border-b border-border shrink-0">
+        <PageHeader title={formName} backHref="/forms" backLabel="Back to Forms" className="mb-0" />
       </div>
 
       {/* Builder (takes remaining height) */}

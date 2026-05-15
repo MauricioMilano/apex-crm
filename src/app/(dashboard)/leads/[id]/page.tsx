@@ -33,8 +33,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Separator } from '@/components/ui/separator';
 import { Lead } from '@/types';
+import { PageHeader } from '@/components/ui/page-header';
 import {
-  ArrowLeft,
   Edit,
   Trash2,
   UserCheck,
@@ -135,6 +135,7 @@ export default function LeadDetailPage() {
     ? `${assignedUser.firstName?.[0] ?? ''}${assignedUser.lastName?.[0] ?? ''}`.toUpperCase() || '?'
     : null;
   const isConverted = !!lead.convertedToClientId;
+  const fullName = `${lead.firstName} ${lead.lastName}`;
 
   const handleEditSubmit = (
     data: Omit<Lead, 'id' | 'createdAt' | 'updatedAt'>,
@@ -173,57 +174,42 @@ export default function LeadDetailPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Back + actions row */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      <PageHeader title={fullName} backHref="/leads">
+        {!isConverted && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setConvertOpen(true)}
+            className="border-emerald-700 text-emerald-400 hover:bg-emerald-900/30"
+          >
+            <UserCheck className="h-4 w-4 mr-1.5" />
+            Convert to Client
+          </Button>
+        )}
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
-          onClick={() => router.push('/leads')}
-          className="text-muted-foreground hover:text-foreground hover:bg-accent -ml-2"
+          onClick={() => setEditOpen(true)}
+          className="border-border text-foreground/90 hover:bg-accent"
         >
-          <ArrowLeft className="h-4 w-4 mr-1.5" />
-          Back to Leads
+          <Edit className="h-4 w-4 mr-1.5" />
+          Edit
         </Button>
-        <div className="flex items-center gap-2">
-          {!isConverted && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setConvertOpen(true)}
-              className="border-emerald-700 text-emerald-400 hover:bg-emerald-900/30"
-            >
-              <UserCheck className="h-4 w-4 mr-1.5" />
-              Convert to Client
-            </Button>
-          )}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setEditOpen(true)}
-            className="border-border text-foreground/90 hover:bg-accent"
-          >
-            <Edit className="h-4 w-4 mr-1.5" />
-            Edit
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setDeleteOpen(true)}
-            className="border-red-900 text-destructive/80 hover:bg-red-900/20"
-          >
-            <Trash2 className="h-4 w-4 mr-1.5" />
-            Delete
-          </Button>
-        </div>
-      </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setDeleteOpen(true)}
+          className="border-red-900 text-destructive/80 hover:bg-red-900/20"
+        >
+          <Trash2 className="h-4 w-4 mr-1.5" />
+          Delete
+        </Button>
+      </PageHeader>
 
       {/* Lead header card */}
       <div className="bg-card border border-border rounded-xl p-6">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">
-              {lead.firstName} {lead.lastName}
-            </h1>
             {lead.company && (
               <p className="text-muted-foreground mt-1">{lead.company}</p>
             )}

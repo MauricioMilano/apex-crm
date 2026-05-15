@@ -102,7 +102,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                   variant="ghost"
                   size="sm"
                   onClick={logout}
-                  className="w-full justify-center text-muted-foreground/80 hover:text-red-400 hover:bg-red-400/10 mt-1"
+                  className="w-full justify-center text-muted-foreground/80 hover:text-destructive hover:bg-destructive/10 mt-1"
                 >
                   <LogOut className="h-4 w-4" />
                 </Button>
@@ -114,7 +114,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               variant="ghost"
               size="sm"
               onClick={logout}
-              className="w-full justify-start gap-2 text-muted-foreground/80 hover:text-red-400 hover:bg-red-400/10 mt-1"
+              className="w-full justify-start gap-2 text-muted-foreground/80 hover:text-destructive hover:bg-destructive/10 mt-1"
             >
               <LogOut className="h-4 w-4" />
               Logout

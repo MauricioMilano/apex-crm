@@ -21,7 +21,7 @@ export function TemplatePreview({ subject, bodyHtml }: TemplatePreviewProps) {
           <iframe
             srcDoc={bodyHtml}
             title="Email preview"
-            className="w-full bg-white rounded-b-lg"
+            className="w-full bg-background rounded-b-lg"
             style={{ minHeight: "400px", border: "none" }}
             sandbox="allow-same-origin"
           />

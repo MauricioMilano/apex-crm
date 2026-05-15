@@ -34,7 +34,7 @@ export function OrgAutocomplete({ value, onChange }: OrgAutocompleteProps) {
   const [orgs, setOrgs] = useState<OrgOption[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const selectedOrg = orgs.find((o) => o.slug === value);
 

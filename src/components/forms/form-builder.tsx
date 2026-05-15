@@ -212,7 +212,7 @@ export function FormBuilder({ formId, onSave }: FormBuilderProps) {
             Exit Preview
           </Button>
         </div>
-        <div className="flex-1 overflow-hidden bg-gray-100">
+        <div className="flex-1 overflow-hidden bg-muted">
           <FormPreview form={previewForm} />
         </div>
       </div>

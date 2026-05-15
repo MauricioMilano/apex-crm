@@ -29,6 +29,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { PageHeader } from '@/components/ui/page-header';
 import {
   ArrowLeft,
   Edit,
@@ -179,34 +180,15 @@ export default function ClientDetailPage() {
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.back()}
-            className="shrink-0"
+      <div className="flex items-center gap-3 mb-6">
+        <Avatar className="h-12 w-12 shrink-0">
+          <AvatarFallback
+            className={`${avatarColor} text-white font-bold text-base`}
           >
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Back
-          </Button>
-          <div className="flex items-center gap-3">
-            <Avatar className="h-12 w-12">
-              <AvatarFallback
-                className={`${avatarColor} text-white font-bold text-base`}
-              >
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h1 className="text-xl font-bold">{fullName}</h1>
-              {client.company && (
-                <p className="text-sm text-muted-foreground">{client.company}</p>
-              )}
-            </div>
-          </div>
-        </div>
-        <div className="flex gap-2">
+            {initials}
+          </AvatarFallback>
+        </Avatar>
+        <PageHeader title={fullName} backHref="/clients" backLabel="Back" className="mb-0 flex-1">
           <Button
             variant="outline"
             size="sm"
@@ -230,7 +212,7 @@ export default function ClientDetailPage() {
             <Trash2 className="h-4 w-4 mr-1" />
             Delete
           </Button>
-        </div>
+        </PageHeader>
       </div>
 
       {/* Tabs */}

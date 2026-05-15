@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Save, Send, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
@@ -122,10 +123,10 @@ export function SmtpConfigForm({ onSettingsChange }: SmtpConfigFormProps) {
     return (
       <Card className="bg-card border-border">
         <CardContent className="p-6">
-          <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-muted rounded w-1/3" />
-            <div className="h-10 bg-muted rounded" />
-            <div className="h-10 bg-muted rounded" />
+          <div className="space-y-4">
+            <Skeleton className="h-4 w-1/3" />
+            <Skeleton className="h-10" />
+            <Skeleton className="h-10" />
           </div>
         </CardContent>
       </Card>

@@ -29,6 +29,7 @@ import {
   format,
 } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { PageHeader } from '@/components/ui/page-header';
 import StatusSelect from '@/components/appointments/status-select';
 import { useOrgFormat } from '@/hooks/use-org-format';
 import { useCurrentUser } from '@/hooks/use-current-user';
@@ -269,36 +270,19 @@ export default function AppointmentDetailPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push('/appointments')}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-xl font-bold text-foreground">Appointment Details</h1>
-            <p className="text-xs text-muted-foreground">{appt.id}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className={cn('text-sm', statusCfg.className)}>
-            {statusCfg.label}
-          </Badge>
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-destructive/50 text-destructive/80 hover:bg-destructive/20"
-            onClick={() => setDeleteOpen(true)}
-          >
-            <Trash2 className="h-4 w-4 mr-1" /> Delete
-          </Button>
-        </div>
-      </div>
+      <PageHeader title="Appointment Details" backHref="/appointments">
+        <Badge variant="outline" className={cn('text-sm', statusCfg.className)}>
+          {statusCfg.label}
+        </Badge>
+        <Button
+          variant="outline"
+          size="sm"
+          className="border-destructive/50 text-destructive/80 hover:bg-destructive/20"
+          onClick={() => setDeleteOpen(true)}
+        >
+          <Trash2 className="h-4 w-4 mr-1" /> Delete
+        </Button>
+      </PageHeader>
 
       {/* Page grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

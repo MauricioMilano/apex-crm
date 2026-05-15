@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { PageHeader } from '@/components/ui/page-header';
 import { useAuth } from '@/contexts/auth-context';
 import { useCRM } from '@/contexts/crm-context';
 import { BookingFlow } from '@/components/appointments/booking-flow';
@@ -32,12 +33,7 @@ export default function ClientPortalBookPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">Book an Appointment</h1>
-        <p className="text-muted-foreground mt-1">
-          Choose a service and time that works for you.
-        </p>
-      </div>
+      <PageHeader title="Book an Appointment" onBack={handleCancel} />
 
       <BookingFlow
         initialClientId={client?.id}

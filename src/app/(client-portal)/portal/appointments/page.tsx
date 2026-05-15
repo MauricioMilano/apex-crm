@@ -192,7 +192,7 @@ export default function ClientPortalAppointmentsPage() {
 
         <TabsContent value="upcoming" className="space-y-3">
           {upcoming.length === 0 ? (
-            <div className="text-center py-16 text-muted-foreground">
+            <div className="text-center py-12 text-muted-foreground">
               <Calendar className="h-10 w-10 mx-auto mb-3 opacity-30" />
               <p className="font-medium text-muted-foreground">No upcoming appointments</p>
               <p className="text-sm mt-1">Book your next session to get started.</p>
@@ -209,7 +209,7 @@ export default function ClientPortalAppointmentsPage() {
 
         <TabsContent value="past" className="space-y-3">
           {past.length === 0 ? (
-            <div className="text-center py-16 text-muted-foreground">
+            <div className="text-center py-12 text-muted-foreground">
               <Clock className="h-10 w-10 mx-auto mb-3 opacity-30" />
               <p className="font-medium text-muted-foreground">No past appointments yet</p>
               <p className="text-sm mt-1">

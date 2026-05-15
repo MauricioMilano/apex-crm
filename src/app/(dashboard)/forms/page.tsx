@@ -122,7 +122,7 @@ export default function FormsPage() {
 
       {/* Forms grid */}
       {sortedForms.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-3">
+        <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-3">
           <FileText className="h-12 w-12 opacity-30" />
           <p className="text-sm">No forms yet. Create one to get started.</p>
           <Button

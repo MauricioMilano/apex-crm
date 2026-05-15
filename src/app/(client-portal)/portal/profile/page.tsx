@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -24,6 +25,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { PageHeader } from '@/components/ui/page-header';
 import { User, Mail, Phone, Lock, Bell, Trash2, CheckCircle } from 'lucide-react';
 import { updateClientPortalProfile } from '@/actions/auth';
 import { changePassword } from '@/actions/auth';
@@ -51,6 +53,7 @@ type ProfileFormData = z.infer<typeof profileSchema>;
 type PasswordFormData = z.infer<typeof passwordSchema>;
 
 export default function ClientPortalProfilePage() {
+  const router = useRouter();
   const { currentUser } = useAuth();
   const { clients } = useCRM();
   const [profileSaved, setProfileSaved] = useState(false);
@@ -120,18 +123,17 @@ export default function ClientPortalProfilePage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Profile</h1>
-        <p className="text-muted-foreground mt-1">Manage your account details and preferences.</p>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary text-base font-bold shrink-0">
+          {(currentUser?.firstName?.[0] ?? '?').toUpperCase()}
+        </div>
+        <PageHeader title="Profile" onBack={() => router.back()} className="mb-0 flex-1" />
       </div>
 
-      {/* Avatar / summary card */}
+      {/* Account summary */}
       <Card>
         <CardContent className="pt-6">
           <div className="flex items-center gap-4">
-            <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-primary text-2xl font-bold shrink-0">
-              {(currentUser?.firstName?.[0] ?? '?').toUpperCase()}
-            </div>
             <div className="flex-1 min-w-0">
               <h2 className="text-lg font-semibold text-foreground">
                 {currentUser?.firstName} {currentUser?.lastName}
