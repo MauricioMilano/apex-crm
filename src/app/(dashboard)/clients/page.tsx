@@ -121,7 +121,7 @@ export default function ClientsPage() {
       </div>
 
       {/* Stats bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
         <Card className="bg-card border-border">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="p-2 rounded-lg bg-blue-500/10">

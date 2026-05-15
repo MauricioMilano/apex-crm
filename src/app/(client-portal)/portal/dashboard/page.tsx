@@ -106,7 +106,7 @@ export default function ClientPortalDashboardPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8 items-start">
         {[
           { value: upcoming.length, label: 'Upcoming' },
           { value: past.length, label: 'Past Sessions' },

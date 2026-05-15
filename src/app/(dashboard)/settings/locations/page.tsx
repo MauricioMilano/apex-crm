@@ -180,7 +180,7 @@ export default function LocationsPage() {
         </div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 items-start">
         {locations.map((loc) => (
           <Card key={loc.id} className="bg-card border-border">
             <CardContent className="p-5">

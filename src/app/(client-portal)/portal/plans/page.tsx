@@ -109,7 +109,7 @@ export default function ClientPortalPlansPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
           {plans.map((plan) => {
             const isSubscribed = clientSubIds.includes(plan.id);
             return (

@@ -211,6 +211,60 @@ Modals (overlay):
 - Hover cards: `hover:border-primary/40 transition-colors`
 - Interactive cards: `cursor-pointer`
 
+### 3.2a Card Grid Alignment
+
+Card grids must use `items-start` so cards with variable content don't stretch to equal height — each card is only as tall as its content. Partial rows fill naturally from the left.
+
+```
+Responsive grid (4 breakpoints):
+
+  <640px (sm):  1 col       640px+ (sm):  2 cols
+  ┌──────────────┐            ┌──────┐ ┌──────┐
+  │ Card         │            │ Card │ │ Card │
+  └──────────────┘            └──────┘ └──────┘
+  ┌──────────────┐            ┌──────┐ ┌──────┐
+  │ Card         │            │ Card │ │ Card │
+  └──────────────┘            └──────┘ └──────┘
+
+  1024px+ (lg):  3 cols      1280px+ (xl):  4 cols
+  ┌───┐ ┌───┐ ┌───┐          ┌──┐ ┌──┐ ┌──┐ ┌──┐
+  │Card│ │Card│ │Card│          │  │ │  │ │  │ │  │
+  └───┘ └───┘ └───┘          └──┘ └──┘ └──┘ └──┘
+  ┌───┐ ┌───┐                 ┌──┐ ┌──┐ ┌──┐
+  │Card│ │Card│                 │  │ │  │ │  │
+  └───┘ └───┘                 └──┘ └──┘ └──┘
+```
+
+Effect of `items-start` on variable-height cards:
+
+```
+  COM items-start (CORRETO):          SEM items-start (STRETCH):
+  ┌────────────┐ ┌────────────┐       ┌────────────┐ ┌────────────┐
+  │ Nome       │ │ Nome       │       │ Nome       │ │ Nome       │
+  │ Email      │ │ Email      │       │ Email      │ │ Email      │
+  │ Telefone   │ └────────────┘       │ Telefone   │ │            │
+  │ [tag][tag] │                      │ [tag][tag]  │ │            │
+  │ [tag]      │                      │ [tag]       │ │            │
+  └────────────┘                      │            │ │            │
+                                      └────────────┘ └────────────┘
+```
+
+```tsx
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-start">
+  {items.map((item) => (
+    <Card key={item.id} className="bg-card border-border">
+      <CardContent className="p-6">{/* content */}</CardContent>
+    </Card>
+  ))}
+</div>
+```
+
+Rules:
+- Breathing room: `p-6` on the parent `main` container handles horizontal padding. Do NOT add extra `px-*` to the grid container.
+- Card internal padding: `p-6` (default) or `p-4` (compact) on `CardContent`.
+- Partial rows: cards fill from left naturally. No centering or empty placeholders.
+- Content variance: different heights within a row is expected and correct with `items-start`.
+
 ### 3.3 Dialog/Modal Pattern
 
 ```tsx
@@ -402,7 +456,7 @@ Actions: flex items-center gap-2
 
 | Columns | Breakpoint | Pattern |
 |---|---|---|
-| Responsive card grid | sm→xl | `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4` |
+| Responsive card grid | sm→xl | `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-start` |
 | Stats row | all | `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4` |
 | Form (2 fields) | all | `grid grid-cols-2 gap-4` |
 | Form (3 fields) | all | `grid grid-cols-3 gap-4` |
